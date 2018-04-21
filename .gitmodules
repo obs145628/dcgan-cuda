@@ -1,0 +1,3 @@
+[submodule "ext/tocha"]
+	path = ext/tocha
+	url = git@github.com:obs145628/tocha.git
