@@ -1,3 +1,5 @@
+#pragma once
+
 #include "ops.hh"
 
 #include <cmath>

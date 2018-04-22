@@ -1,11 +1,6 @@
 #include "activation.hh"
 #include "../math_cpu/ops.hh"
 
-const char* SigmoidActivation::name() const
-{
-    return "sigmoid";
-}
-
 void SigmoidActivation::compute(const dbl_t* in_begin, const dbl_t* in_end,
 				dbl_t* out_begin)
 {

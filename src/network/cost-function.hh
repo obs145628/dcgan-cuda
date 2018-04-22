@@ -3,14 +3,16 @@
 #include <cstddef>
 #include "../memory/types.hh"
 
+/**
+ * cost function class
+ * will be replaced by kernels
+ */
 class CostFunction
 {
 
 public:
 
     virtual ~CostFunction() = default;
-
-    virtual const char* name() const = 0;
 
     dbl_t* in_get() const;
     const dbl_t* in_hat_get() const;
@@ -25,14 +27,6 @@ public:
     virtual dbl_t cost() = 0;
     virtual void cost_grad() = 0;
 
-    /**
-     * Compute the cost error derivative at output layer (dC/da)
-     * @param y (output_size) - expected output vector
-     * @param y_hat (output_size, 1) - output vector of the network
-     * @return (output_size) - vector dC/da
-     */
-    //virtual Vector cost_prime(const Vector& y, const Vector& y_hat) const = 0;
-
 protected:
     dbl_t* in_ = nullptr;
     const dbl_t* in_hat_ = nullptr;
@@ -41,23 +35,15 @@ protected:
     std::size_t cols_ = 0;
 };
 
+/**
+ * Implement the QuadraticCost or MSE (Mean Squared Error)
+ */
 class QuadraticCost : public CostFunction
 {
 public:
-    const char* name() const override;
 
     virtual dbl_t cost() override;
     virtual void cost_grad() override;
 };
-
-/*
-class CrossEntropyCost : public CostFunction
-{
-public:
-    const char* name() const override;
-    num_t cost(const Vector& y, const Vector& y_hat) const override;
-    Vector cost_prime(const Vector& y, const Vector& y_hat) const override;
-};
-*/
 
 #include "cost-function.hxx"

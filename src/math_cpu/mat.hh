@@ -24,4 +24,8 @@ void mm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
 void mvrow_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
 	       std::size_t m, std::size_t n);
 
+/**
+ * Pretty print a matrix on the standard output
+ * ptr - matrix (m * n)
+ */
 void mat_print(const dbl_t* ptr, std::size_t m, std::size_t n);
