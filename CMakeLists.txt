@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-set(PROJECT prpa)
+set(PROJECT dcgan-cuda)
 
 #set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_FLAGS "-O0 -g3 -Wall -Wextra -Werror -std=c++17")
