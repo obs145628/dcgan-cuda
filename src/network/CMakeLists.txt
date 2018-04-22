@@ -3,7 +3,6 @@ set(SRC
   cost-function.cc
   fully-connected-layer.cc
   layer.cc
-  memory.cc
   network.cc
 )
 

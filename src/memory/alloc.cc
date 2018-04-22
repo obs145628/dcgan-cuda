@@ -1,4 +1,4 @@
-#include "memory.hh"
+#include "alloc.hh"
 
 dbl_t* tensor_alloc(std::size_t size)
 {

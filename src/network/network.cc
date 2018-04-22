@@ -4,18 +4,8 @@
 
 #include "layer.hh"
 #include "cost-function.hh"
-#include "memory.hh"
-//#include "la/tensor_ops.hh"
-//#include "dnn/activation.hh"
-//#include "dnn/debug-tensors.hh"
-//#include "dnn/optimizer.hh"
+#include "../memory/alloc.hh"
 
-/*
-namespace
-{
-    constexpr num_t ERR_BACKPROP = 1e-2;
-}
-*/
 
 Network::Network(const layers_t& layers, CostFunction* cost,
 		 test_f test_function)

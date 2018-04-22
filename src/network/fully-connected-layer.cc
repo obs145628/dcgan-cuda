@@ -1,5 +1,5 @@
 #include "fully-connected-layer.hh"
-#include "memory.hh"
+#include "../memory/alloc.hh"
 #include "activation.hh"
 #include "../math_cpu/mat.hh"
 

@@ -5,7 +5,7 @@
 #include "../src/network/cost-function.hh"
 #include "../src/math_cpu/mat.hh"
 
-#include "../src/network/memory.hh"
+#include "../src/memory/alloc.hh"
 #include "../src/network/layer.hh"
 #include "../src/network/fully-connected-layer.hh"
 #include "../src/network/network.hh"

@@ -12,11 +12,14 @@ include_directories(ext/tocha/include)
 
 add_subdirectory(src/datasets)
 add_subdirectory(src/math_cpu)
+add_subdirectory(src/memory)
 add_subdirectory(src/network)
+
 
 set(SRC
   $<TARGET_OBJECTS:datasets_obj>
   $<TARGET_OBJECTS:math_cpu_obj>
+  $<TARGET_OBJECTS:memory_obj>
   $<TARGET_OBJECTS:network_obj>
 )
 

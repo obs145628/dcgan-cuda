@@ -1,7 +1,7 @@
 #pragma once
 
 #include "fwd.hh"
-#include "../config/types.hh"
+#include "../memory/types.hh"
 
 #include <functional>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include "../config/types.hh"
+#include "../memory/types.hh"
 
 class CostFunction
 {

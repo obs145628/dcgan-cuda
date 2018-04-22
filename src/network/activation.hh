@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config/types.hh"
+#include "../memory/types.hh"
 
 class Activation
 {

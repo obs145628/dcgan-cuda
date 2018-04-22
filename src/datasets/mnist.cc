@@ -2,7 +2,8 @@
 #include <cassert>
 #include <cstdio>
 #include <stdexcept>
-#include "../network/memory.hh"
+#include "../memory/alloc.hh"
+#include "../memory/copy.hh"
 
 namespace mnist
 {

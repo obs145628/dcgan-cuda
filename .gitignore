@@ -131,3 +131,4 @@ _build/
 
 ### Project files ###
 /env/
+__pycache__/
