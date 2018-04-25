@@ -132,3 +132,4 @@ _build/
 ### Project files ###
 /env/
 __pycache__/
+/models/
