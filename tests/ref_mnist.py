@@ -23,22 +23,7 @@ class TInit:
     def __call__(self, shape, dtype, partition_info):
         return self.x
     
-    
-'''
-class Network:
 
-    def __init__(self, in_size, out_size):
-        self.X = tf.placeholder(tf.float32, (None, in_size))
-        self.y = tf.placeholder(tf.float32, (None, out_size))
-        self.layers = [self.X]
-
-    def add_dense(self, noutputs, activation = None):
-        l = tf.layers.dense(self.layers[-1], noutputs, activation=activation)
-        self.layers.append(l)
-
-    def output(self):
-        return self.layers[-1]
-'''
 
 def layer_dense(input, noutputs, activation = None):
     if weights is not None:
@@ -73,13 +58,17 @@ sess.run(init)
 
 
 data = {X: X_train[0:20], y: y_train[0:20]};
+data2 = {X: X_train[20:50], y: y_train[20:50]};
+data3 = {X: X_train[50:80], y: y_train[50:80]};
 
-y_hat = sess.run(l2, feed_dict=data)
-tensors_saver.add(y_hat)
+tensors_saver.add(sess.run(l2, feed_dict=data))
 tensors_saver.add(sess.run(loss, feed_dict=data))
 
-#tensors_saver.add(X_train[:20])
-#tensors_saver.add(y_train[:20])
+tensors_saver.add(sess.run(l2, feed_dict=data2))
+tensors_saver.add(sess.run(loss, feed_dict=data2))
+
+tensors_saver.add(sess.run(l2, feed_dict=data3))
+tensors_saver.add(sess.run(loss, feed_dict=data3))
 
 
 if weights is None:

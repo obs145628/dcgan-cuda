@@ -39,6 +39,8 @@ namespace mnist
 		x_row[i] = pixs[i] / 255.0;
 	    digit_to_vector(digit, y_row);
 	}
+
+	fclose(f);
     }
 
     void digit_to_vector(std::size_t digit, dbl_t* out)
