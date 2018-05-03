@@ -27,18 +27,22 @@ set(SRC
   $<TARGET_OBJECTS:runtime_obj>
 )
 
-set(MNIST_TEST_SRC
-  ${SRC}
-  tests/test_mnist.cc
-)
-add_executable(mnist_test ${MNIST_TEST_SRC})
-target_link_libraries(mnist_test cnpy)
 
-add_custom_target(check_mnist
+
+
+add_custom_target(gen_datasets
   COMMAND
-  ${CMAKE_SOURCE_DIR}/tests/mnist_test.sh ${CMAKE_SOURCE_DIR}/tests/ ${CMAKE_BINARY_DIR}
-  DEPENDS mnist_test tbin-dump tbin-diff)
-  
+  ${CMAKE_SOURCE_DIR}/tests/scripts/gen_datasets.sh
+  ${CMAKE_SOURCE_DIR}/tests
+  ${CMAKE_BINARY_DIR})
+
+
+add_custom_target(check
+   COMMAND
+   python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
+   ${CMAKE_SOURCE_DIR}
+   ${CMAKE_BINARY_DIR}
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1)
 
 
 set(TEST_SRC
@@ -47,3 +51,17 @@ set(TEST_SRC
 )
 add_executable(my_test ${TEST_SRC})
 target_link_libraries(my_test cnpy)
+
+
+
+
+
+
+### TESTS LIST ###
+
+set(TEST_MNIST1_SRC
+  ${SRC}
+  tests/test_mnist1.cc
+)
+add_executable(test_mnist1 ${TEST_MNIST1_SRC})
+target_link_libraries(test_mnist1 cnpy)

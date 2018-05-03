@@ -19,5 +19,5 @@ make
 ## Testing
 
 ```
-make check_mnist
+make check
 ```
