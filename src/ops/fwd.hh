@@ -11,6 +11,7 @@ namespace ops
     class Op;
     class OpsBuilder;
     class Shape;
+    class Softmax;
     class Variable;
     class VectSigmoid;
 }

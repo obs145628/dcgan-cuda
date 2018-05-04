@@ -6,6 +6,7 @@
 #include "mat-mat-mul.hh"
 #include "mat-rvect-add.hh"
 #include "mse.hh"
+#include "softmax.hh"
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 
@@ -53,6 +54,16 @@ namespace ops
 	    throw std::runtime_error{"left[1] and right[0] differ"};
 
 	auto res = new MatRvectAdd(left, right);
+	graph_.add(res);
+	return res;
+    }
+
+    Softmax* OpsBuilder::softmax(Op* arg)
+    {
+	if (arg->shape_get().ndims() != 2)
+	    throw std::runtime_error{"softmax input must be a matrix"};
+
+	auto res = new Softmax(arg);
 	graph_.add(res);
 	return res;
     }

@@ -42,7 +42,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax)
 
 
 set(TEST_SRC
@@ -65,3 +65,11 @@ set(TEST_MNIST1_SRC
 )
 add_executable(test_mnist1 ${TEST_MNIST1_SRC})
 target_link_libraries(test_mnist1 cnpy)
+
+
+set(TEST_SOFTMAX_SRC
+  ${SRC}
+  tests/test_softmax.cc
+)
+add_executable(test_softmax ${TEST_SOFTMAX_SRC})
+target_link_libraries(test_softmax cnpy)

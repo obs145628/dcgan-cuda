@@ -29,6 +29,11 @@ namespace cpu
 	{
 	    *node->out1 = mse(node->in1, node->in2, node->len1, node->len2);
 	}
+
+	void kernel_softmax(rt::Node* node)
+	{
+	    softmax(node->in1, node->out1, node->len1, node->len2);
+	}
 	
     }
     
@@ -37,7 +42,8 @@ namespace cpu
 	kernel_mat_mat_mul,
 	kernel_mat_rvect_add,
 	kernel_sigmoid,
-	kernel_mse
+	kernel_mse,
+	kernel_softmax
     };
     
     
