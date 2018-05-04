@@ -17,6 +17,7 @@ namespace ops
 	OpsBuilder& operator=(OpsBuilder&&) = delete;
 
 	Input* input(const Shape& shape);
+	LogSoftmax* log_softmax(Op* arg);
 	MatMatMul* mat_mat_mul(Op* left, Op* right);
 	MatRvectAdd* mat_rvect_add(Op* left, Op* right);
 	Softmax* softmax(Op* arg);

@@ -3,6 +3,7 @@
 
 #include "graph.hh"
 #include "input.hh"
+#include "log-softmax.hh"
 #include "mat-mat-mul.hh"
 #include "mat-rvect-add.hh"
 #include "mse.hh"
@@ -26,6 +27,16 @@ namespace ops
     Input* OpsBuilder::input(const Shape& shape)
     {
 	auto res = new Input(shape);
+	graph_.add(res);
+	return res;
+    }
+
+    LogSoftmax* OpsBuilder::log_softmax(Op* arg)
+    {
+	if (arg->shape_get().ndims() != 2)
+	    throw std::runtime_error{"log softmax input must be a matrix"};
+
+	auto res = new LogSoftmax(arg);
 	graph_.add(res);
 	return res;
     }

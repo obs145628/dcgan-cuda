@@ -34,6 +34,11 @@ namespace cpu
 	{
 	    softmax(node->in1, node->out1, node->len1, node->len2);
 	}
+
+	void kernel_log_softmax(rt::Node* node)
+	{
+	    log_softmax(node->in1, node->out1, node->len1, node->len2);
+	}
 	
     }
     
@@ -43,7 +48,8 @@ namespace cpu
 	kernel_mat_rvect_add,
 	kernel_sigmoid,
 	kernel_mse,
-	kernel_softmax
+	kernel_softmax,
+	kernel_log_softmax
     };
     
     

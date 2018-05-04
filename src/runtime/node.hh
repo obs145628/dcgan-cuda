@@ -14,6 +14,7 @@ namespace rt
 	static constexpr int OP_SIGMOID = 2;
 	static constexpr int OP_MSE = 3;
 	static constexpr int OP_SOFTMAX = 4;
+	static constexpr int OP_LOG_SOFTMAX = 5;
 
 	static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
 				    std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -33,6 +34,10 @@ namespace rt
 	static Node* op_softmax(const dbl_t* args, dbl_t* out,
 				std::size_t rows, std::size_t cols,
 				const std::vector<Node*>& preds);
+
+	static Node* op_log_softmax(const dbl_t* args, dbl_t* out,
+				    std::size_t rows, std::size_t cols,
+				    const std::vector<Node*>& preds);
 
 	Node(int type, std::vector<Node*> preds);
 	Node(const Node&) = delete;

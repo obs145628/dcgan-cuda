@@ -52,6 +52,7 @@ def test_basic(cat, sub, ref_script, bin_file):
     
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
+test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 
 
 

@@ -61,6 +61,14 @@ namespace cpu
      * out - matrix (m * n)
      */
     void softmax(const dbl_t* a, dbl_t* out, std::size_t m, std::size_t n);
+
+    /**
+     * Compute element-wise log of the softmax function
+     * out = log(softmax(in))
+     * in - matrix (m * n)
+     * out - matrix (m * n)
+     */
+    void log_softmax(const dbl_t* in, dbl_t* out, std::size_t m, std::size_t n);
     
 }
 

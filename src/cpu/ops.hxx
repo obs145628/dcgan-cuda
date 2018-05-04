@@ -103,6 +103,21 @@ namespace cpu
 	}
     }
 
+    inline void log_softmax(const dbl_t* in, dbl_t* out, std::size_t m, std::size_t n)
+    {
+	for (std::size_t i = 0; i < m; ++i)
+	{
+	    dbl_t max_input = max(in + i * n, in + (i + 1) * n);
+
+	    dbl_t e_x = 0;
+	    for (std::size_t j = 0; j < n; ++j)
+		e_x += std::exp(in[i * n + j] - max_input);
+	    dbl_t logsum = max_input + std::log(e_x);
+
+	    for (std::size_t j = 0; j < n; ++j)
+		out[i * n + j] = in[i * n + j] - logsum;
+	}
+    }
 
 
 }
