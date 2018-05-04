@@ -5,7 +5,7 @@
 namespace cpu
 {
 
-    extern kernel_f kernels_list[1024];
+    extern kernel_f kernels_list[1280];
 
     
     
