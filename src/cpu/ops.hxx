@@ -2,6 +2,7 @@
 
 #include "ops.hh"
 
+#include <cassert>
 #include <cmath>
 
 namespace cpu
@@ -18,6 +19,27 @@ namespace cpu
     inline dbl_t sigmoid_prime(dbl_t x)
     {
 	return std::exp(-x) / ((1.0 + std::exp(-x) * (1.0 + std::exp(-x))));
+    }
+
+    inline dbl_t max(const dbl_t* begin, const dbl_t* end)
+    {
+	assert(begin != end);
+	dbl_t res = *begin;
+	while (begin != end)
+	{
+	    if (*begin > res)
+		res = *begin;
+	    ++begin;
+	}
+	return res;
+    }
+
+    inline dbl_t sum(const dbl_t* begin, const dbl_t* end)
+    {
+	dbl_t res = 0;
+	while (begin != end)
+	    res += *begin++;
+	return res;
     }
 
     inline void mm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
@@ -62,6 +84,23 @@ namespace cpu
 	for (std::size_t i = 0; i < len; ++i)
 	    res += (y[i] - y_hat[i]) * (y[i] - y_hat[i]);
 	return res / len;
+    }
+
+
+    inline void softmax(const dbl_t* a, dbl_t* out, std::size_t m, std::size_t n)
+    {
+	for (std::size_t i = 0; i < m; ++i)
+	{
+	    dbl_t max_input = max(a + i * n, a + (i + 1) * n);
+
+	    for (std::size_t j = 0; j < n; ++j)
+		out[i * n + j] = std::exp(a[i * n + j] - max_input);
+
+	    dbl_t sum_ex = sum(out + i * n, out + (i + 1) * n);
+
+	    for (std::size_t j = 0; j < n; ++j)
+		out[i * n + j] = out[i * n + j] / sum_ex;
+	}
     }
 
 

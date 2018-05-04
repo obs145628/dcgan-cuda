@@ -7,6 +7,7 @@ set(SRC
   op.cc
   ops-builder.cc
   shape.cc
+  softmax.cc
   variable.cc
   vect-sigmoid.cc
 )

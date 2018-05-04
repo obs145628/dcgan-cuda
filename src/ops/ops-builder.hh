@@ -19,6 +19,7 @@ namespace ops
 	Input* input(const Shape& shape);
 	MatMatMul* mat_mat_mul(Op* left, Op* right);
 	MatRvectAdd* mat_rvect_add(Op* left, Op* right);
+	Softmax* softmax(Op* arg);
 	Variable* variable(const Shape& shape);
 	VectSigmoid* vect_sigmoid(Op* arg);
 	MSE* mse(Op* y, Op* y_hat);

@@ -10,6 +10,13 @@ namespace cpu
 
     dbl_t sigmoid_prime(dbl_t x);
 
+
+    //returns the max value in range [begin, end[
+    dbl_t max(const dbl_t* begin, const dbl_t* end);
+
+    //returns the sum of the values in range [begin, end[
+    dbl_t sum(const dbl_t* begin, const dbl_t* end);
+
     /**
      * perform matrix matrix multiplication
      * out = a * b
@@ -46,6 +53,14 @@ namespace cpu
      * y_hat - matrix (m * n)
      */
     dbl_t mse(const dbl_t* y, const dbl_t* y_hat, std::size_t m, std::size_t n);
+
+    /**
+     * Compute the softmax function
+     * out = softmax(a)
+     * a - matrix (m * n)
+     * out - matrix (m * n)
+     */
+    void softmax(const dbl_t* a, dbl_t* out, std::size_t m, std::size_t n);
     
 }
 
