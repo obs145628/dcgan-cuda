@@ -13,4 +13,5 @@ namespace ops
     class Shape;
     class Variable;
     class VectSigmoid;
+	class Conv2D;
 }

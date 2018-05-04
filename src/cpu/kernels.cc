@@ -30,14 +30,20 @@ namespace cpu
 	    *node->out1 = mse(node->in1, node->in2, node->len1, node->len2);
 	}
 	
+	void kernel_conv2d(rt::Node* node)
+	{
+		
+	}
+	
     }
     
 
-    kernel_f kernels_list[1024] = {
+    kernel_f kernels_list[1280] = {
 	kernel_mat_mat_mul,
 	kernel_mat_rvect_add,
 	kernel_sigmoid,
-	kernel_mse
+	kernel_mse,
+	kernel_conv2d
     };
     
     

@@ -13,6 +13,7 @@ namespace rt
 	static constexpr int OP_MAT_RVECT_ADD = 1;
 	static constexpr int OP_SIGMOID = 2;
 	static constexpr int OP_MSE = 3;
+	static constexpr int OP_CONV2D = 4;
 
 	static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
 				    std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -29,6 +30,11 @@ namespace rt
 			    std::size_t rows, std::size_t cols,
 			    const std::vector<Node*>& preds);
 
+	static Node* op_conv2d(const dbl_t* input, const dbl_t* mask,
+						   dbl_t* output,
+				    std::size_t rowsl, std::size_t colsl,
+				    const std::vector<Node*>& preds)
+	
 	Node(int type, std::vector<Node*> preds);
 	Node(const Node&) = delete;
 	Node& operator=(const Node&) = delete;

@@ -9,6 +9,7 @@ set(SRC
   shape.cc
   variable.cc
   vect-sigmoid.cc
+  conv2d.cc
 )
 
 add_library(ops_obj OBJECT ${SRC})

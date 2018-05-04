@@ -54,6 +54,17 @@ namespace rt
 	res->len2 = cols;
 	return res;
     }
+	
+	Node* Node::op_conv2d(const dbl_t* input, const dbl_t* mask, dbl_t* output, std::size_t rowsl, std::size_t colsl, const std::vector<Node*>& preds)
+    {
+	auto res = new Node(OP_CONV2D, preds);
+	res->in1 = input;
+	res->in2 = mask;
+	res->out1 = output;
+	res->len1 = rowsl;
+	res->len2 = colsl;
+	return res;
+    }
 
     Node::Node(int type, std::vector<Node*> preds)
 	: type(type)
