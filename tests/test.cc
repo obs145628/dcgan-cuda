@@ -32,23 +32,23 @@ dbl_t sum(dbl_t* begin, dbl_t* end)
     return res;
 }
 
-void softmax(dbl_t* in, dbl_t* out, std::size_t rows, std::size_t cols)
+void log_softmax(dbl_t* in, dbl_t* out, std::size_t m, std::size_t n)
 {
-    for (std::size_t i = 0; i < rows; ++i)
+    for (std::size_t i = 0; i < m; ++i)
     {
-	dbl_t max_input = max(in + i * cols, in + (i + 1) * cols);
+	dbl_t max_input = max(in + i * n, in + (i + 1) * n);
 
-	for (std::size_t j = 0; j < cols; ++j)
-	    out[i * cols + j] = std::exp(in[i * cols + j] - max_input);
+	dbl_t e_x = 0;
+	for (std::size_t j = 0; j < n; ++j)
+	    e_x += std::exp(in[i * n + j] - max_input);
+	dbl_t logsum = max_input + std::log(e_x);
 
-	dbl_t sum_ex = sum(out + i * cols, out + (i + 1) * cols);
-
-	for (std::size_t j = 0; j < cols; ++j)
-	    out[i * cols + j] = out[i * cols + j] / sum_ex;
+	for (std::size_t j = 0; j < n; ++j)
+	    out[i * n + j] = in[i * n + j] - logsum;
     }
 }
 
-
+/*
 dbl_t softmax_cross_entropy_loss(dbl_t* logits, dbl_t* y,
 				 std::size_t rows, std::size_t cols)
 {
@@ -62,7 +62,7 @@ dbl_t softmax_cross_entropy_loss(dbl_t* logits, dbl_t* y,
 
     delete[] y_hat;
     return res;
-}
+    }*/
 
 int main()
 {
@@ -80,12 +80,15 @@ int main()
 	0.1, 0.3, 0.6,
 	.6, .2, .2
     };
+    (void) y;
+
+    dbl_t out[4*3];
 
     //print(logits, 4, 3);
 
-    //softmax(logits, out, 4, 3);
-    //print(out, 4, 3);
+    log_softmax(logits, out, 4, 3);
+    print(out, 4, 3);
 
-    dbl_t loss = softmax_cross_entropy_loss(logits, y, 4, 3);
-    print(&loss, 1, 1);
+    //dbl_t loss = softmax_cross_entropy_loss(logits, y, 4, 3);
+    //print(&loss, 1, 1);
 }
