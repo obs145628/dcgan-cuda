@@ -1,6 +1,7 @@
 set(SRC
   graph.cc
   input.cc
+  log-softmax.cc
   mat-mat-mul.cc
   mat-rvect-add.cc
   mse.cc

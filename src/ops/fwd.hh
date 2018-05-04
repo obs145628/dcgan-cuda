@@ -5,6 +5,7 @@ namespace ops
     class CompiledOp;
     class Graph;
     class Input;
+    class LogSoftmax;
     class MatMatMul;
     class MatRvectAdd;
     class MSE;
