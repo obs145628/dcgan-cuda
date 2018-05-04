@@ -119,5 +119,27 @@ namespace cpu
 	}
     }
 
+    inline dbl_t softmax_cross_entropy(const dbl_t* y, const dbl_t* logits,
+				       std::size_t m, std::size_t n)
+    {
+	dbl_t res = 0;
+
+	for (std::size_t i = 0; i < m; ++i)
+	{
+
+	    dbl_t max_logits = max(logits + i * n, logits + (i + 1) * n);
+
+	    dbl_t e_x = 0;
+	    for (std::size_t j = 0; j < n; ++j)
+		e_x += std::exp(logits[i * n + j] - max_logits);
+	    dbl_t logsum = max_logits + std::log(e_x);
+
+	    for (std::size_t j = 0; j < n; ++j)
+		res += y[i * n + j] * (logits[i * n + j] - logsum);
+	}
+    
+	return - res / m;
+    }
+
 
 }

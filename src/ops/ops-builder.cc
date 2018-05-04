@@ -8,6 +8,7 @@
 #include "mat-rvect-add.hh"
 #include "mse.hh"
 #include "softmax.hh"
+#include "softmax-cross-entropy.hh"
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 
@@ -75,6 +76,17 @@ namespace ops
 	    throw std::runtime_error{"softmax input must be a matrix"};
 
 	auto res = new Softmax(arg);
+	graph_.add(res);
+	return res;
+    }
+
+    SoftmaxCrossEntropy* OpsBuilder::softmax_cross_entropy(Op* y, Op* logits)
+    {
+	if (y->shape_get().ndims() != 2)
+	    throw std::runtime_error {"CrossEntropy:y must be a matrix"};
+	if (logits->shape_get().ndims() != 2)
+	    throw std::runtime_error {"CrossEntropy:logits must be a matrix"};
+	auto res = new SoftmaxCrossEntropy(y, logits);
 	graph_.add(res);
 	return res;
     }

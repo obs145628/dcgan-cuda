@@ -39,6 +39,11 @@ namespace cpu
 	{
 	    log_softmax(node->in1, node->out1, node->len1, node->len2);
 	}
+
+	void kernel_softmax_cross_entropy(rt::Node* node)
+	{
+	    *node->out1 = softmax_cross_entropy(node->in1, node->in2, node->len1, node->len2);
+	}
 	
     }
     
@@ -49,7 +54,8 @@ namespace cpu
 	kernel_sigmoid,
 	kernel_mse,
 	kernel_softmax,
-	kernel_log_softmax
+	kernel_log_softmax,
+	kernel_softmax_cross_entropy
     };
     
     

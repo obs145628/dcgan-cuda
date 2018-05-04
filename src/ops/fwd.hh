@@ -13,6 +13,7 @@ namespace ops
     class OpsBuilder;
     class Shape;
     class Softmax;
+    class SoftmaxCrossEntropy;
     class Variable;
     class VectSigmoid;
 }

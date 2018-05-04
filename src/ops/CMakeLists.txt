@@ -9,6 +9,7 @@ set(SRC
   ops-builder.cc
   shape.cc
   softmax.cc
+  softmax-cross-entropy.cc
   variable.cc
   vect-sigmoid.cc
 )

@@ -79,6 +79,19 @@ namespace rt
 	return res;
     }
 
+    Node* Node::op_softmax_cross_entropy(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+					 std::size_t rows, std::size_t cols,
+					 const std::vector<Node*>& preds)
+    {
+	auto res = new Node(OP_SOFTMAX_CROSS_ENTROPY, preds);
+	res->in1 = y;
+	res->in2 = logits;
+	res->out1 = out;
+	res->len1 = rows;
+	res->len2 = cols;
+	return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
 	: type(type)
     {

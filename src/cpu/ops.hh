@@ -69,7 +69,16 @@ namespace cpu
      * out - matrix (m * n)
      */
     void log_softmax(const dbl_t* in, dbl_t* out, std::size_t m, std::size_t n);
-    
+
+
+    /**
+     * Cmpute the cross-entrpy cost between y and softmax(logits)
+     * res = cross_entropy(y, softmax(logits))
+     * y - matrix (m * n) - labels
+     * logits - matrix (m * n) - logits of final layer (before y_hat = softmax(logits)
+     */
+    dbl_t softmax_cross_entropy(const dbl_t* y, const dbl_t* logits,
+				std::size_t m, std::size_t n);
 }
 
 #include "ops.hxx"
