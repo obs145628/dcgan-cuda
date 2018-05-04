@@ -16,6 +16,7 @@ namespace rt
 	static constexpr int OP_SOFTMAX = 4;
 	static constexpr int OP_LOG_SOFTMAX = 5;
 	static constexpr int OP_SOFTMAX_CROSS_ENTROPY = 6;
+	static constexpr int OP_CONV2D = 7;
 
 	static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
 				    std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -44,6 +45,11 @@ namespace rt
 					      std::size_t rows, std::size_t cols,
 					      const std::vector<Node*>& preds);
 
+	static Node* op_conv2d(const dbl_t* input, const dbl_t* mask,
+						   dbl_t* output,
+				    std::size_t rowsl, std::size_t colsl,
+				    const std::vector<Node*>& preds);
+	
 	Node(int type, std::vector<Node*> preds);
 	Node(const Node&) = delete;
 	Node& operator=(const Node&) = delete;

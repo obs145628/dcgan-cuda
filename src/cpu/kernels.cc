@@ -45,10 +45,15 @@ namespace cpu
 	    *node->out1 = softmax_cross_entropy(node->in1, node->in2, node->len1, node->len2);
 	}
 	
+	void kernel_conv2d(rt::Node* node)
+	{
+		
+	}
+	
     }
     
 
-    kernel_f kernels_list[1024] = {
+    kernel_f kernels_list[1280] = {
 	kernel_mat_mat_mul,
 	kernel_mat_rvect_add,
 	kernel_sigmoid,
@@ -56,6 +61,7 @@ namespace cpu
 	kernel_softmax,
 	kernel_log_softmax,
 	kernel_softmax_cross_entropy
+	kernel_conv2d
     };
     
     
