@@ -51,7 +51,6 @@ namespace cpu
 	}
    }
 
-
     kernel_f kernels_list[1280] = {
 			kernel_mat_mat_mul,
 			kernel_mat_rvect_add,
@@ -62,6 +61,4 @@ namespace cpu
 			kernel_softmax_cross_entropy,
 			kernel_conv2d
     };
-
-
 }
