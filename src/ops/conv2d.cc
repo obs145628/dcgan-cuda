@@ -30,14 +30,22 @@ namespace ops
 		Shape out_shape({int(b), int(i), int(j), int(k)});
 		dbl_t* out_data = tensor_alloc(out_shape.total());
 
-		const int input_size[4] = {cinput.out_shape[0], cinput.out_shape[1],
-																				cinput.out_shape[2], cinput.out_shape[3]};
+    int* input_size = new int[4];
+    input_size[0] = cinput.out_shape[0];
+    input_size[1] = cinput.out_shape[1];
+    input_size[2] = cinput.out_shape[2];
+    input_size[3] = cinput.out_shape[3];
 
-		const int kernel_size[4] = {ckernel.out_shape[0], ckernel.out_shape[1],
-																				ckernel.out_shape[2], ckernel.out_shape[3]};
+		int* kernel_size = new int[4];
+    kernel_size[0] = ckernel.out_shape[0];
+    kernel_size[1] = ckernel.out_shape[1];
+    kernel_size[2] = ckernel.out_shape[2];
+    kernel_size[3] = ckernel.out_shape[3];
 
-		auto out_node = rt::Node::op_conv2d(cinput.out_data, ckernel.out_data, m_strides, out_data,
-																				input_size, kernel_size, {cinput.out_node, ckernel.out_node});
+		auto out_node = rt::Node::op_conv2d(cinput.out_data, ckernel.out_data,
+                                        m_strides, out_data, input_size,
+                                        kernel_size,
+                                        {cinput.out_node, ckernel.out_node});
 
 		g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
 	}

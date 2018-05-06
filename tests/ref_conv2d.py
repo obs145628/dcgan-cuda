@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 import tensors_saver
 
-tensors_save.set_out_path(sys.argv[1])
+tensors_saver.set_out_path(sys.argv[1])
 
 input = tf.constant([[
     [

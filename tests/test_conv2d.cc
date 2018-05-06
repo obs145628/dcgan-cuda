@@ -23,8 +23,7 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }    
-
+    }
 
     dbl_t input[] = {
         5.0, 0.0,-1.0, -1.0,
@@ -43,7 +42,7 @@ int main(int argc, char** argv)
         0.0, 1.0, 0.0, -9.0,
         3.0, 0.0, 2.0, -7.0,
         -2.0, 1.0, -1.0, 0.0};
-        
+
      dbl_t kernel[] = {
         1.0, -1.0, -1.0, 0.0,
         0.0, 0.0, -1.0, 1.0,
@@ -52,7 +51,7 @@ int main(int argc, char** argv)
 
 
     auto& builder = ops::OpsBuilder::instance();
-    
+
     auto inputNode = builder.input(ops::Shape({2, 4, 4, 2}));
     auto kernelNode = builder.input(ops::Shape({2, 2, 2, 2}));
     const int strides[2] = {2, 2};
@@ -71,7 +70,7 @@ int main(int argc, char** argv)
          {kernelNode, {kernel, ops::Shape({2, 2, 2, 2})}}
         },
 	      {conv_out});
-    
-    
+
+
     out.save(argv[1]);
 }
