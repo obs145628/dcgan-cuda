@@ -28,5 +28,5 @@ namespace ops
 	std::vector<Op*> preds_;
 	std::vector<Op*> succs_;
     };
-    
+
 }

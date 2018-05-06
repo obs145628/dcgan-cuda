@@ -25,6 +25,7 @@ namespace ops
 	Variable* variable(const Shape& shape);
 	VectSigmoid* vect_sigmoid(Op* arg);
 	MSE* mse(Op* y, Op* y_hat);
+  Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
 
     private:
 	OpsBuilder();

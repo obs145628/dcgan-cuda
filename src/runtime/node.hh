@@ -45,11 +45,10 @@ namespace rt
 					      std::size_t rows, std::size_t cols,
 					      const std::vector<Node*>& preds);
 
-	static Node* op_conv2d(const dbl_t* input, const dbl_t* mask,
-						   dbl_t* output,
-				    std::size_t rowsl, std::size_t colsl,
-				    const std::vector<Node*>& preds);
-	
+	static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int* strides, dbl_t* output,
+										     const int* input_size, const int* kernel_size,
+				    						 const std::vector<Node*>& preds);
+
 	Node(int type, std::vector<Node*> preds);
 	Node(const Node&) = delete;
 	Node& operator=(const Node&) = delete;
@@ -68,6 +67,9 @@ namespace rt
 	std::size_t len1;
 	std::size_t len2;
 	std::size_t len3;
+	const int* intconst;
+	const int* sizes1;
+	const int* sizes2;
     };
 
 }

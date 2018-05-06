@@ -86,3 +86,10 @@ set(TEST_SOFTMAX_CROSS_ENTROPY_SRC
 )
 add_executable(test_softmax_cross_entropy ${TEST_SOFTMAX_CROSS_ENTROPY_SRC})
 target_link_libraries(test_softmax_cross_entropy cnpy)
+
+set(TEST_CONV2D_SRC
+  ${SRC}
+  tests/test_conv2d.cc
+)
+add_executable(test_conv2d ${TEST_CONV2D_SRC})
+target_link_libraries(test_conv2d cnpy)
