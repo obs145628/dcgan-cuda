@@ -26,6 +26,17 @@ namespace ops
   : graph_(Graph::instance())
     {}
 
+    Conv2D* OpsBuilder::conv2d(Op* input, Op* kernel, const int* strides)
+    {
+      if (input->shape_get().ndims() != 4)
+        throw std::runtime_error {"Conv2D:input must be a 4D tensor"};
+      if (kernel->shape_get().ndims() != 4)
+        throw std::runtime_error {"Conv2D:kernel must be a 4D tensor"};
+      auto res = new Conv2D(input, kernel, strides);
+      graph_.add(res);
+      return res;
+    }
+    
     Input* OpsBuilder::input(const Shape& shape)
     {
       auto res = new Input(shape);
@@ -70,6 +81,17 @@ namespace ops
       graph_.add(res);
       return res;
     }
+    
+    MSE* OpsBuilder::mse(Op* y, Op* y_hat)
+    {
+      if (y->shape_get().ndims() != 2)
+          throw std::runtime_error {"MSE:y must be a matrix"};
+      if (y_hat->shape_get().ndims() != 2)
+          throw std::runtime_error {"MSE:y_hat must be a matrix"};
+      auto res = new MSE(y, y_hat);
+      graph_.add(res);
+      return res;
+    }
 
     Softmax* OpsBuilder::softmax(Op* arg)
     {
@@ -104,28 +126,6 @@ namespace ops
     VectSigmoid* OpsBuilder::vect_sigmoid(Op* arg)
     {
       auto res = new VectSigmoid(arg);
-      graph_.add(res);
-      return res;
-    }
-
-    MSE* OpsBuilder::mse(Op* y, Op* y_hat)
-    {
-      if (y->shape_get().ndims() != 2)
-          throw std::runtime_error {"MSE:y must be a matrix"};
-      if (y_hat->shape_get().ndims() != 2)
-          throw std::runtime_error {"MSE:y_hat must be a matrix"};
-      auto res = new MSE(y, y_hat);
-      graph_.add(res);
-      return res;
-    }
-
-    Conv2D* OpsBuilder::conv2d(Op* input, Op* kernel, const int* strides)
-    {
-      if (input->shape_get().ndims() != 4)
-        throw std::runtime_error {"Conv2D:input must be a 4D tensor"};
-      if (kernel->shape_get().ndims() != 4)
-        throw std::runtime_error {"Conv2D:kernel must be a 4D tensor"};
-      auto res = new Conv2D(input, kernel, strides);
       graph_.add(res);
       return res;
     }

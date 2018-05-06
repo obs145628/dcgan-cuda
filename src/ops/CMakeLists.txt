@@ -1,4 +1,5 @@
 set(SRC
+  conv2d.cc
   graph.cc
   input.cc
   log-softmax.cc
@@ -12,7 +13,6 @@ set(SRC
   softmax-cross-entropy.cc
   variable.cc
   vect-sigmoid.cc
-  conv2d.cc
 )
 
 add_library(ops_obj OBJECT ${SRC})

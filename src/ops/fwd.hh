@@ -2,6 +2,7 @@
 
 namespace ops
 {
+    class Conv2D;
     class CompiledOp;
     class Graph;
     class Input;
@@ -16,5 +17,4 @@ namespace ops
     class SoftmaxCrossEntropy;
     class Variable;
     class VectSigmoid;
-    class Conv2D;
 }
