@@ -8,6 +8,11 @@ namespace cpu
     namespace
     {
 
+  void kernel_conv2d(rt::Node* node)
+	{
+		conv2d(node->in1, node->in2, node->out1, node->intconst, node->sizes1, node->sizes2);
+	}
+
 	void kernel_mat_mat_mul(rt::Node* node)
 	{
 	    mm_mul(node->in1, node->in2, node->out1,
@@ -45,11 +50,7 @@ namespace cpu
 	    *node->out1 = softmax_cross_entropy(node->in1, node->in2, node->len1, node->len2);
 	}
 
-	void kernel_conv2d(rt::Node* node)
-	{
-		conv2d(node->in1, node->in2, node->out1, node->intconst, node->sizes1, node->sizes2);
-	}
-   }
+	   }
 
     kernel_f kernels_list[1280] = {
 			kernel_mat_mat_mul,

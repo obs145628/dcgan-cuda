@@ -7,7 +7,7 @@
 namespace ops
 {
 
-  Conv2D::Conv2D(Op* input, Op* kernel, const int* strides)
+  Conv2D::Conv2D(Op* input, Op* kernel, const int strides[])
   : Op(Shape({input->shape_get()[0],
               (input->shape_get()[1] - kernel->shape_get()[0]) / strides[0] + 1,
               (input->shape_get()[2] - kernel->shape_get()[1]) / strides[1] + 1,
@@ -30,17 +30,11 @@ namespace ops
     Shape out_shape({int(b), int(i), int(j), int(k)});
     dbl_t* out_data = tensor_alloc(out_shape.total());
 
-    int* input_size = new int[4];
-    input_size[0] = cinput.out_shape[0];
-    input_size[1] = cinput.out_shape[1];
-    input_size[2] = cinput.out_shape[2];
-    input_size[3] = cinput.out_shape[3];
+    int input_size[4] = { cinput.out_shape[0], cinput.out_shape[1],
+                          cinput.out_shape[2], cinput.out_shape[3]};
 
-    int* kernel_size = new int[4];
-    kernel_size[0] = ckernel.out_shape[0];
-    kernel_size[1] = ckernel.out_shape[1];
-    kernel_size[2] = ckernel.out_shape[2];
-    kernel_size[3] = ckernel.out_shape[3];
+    int kernel_size[4] = { ckernel.out_shape[0], ckernel.out_shape[1],
+                           ckernel.out_shape[2], ckernel.out_shape[3]};
 
     auto out_node = rt::Node::op_conv2d(cinput.out_data, ckernel.out_data,
                                         m_strides, out_data, input_size,

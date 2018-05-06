@@ -56,17 +56,24 @@ namespace rt
     }
 
     Node* Node::op_conv2d(const dbl_t* input, const dbl_t* kernel,
-                          const int* strides, dbl_t* output,
-                          const int* input_size, const int* kernel_size,
+                          const int strides[], dbl_t* output,
+                          const int input_size[], const int kernel_size[],
                           const std::vector<Node*>& preds)
     {
       auto res = new Node(OP_CONV2D, preds);
       res->in1 = input;
       res->in2 = kernel;
-      res->intconst = strides;
+      res->intconst[0] = strides[0];
+      res->intconst[1] = strides[1];
       res->out1 = output;
-      res->sizes1 = input_size;
-      res->sizes2 = kernel_size;
+      res->sizes1[0] = input_size[0];
+      res->sizes1[1] = input_size[1];
+      res->sizes1[2] = input_size[2];
+      res->sizes1[3] = input_size[3];
+      res->sizes2[0] = kernel_size[0];
+      res->sizes2[1] = kernel_size[1];
+      res->sizes2[2] = kernel_size[2];
+      res->sizes2[3] = kernel_size[3];
       return res;
     }
 
