@@ -55,6 +55,7 @@ test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
            'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
+test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
 
 
 

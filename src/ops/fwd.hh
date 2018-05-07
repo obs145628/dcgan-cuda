@@ -2,6 +2,7 @@
 
 namespace ops
 {
+    class Conv2D;
     class CompiledOp;
     class Graph;
     class Input;

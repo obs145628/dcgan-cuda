@@ -1,4 +1,5 @@
 set(SRC
+  conv2d.cc
   graph.cc
   input.cc
   log-softmax.cc

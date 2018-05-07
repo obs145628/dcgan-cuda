@@ -15,43 +15,43 @@ namespace ops
     {
     public:
 
-	static Graph& instance();
-	
-	Graph(const Graph&) = delete;
-	Graph(Graph&&) = delete;
-	Graph& operator=(const Graph&) = delete;
-	Graph& operator=(Graph&&) = delete;
-	~Graph();
+        static Graph& instance();
 
-	const std::vector<Op*>& ops_list() const;
-	const std::map<Input*, Shape>& input_shapes_get();
+        Graph(const Graph&) = delete;
+        Graph(Graph&&) = delete;
+        Graph& operator=(const Graph&) = delete;
+        Graph& operator=(Graph&&) = delete;
+        ~Graph();
 
-	void add(Op* op);
+        const std::vector<Op*>& ops_list() const;
+        const std::map<Input*, Shape>& input_shapes_get();
 
-	void compile(const std::map<Input*, Shape>& inputs);
+        void add(Op* op);
 
-	void run(std::vector<Op*> ops,
-		 const std::map<Input*, std::pair<const dbl_t*, Shape>>& inputs = {},
-		 const std::vector<dbl_t*>& outputs = {});
+        void compile(const std::map<Input*, Shape>& inputs);
 
-	void add_compiled(Op* op, const std::vector<rt::Node*> nodes,
-			  std::vector<dbl_t*> tensors,
-			  rt::Node* out_node, const Shape& out_shape, dbl_t* out_data);
+        void run(std::vector<Op*> ops,
+                 const std::map<Input*, std::pair<const dbl_t*, Shape>>& inputs = {},
+                 const std::vector<dbl_t*>& outputs = {});
 
-	const CompiledOp& compiled(Op* op);
+        void add_compiled(Op* op, const std::vector<rt::Node*> nodes,
+                          std::vector<dbl_t*> tensors,
+                          rt::Node* out_node, const Shape& out_shape, dbl_t* out_data);
+
+        const CompiledOp& compiled(Op* op);
 
     private:
-	std::vector<Op*> ops_;
-	std::map<Input*, Shape> input_shapes_;
+        std::vector<Op*> ops_;
+        std::map<Input*, Shape> input_shapes_;
 
-	rt::Graph full_rt_graph_;
-	std::map<Op*, CompiledOp> compiled_ops_;
+        rt::Graph full_rt_graph_;
+        std::map<Op*, CompiledOp> compiled_ops_;
 
-	void remove_compiled_rec_(Op* op);
+        void remove_compiled_rec_(Op* op);
 
-	Graph();
+        Graph();
 
-	void compile_(Op* node);
+        void compile_(Op* node);
     };
     
 }

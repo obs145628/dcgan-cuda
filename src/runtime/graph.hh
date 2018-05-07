@@ -15,31 +15,31 @@ namespace rt
 
     public:
 
-	Graph() = default;
-	~Graph();
-	Graph(const Graph&) = delete;
-	Graph(Graph&&) = delete;
-	Graph& operator=(const Graph&) = delete;
-	Graph& operator=(Graph&&) = delete;
+        Graph() = default;
+        ~Graph();
+        Graph(const Graph&) = delete;
+        Graph(Graph&&) = delete;
+        Graph& operator=(const Graph&) = delete;
+        Graph& operator=(Graph&&) = delete;
 
-	/**
-	 * Add a new node to the graph
-	 * Graph takes ownership of the node
-	 */
-	void add(Node* node);
+/**
+ * Add a new node to the graph
+ * Graph takes ownership of the node
+ */
+        void add(Node* node);
 
-	/**
-	 * Remove a node to the graph
-	 * All successors are also removed
-	 */
-	void remove(Node* node);
+/**
+ * Remove a node to the graph
+ * All successors are also removed
+ */
+        void remove(Node* node);
 
-	const std::vector<Node*> nodes() const;
+        const std::vector<Node*> nodes() const;
 
-	std::vector<Node*> topological_sort(const std::vector<Node*>& vals);
+        std::vector<Node*> topological_sort(const std::vector<Node*>& vals);
 
     private:
-	std::vector<Node*> nodes_;
+        std::vector<Node*> nodes_;
 
     };
 

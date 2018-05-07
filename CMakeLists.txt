@@ -42,7 +42,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d)
 
 
 set(TEST_SRC
@@ -86,3 +86,10 @@ set(TEST_SOFTMAX_CROSS_ENTROPY_SRC
 )
 add_executable(test_softmax_cross_entropy ${TEST_SOFTMAX_CROSS_ENTROPY_SRC})
 target_link_libraries(test_softmax_cross_entropy cnpy)
+
+set(TEST_CONV2D_SRC
+  ${SRC}
+  tests/test_conv2d.cc
+)
+add_executable(test_conv2d ${TEST_CONV2D_SRC})
+target_link_libraries(test_conv2d cnpy)

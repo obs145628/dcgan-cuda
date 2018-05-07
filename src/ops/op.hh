@@ -12,21 +12,20 @@ namespace ops
     {
 
     public:
-	Op(const Shape& shape,
-	   const std::vector<Op*> preds = {},
-	   const std::vector<Op*> succs = {});
-	virtual ~Op() = default;
+  Op(const Shape& shape,
+     const std::vector<Op*> preds = {},
+     const std::vector<Op*> succs = {});
+  virtual ~Op() = default;
 
-	const Shape& shape_get() const;
-	std::vector<Op*> preds();
-	std::vector<Op*> succs();
+  const Shape& shape_get() const;
+  std::vector<Op*> preds();
+  std::vector<Op*> succs();
 
-	virtual void compile() = 0;
+  virtual void compile() = 0;
 
     private:
-	Shape shape_;
-	std::vector<Op*> preds_;
-	std::vector<Op*> succs_;
+  Shape shape_;
+  std::vector<Op*> preds_;
+  std::vector<Op*> succs_;
     };
-    
 }

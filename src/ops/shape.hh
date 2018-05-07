@@ -9,17 +9,17 @@ namespace ops
     class Shape
     {
     public:
-	Shape(const std::vector<int>& dims = {});
+        Shape(const std::vector<int>& dims = {});
 
-	const std::vector<int>& dims() const;
-	std::size_t ndims() const;
-	int operator[](std::size_t i) const;
-	bool defined() const;
-	int total() const;
-	
+        const std::vector<int>& dims() const;
+        std::size_t ndims() const;
+        int operator[](std::size_t i) const;
+        bool defined() const;
+        int total() const;
+
     private:
-	std::vector<int> dims_;
-	
+        std::vector<int> dims_;
+
     };
 
     bool operator==(const Shape& a, const Shape& b);

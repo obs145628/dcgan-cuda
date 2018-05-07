@@ -8,10 +8,10 @@ namespace ops
     class VectSigmoid : public Op
     {
     public:
-	VectSigmoid(Op* arg);
+        VectSigmoid(Op* arg);
 
-	virtual void compile() override;
-	
+        virtual void compile() override;
+
     };
     
 }

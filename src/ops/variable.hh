@@ -9,21 +9,21 @@ namespace ops
     class Variable : public Op
     {
     public:
-	Variable(const Shape& shape);
-	virtual ~Variable();
-	
-	std::size_t var_id() const;
+        Variable(const Shape& shape);
+        virtual ~Variable();
 
-	void compile() override;
+        std::size_t var_id() const;
 
-	void write(const dbl_t* ptr);
-	void read(dbl_t* ptr) const;
+        void compile() override;
+
+        void write(const dbl_t* ptr);
+        void read(dbl_t* ptr) const;
 
     private:
-	dbl_t* data_;
-	Shape real_shape_;
-	std::size_t id_;
-	
+        dbl_t* data_;
+        Shape real_shape_;
+        std::size_t id_;
+
     };
     
     
