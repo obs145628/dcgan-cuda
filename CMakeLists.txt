@@ -42,7 +42,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d)
 
 
 set(TEST_SRC

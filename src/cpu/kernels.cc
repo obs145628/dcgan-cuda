@@ -52,7 +52,7 @@ namespace cpu
 
     }
 
-    kernel_f kernels_list[1280] = {
+    kernel_f kernels_list[64] = {
         kernel_mat_mat_mul,
         kernel_mat_rvect_add,
         kernel_sigmoid,
