@@ -10,9 +10,9 @@ namespace ops
 
     public:
 
-	MSE(Op* y, Op* y_hat);
+        MSE(Op* y, Op* y_hat);
 
-	virtual void compile() override;	
+        virtual void compile() override;
     };
 
 }

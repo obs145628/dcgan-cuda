@@ -10,9 +10,9 @@ namespace ops
 
     public:
 
-	SoftmaxCrossEntropy(Op* y, Op* logits);
+        SoftmaxCrossEntropy(Op* y, Op* logits);
 
-	virtual void compile() override;	
+        virtual void compile() override;
     };
 
 }

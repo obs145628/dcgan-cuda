@@ -8,8 +8,8 @@ namespace cpu
 
     void run_sequential(std::vector<rt::Node*> tasks)
     {
-	for (auto x : tasks)
-	    kernels_list[x->type](x);
+        for (auto x : tasks)
+            kernels_list[x->type](x);
     }
 
 }

@@ -11,69 +11,69 @@ namespace rt
 
     Graph::~Graph()
     {
-	for (auto n : nodes_)
-	    delete n;
+        for (auto n : nodes_)
+            delete n;
     }
 
     void Graph::add(Node* node)
     {
-	assert(node);
-	nodes_.push_back(node);
+        assert(node);
+        nodes_.push_back(node);
     }
 
     void Graph::remove(Node* node)
     {
-	assert(node);
-	auto it = std::find(nodes_.begin(), nodes_.end(), node);
-	assert(it != nodes_.end());
-	nodes_.erase(it);
+        assert(node);
+        auto it = std::find(nodes_.begin(), nodes_.end(), node);
+        assert(it != nodes_.end());
+        nodes_.erase(it);
 
-	for (auto x : node->preds)
-	{
-	    auto pred_it = std::find(x->succs.begin(), x->succs.end(), node);
-	    assert(pred_it != x->succs.end());
-	    x->succs.erase(pred_it);
-	}
-	
-	for (auto x : node->succs)
-	    remove(x);
-	delete node;
+        for (auto x : node->preds)
+        {
+            auto pred_it = std::find(x->succs.begin(), x->succs.end(), node);
+            assert(pred_it != x->succs.end());
+            x->succs.erase(pred_it);
+        }
+
+        for (auto x : node->succs)
+            remove(x);
+        delete node;
     }
 
     const std::vector<Node*> Graph::nodes() const
     {
-	return nodes_;
+        return nodes_;
     }
 
     namespace
     {
 
-	void add_preds(Node* node, std::set<Node*>& set)
-	{
-	    if (!set.insert(node).second)
-		return;
-	    for (auto x : node->preds)
-		add_preds(x, set);
-	}
+        void add_preds(Node* node, std::set<Node*>& set)
+        {
+            if (!set.insert(node).second)
+                return;
+            for (auto x : node->preds)
+                add_preds(x, set);
+        }
 
-	std::vector<Node*> get_preds(Node* node, std::set<Node*>& graph)
-	{
-	    std::vector<Node*> res;
-	    for (auto x : node->preds)
-		if (graph.find(x) != graph.end())
-		    res.push_back(x);
-	    return res;
-	}
+        std::vector<Node*> get_preds(Node* node, std::set<Node*>& graph)
+        {
+            std::vector<Node*> res;
+            for (auto x : node->preds)
+                if (graph.find(x) != graph.end())
+                    res.push_back(x);
+            return res;
+        }
 
-	std::vector<Node*> get_succs(Node* node, std::set<Node*>& graph)
-	{
-	    std::vector<Node*> res;
-	    for (auto x : node->succs)
-		if (graph.find(x) != graph.end())
-		    res.push_back(x);
-	    return res;
-	}
-	
+        std::vector<Node*> get_succs(Node* node, std::set<Node*>& graph)
+        {
+            std::vector<Node*> res;
+            for (auto x : node->succs)
+                if (graph.find(x) != graph.end())
+                    res.push_back(x);
+            return res;
+        }
+
     }
 
     /**
@@ -94,34 +94,34 @@ namespace rt
 
     std::vector<Node*> Graph::topological_sort(const std::vector<Node*>& vals)
     {
-	std::vector<Node*> res;
-	std::set<Node*> graph;
-	for (auto n : vals)
-	    add_preds(n, graph);
+        std::vector<Node*> res;
+        std::set<Node*> graph;
+        for (auto n : vals)
+            add_preds(n, graph);
 
-	std::vector<Node*> s;
-	for (auto x : graph)
-	    if (get_preds(x, graph).empty())
-		s.push_back(x);
-	
-	while (!s.empty())
-	{
-	    Node* next = s.back();
-	    s.pop_back();
-	    res.push_back(next);
-	    for (auto succ : get_succs(next, graph))
-	    {
-	        if (get_preds(succ, graph).size() == 1)
-		    s.push_back(succ);
-	    }
-	    graph.erase(next);
-	}
+        std::vector<Node*> s;
+        for (auto x : graph)
+            if (get_preds(x, graph).empty())
+                s.push_back(x);
 
-	if (!graph.empty())
-	    throw std::runtime_error {"Topological sort failed"};
+        while (!s.empty())
+        {
+            Node* next = s.back();
+            s.pop_back();
+            res.push_back(next);
+            for (auto succ : get_succs(next, graph))
+            {
+                if (get_preds(succ, graph).size() == 1)
+                    s.push_back(succ);
+            }
+            graph.erase(next);
+        }
 
-	
-	return res;
+        if (!graph.empty())
+            throw std::runtime_error {"Topological sort failed"};
+
+
+        return res;
     }
 
 }

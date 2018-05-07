@@ -25,7 +25,7 @@ namespace cpu
      * out - matrix (m * p)
      */
     void mm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
-		std::size_t m, std::size_t n, std::size_t p);
+                std::size_t m, std::size_t n, std::size_t p);
 
     /**
      * perform matrix - vector addition
@@ -36,7 +36,7 @@ namespace cpu
      * out - matrix (m * n)
      */
     void mvrow_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
-		   std::size_t m, std::size_t n);
+                   std::size_t m, std::size_t n);
 
     /**
      * Perform segmoid operation of a vector
@@ -78,24 +78,24 @@ namespace cpu
      * logits - matrix (m * n) - logits of final layer (before y_hat = softmax(logits)
      */
     dbl_t softmax_cross_entropy(const dbl_t* y, const dbl_t* logits,
-				std::size_t m, std::size_t n);
+                                std::size_t m, std::size_t n);
 
-		/**
-		 * Input and kernel are two 4D tensors, out contain
-		 * the conv2d result between input and kernel
-		 * - Input is formatted with this form [batch, height, width, in_channels]
-		 * - Kernel is formatted with this form [height, width, in_channels, out_channels]
-		 * - Out is formatted with this form [batch, nbBoxH, nbBoxW, nbFilter]
-		 * - Strides is an array of size 2, the first item is the Y-axis stride,
-		 * 	 the other one the X-axis stride
-		 * - Input_size is an array of size 4 containing the size of the input
-		 *   tensor with respect of the format given above
-		 * - Kernel_size is an array of size 4 containing the size of the kernel
-		 *	 tensor with respect of the format given above
-	 	 */
-		void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
-  	  					const int* strides,
-								const int* input_size, const int* kernel_size);
+/**
+ * Input and kernel are two 4D tensors, out contain
+ * the conv2d result between input and kernel
+ * - Input is formatted with this form [batch, height, width, in_channels]
+ * - Kernel is formatted with this form [height, width, in_channels, out_channels]
+ * - Out is formatted with this form [batch, nbBoxH, nbBoxW, nbFilter]
+ * - Strides is an array of size 2, the first item is the Y-axis stride,
+ *  the other one the X-axis stride
+ * - Input_size is an array of size 4 containing the size of the input
+ *   tensor with respect of the format given above
+ * - Kernel_size is an array of size 4 containing the size of the kernel
+ * tensor with respect of the format given above
+ */
+    void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
+                const int* strides,
+                const int* input_size, const int* kernel_size);
 
 }
 

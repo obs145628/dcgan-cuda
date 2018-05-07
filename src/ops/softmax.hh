@@ -7,9 +7,9 @@ namespace ops
     class Softmax : public Op
     {
     public:
-	Softmax(Op* arg);
+        Softmax(Op* arg);
 
-	virtual void compile() override;
-	
+        virtual void compile() override;
+
     };
 }

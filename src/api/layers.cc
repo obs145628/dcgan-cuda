@@ -6,10 +6,10 @@
 #include "../ops/vect-sigmoid.hh"
 
 ops::Op* dense_layer(ops::Op* input,
-		     std::size_t in_size,
-		     std::size_t out_size,
-		     dbl_t* w_init,
-		     dbl_t* b_init)
+                     std::size_t in_size,
+                     std::size_t out_size,
+                     dbl_t* w_init,
+                     dbl_t* b_init)
 {
     auto& builder = ops::OpsBuilder::instance();
     
@@ -17,9 +17,9 @@ ops::Op* dense_layer(ops::Op* input,
     auto b = builder.variable(ops::Shape({int(out_size)}));
 
     if (w_init)
-	w->write(w_init);
+        w->write(w_init);
     if (b_init)
-	b->write(b_init);
+        b->write(b_init);
     
 
     ops::Op* z = builder.mat_mat_mul(input, w);
