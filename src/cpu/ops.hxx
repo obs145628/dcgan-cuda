@@ -8,7 +8,6 @@
 namespace cpu
 {
 
-
     inline dbl_t sigmoid(dbl_t x)
     {
         //return x;
@@ -182,6 +181,55 @@ namespace cpu
                         std::size_t owIndex = j * nbFilter;
                         out[oimgIndex + ohIndex + owIndex + k] = val;
                     }
+    }
+
+    inline dbl_t relu(dbl_t x)
+    {
+        return x < 0 ? 0 : x;
+    }
+
+    inline dbl_t relu_prime(dbl_t x)
+    {
+        return x < 0 ? 0 : 1;
+    }
+
+    inline void vect_relu(const dbl_t* a, dbl_t* out, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = relu(a[i]);
+    }
+
+    inline dbl_t relu_leaky(dbl_t x, const dbl_t alpha)
+    {
+        return x < 0 ? alpha * x : x;
+    }
+
+    inline dbl_t relu_leaky_prime(dbl_t x, const dbl_t alpha = 0.2)
+    {
+        return x < 0 ? alpha : 1;
+    }
+
+    inline void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n,
+                                const dbl_t alpha)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = relu_leaky(a[i], alpha);
+    }
+
+    inline dbl_t tanh(dbl_t x)
+    {
+        return (2.0 / (1.0 + std::exp(-2 * x))) - 1.0;
+    }
+
+    inline dbl_t tanh_prime(dbl_t x)
+    {
+        return 1.0 - tanh(x) * tanh(x);
+    }
+
+    inline void vect_tanh(const dbl_t* a, dbl_t* out, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = tanh(a[i]);
     }
 
 }

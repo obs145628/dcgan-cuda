@@ -17,4 +17,7 @@ namespace ops
     class SoftmaxCrossEntropy;
     class Variable;
     class VectSigmoid;
+    class VectRelu;
+    class VectReluLeaky;
+    class VectTanh;
 }

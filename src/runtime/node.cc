@@ -114,6 +114,38 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_relu(const dbl_t* args, dbl_t* output, std::size_t len,
+                        const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_RELU, preds);
+        res->in1 = args;
+        res->out1 = output;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_relu_leaky(const dbl_t* args, dbl_t* output, std::size_t len,
+                              const dbl_t alpha,
+                              const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_RELU_LEAKY, preds);
+        res->in1 = args;
+        res->out1 = output;
+        res->len1 = len;
+        res->alpha_leaky = alpha;
+        return res;
+    }
+
+    Node* Node::op_tanh(const dbl_t* args, dbl_t* output, std::size_t len,
+                        const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_TANH, preds);
+        res->in1 = args;
+        res->out1 = output;
+        res->len1 = len;
+        return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
     {
