@@ -158,6 +158,18 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                                std::size_t len,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_SIGMOID_GRAD, preds);
+        res->in1 = sig_out;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
     {

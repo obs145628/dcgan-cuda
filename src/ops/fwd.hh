@@ -14,6 +14,7 @@ namespace ops
     class Op;
     class OpsBuilder;
     class Shape;
+    class SigmoidGrad;
     class Softmax;
     class SoftmaxCrossEntropy;
     class Variable;

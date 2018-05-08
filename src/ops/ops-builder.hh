@@ -24,6 +24,7 @@ namespace ops
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
+        SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
         Variable* variable(const Shape& shape);

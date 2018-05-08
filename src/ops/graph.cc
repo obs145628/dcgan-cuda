@@ -181,10 +181,10 @@ namespace ops
         if (succ == nullptr)
             throw std::runtime_error {"Can't compute the gradient: the nodes are not related"};
 
-        Op* succ_grad = gradient(out, var);
+        Op* succ_grad = gradient(out, succ);
         vari = succ->pred_index(var);
         assert(vari != std::size_t(-1));
-        return out->child_grad(vari, succ_grad);
+        return succ->child_grad(vari, succ_grad);
     }
     
 }

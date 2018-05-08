@@ -41,7 +41,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad)
 
 
 set(TEST_SRC
@@ -150,3 +150,10 @@ set(TEST_MSE_GRAD_SRC
 )
 add_executable(test_mse_grad ${TEST_MSE_GRAD_SRC})
 target_link_libraries(test_mse_grad cnpy)
+
+set(TEST_SIGMOID_GRAD_SRC
+  ${SRC}
+  tests/test_sigmoid_grad.cc
+)
+add_executable(test_sigmoid_grad ${TEST_SIGMOID_GRAD_SRC})
+target_link_libraries(test_sigmoid_grad cnpy)

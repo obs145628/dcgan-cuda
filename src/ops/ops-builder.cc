@@ -8,6 +8,7 @@
 #include "mat-rvect-add.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
+#include "sigmoid-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
 #include "variable.hh"
@@ -107,7 +108,6 @@ namespace ops
             throw std::runtime_error {"MSEGrad: y must be a matrix"};
         if (y_hat->shape_get().ndims() != 2)
             throw std::runtime_error {"MSEGrad: y_hat must be a matrix"};
-
         if (y->shape_get() != y_hat->shape_get())
             throw std::runtime_error {"MSEGrad: y and y_hat must have the same shape"};
 
@@ -115,6 +115,17 @@ namespace ops
         graph_.add(res);
         return res;
     }
+
+    SigmoidGrad* OpsBuilder::sigmoid_grad(Op* sig_out, Op* dout)
+    {
+        if (sig_out->shape_get() != dout->shape_get())
+            throw std::runtime_error {"SigmoidGrad: sig_out and dout must have the same shape"};
+
+        auto res = new SigmoidGrad(sig_out, dout);
+        graph_.add(res);
+        return res;
+    }
+    
 
     Softmax* OpsBuilder::softmax(Op* arg)
     {

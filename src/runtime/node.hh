@@ -21,6 +21,7 @@ namespace rt
         static constexpr int OP_RELU_LEAKY = 9;
         static constexpr int OP_TANH = 10;
         static constexpr int OP_MSE_GRAD = 11;
+        static constexpr int OP_SIGMOID_GRAD = 12;
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -66,6 +67,10 @@ namespace rt
 
         static Node* op_tanh(const dbl_t* args, dbl_t* out, std::size_t len,
                              const std::vector<Node*>& preds);
+
+        static Node* op_sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                                     std::size_t len,
+                                     const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

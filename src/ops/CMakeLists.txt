@@ -10,6 +10,7 @@ set(SRC
   op.cc
   ops-builder.cc
   shape.cc
+  sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc
   variable.cc

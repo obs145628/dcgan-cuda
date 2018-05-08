@@ -70,6 +70,11 @@ namespace cpu
             vect_sub_coeff(node->in2, node->in1, 2. / node->len1, node->out1, node->len1);
         }
 
+        void kernel_sigmoid_grad(rt::Node* node)
+        {
+            sigmoid_grad(node->in1, node->in2, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -84,6 +89,7 @@ namespace cpu
         kernel_relu,
         kernel_relu_leaky,
         kernel_tanh,
-        kernel_mse_grad
+        kernel_mse_grad,
+        kernel_sigmoid_grad
     };
 }

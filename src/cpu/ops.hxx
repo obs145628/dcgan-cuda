@@ -239,4 +239,11 @@ namespace cpu
             out[i] = coeff * (a[i] - b[i]);
     }
 
+    inline void sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                             std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = sig_out[i] * (1 - sig_out[i]) * dout[i];
+    }
+
 }
