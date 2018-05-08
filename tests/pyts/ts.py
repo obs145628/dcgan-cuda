@@ -49,13 +49,17 @@ def test_basic(cat, sub, ref_script, bin_file):
                     os.path.join(TEST_BUILD_DIR, tname + '_out_test.tbin'),
                 ],
                 code = 0)
-    
+
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
            'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
 test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
+test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
+test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
+test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
+test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
 
 
 
