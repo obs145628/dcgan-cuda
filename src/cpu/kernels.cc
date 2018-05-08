@@ -65,6 +65,11 @@ namespace cpu
             vect_tanh(node->in1, node->out1, node->len1);
         }
 
+        void kernel_mse_grad(rt::Node* node)
+        {
+            vect_sub_coeff(node->in2, node->in1, 2. / node->len1, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -78,6 +83,7 @@ namespace cpu
         kernel_conv2d,
         kernel_relu,
         kernel_relu_leaky,
-        kernel_tanh
+        kernel_tanh,
+        kernel_mse_grad
     };
 }

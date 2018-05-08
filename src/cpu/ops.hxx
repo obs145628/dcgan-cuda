@@ -232,4 +232,11 @@ namespace cpu
             out[i] = tanh(a[i]);
     }
 
+    inline void vect_sub_coeff(const dbl_t* a, const dbl_t* b, dbl_t coeff, dbl_t* out, 
+                               std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = coeff * (a[i] - b[i]);
+    }
+
 }

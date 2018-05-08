@@ -138,6 +138,18 @@ namespace cpu
      */
     void vect_tanh(const dbl_t* a, dbl_t* out, std::size_t n);
 
+
+
+    /**
+     * Perform vector-vector substraction with coeff
+     * out = coeff * (a - b)
+     * a - vector (n)
+     * b - vector (n)
+     * out - vector (n)
+     */
+    void vect_sub_coeff(const dbl_t* a, const dbl_t* b, dbl_t coeff, dbl_t* out, 
+                        std::size_t n);
+
 }
 
 #include "ops.hxx"
