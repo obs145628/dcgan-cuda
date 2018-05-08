@@ -173,12 +173,6 @@ namespace ops
 
     Op* Graph::compute_gradient_(Op* out, Op* var)
     {
-
-        (void) out;
-        (void) var;
-        return nullptr;
-        //dout / dvar
-
         std::size_t vari = out->pred_index(var);
         if (vari != std::size_t(-1))
             return out->child_grad(vari, nullptr);
