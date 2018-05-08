@@ -93,3 +93,10 @@ set(TEST_CONV2D_SRC
 )
 add_executable(test_conv2d ${TEST_CONV2D_SRC})
 target_link_libraries(test_conv2d cnpy)
+
+set(TEST_VECT-RELU_SRC
+  ${SRC}
+  tests/test_vect-relu.cc
+)
+add_executable(test_vect-relu ${TEST_VECT-RELU_SRC})
+target_link_libraries(test_vect-relu cnpy)

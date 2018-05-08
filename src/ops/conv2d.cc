@@ -12,7 +12,7 @@ namespace ops
                         (input->shape_get()[1] - kernel->shape_get()[0]) / strides[0] + 1,
                         (input->shape_get()[2] - kernel->shape_get()[1]) / strides[1] + 1,
                         kernel->shape_get()[3]}),
-            {input, kernel})
+             {input, kernel})
         ,m_strides(strides)
     {}
 
