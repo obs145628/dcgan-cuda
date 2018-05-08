@@ -14,6 +14,9 @@ set(SRC
   softmax-cross-entropy.cc
   variable.cc
   vect-sigmoid.cc
+  vect-relu.cc
+  vect-relu-leaky.cc
+  vect-tanh.cc
 )
 
 add_library(ops_obj OBJECT ${SRC})
