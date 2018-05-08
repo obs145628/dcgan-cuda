@@ -138,6 +138,36 @@ namespace cpu
      */
     void vect_tanh(const dbl_t* a, dbl_t* out, std::size_t n);
 
+
+
+    /**
+     * Perform vector-vector substraction with coeff
+     * out = coeff * (a - b)
+     * a - vector (n)
+     * b - vector (n)
+     * out - vector (n)
+     */
+    void vect_sub_coeff(const dbl_t* a, const dbl_t* b, dbl_t coeff, dbl_t* out, 
+                        std::size_t n);
+
+    /**
+     * Compute the gradient of the sigmoid operation
+     * sig_out - vector (n)
+     * dout - vector(n)
+     * out - vector(n)
+     *
+     * let:
+     * sig_out = sigmoid(z)
+     * dout = nabla(E) / nabla(sig_out)
+     * out = nabla(E) / nabla(Z)
+     *sigmoid'(z) = sigmoid(z) * (1 - sigmoid(z))
+     *
+     * out = sigmoid'(z) * dout
+     *     = sig_out * (1 - sig_out) * dout
+     */
+    void sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                      std::size_t n);
+
 }
 
 #include "ops.hxx"

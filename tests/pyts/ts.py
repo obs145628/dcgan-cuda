@@ -51,6 +51,7 @@ def test_basic(cat, sub, ref_script, bin_file):
                 code = 0)
 
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
+
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
@@ -63,6 +64,9 @@ test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
 test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
 test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
+
+test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
+test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
 
 
 

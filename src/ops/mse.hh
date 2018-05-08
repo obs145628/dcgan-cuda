@@ -13,6 +13,8 @@ namespace ops
         MSE(Op* y, Op* y_hat);
 
         virtual void compile() override;
+
+        virtual Op* child_grad(std::size_t index, Op* dout) override;
     };
 
 }

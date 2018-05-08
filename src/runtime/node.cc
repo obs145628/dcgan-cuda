@@ -55,6 +55,18 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_mse_grad(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                            std::size_t len,
+                            const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MSE_GRAD, preds);
+        res->in1 = y;
+        res->in2 = y_hat;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+
     Node* Node::op_conv2d(const dbl_t* input, const dbl_t* kernel,
                           const int strides[], dbl_t* output,
                           const int input_size[], const int kernel_size[],
@@ -142,6 +154,18 @@ namespace rt
         auto res = new Node(OP_TANH, preds);
         res->in1 = args;
         res->out1 = output;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                                std::size_t len,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_SIGMOID_GRAD, preds);
+        res->in1 = sig_out;
+        res->in2 = dout;
+        res->out1 = out;
         res->len1 = len;
         return res;
     }

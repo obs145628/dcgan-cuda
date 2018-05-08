@@ -6,9 +6,11 @@ set(SRC
   mat-mat-mul.cc
   mat-rvect-add.cc
   mse.cc
+  mse-grad.cc
   op.cc
   ops-builder.cc
   shape.cc
+  sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc
   variable.cc
