@@ -39,10 +39,10 @@ namespace cpu
                    std::size_t m, std::size_t n);
 
     /**
-     * Perform segmoid operation of a vector
+     * Perform sigmoid operation of a vector
      * out = sigmoid(a)
      * a - vector (n)
-     * out-  vector (n)
+     * out - vector (n)
      */
     void vect_sigmoid(const dbl_t* a, dbl_t* out, std::size_t n);
 
@@ -96,6 +96,45 @@ namespace cpu
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
                 const int* strides,
                 const int* input_size, const int* kernel_size);
+
+
+    dbl_t relu(dbl_t x);
+
+    dbl_t relu_prime(dbl_t x);
+
+    dbl_t relu_leaky(dbl_t x);
+
+    dbl_t relu_leaky_prime(dbl_t x);
+
+    dbl_t tanh(dbl_t x);
+
+    dbl_t tanh_prime(dbl_t x);
+
+   /**
+     * Perform relu operation of a vector
+     * out = relu (a)
+     * a - vector (n)
+     * out - vector (n)
+     */
+
+    void vect_relu(const dbl_t* a, dbl_t* out, std::size_t n);
+
+   /**
+     * Perform leaky relu operation of a vector
+     * out = relu_leaky (a)
+     * a - vector (n)
+     * out - vector (n)
+     */
+    void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n);
+
+
+   /**
+     * Perform tanh operation of a vector
+     * out = tanh (a)
+     * a - vector (n)
+     * out - vector (n)
+     */
+    void vect_tanh(const dbl_t* a, dbl_t* out, std::size_t n);
 
 }
 
