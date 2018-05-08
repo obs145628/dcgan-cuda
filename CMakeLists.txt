@@ -42,7 +42,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse)
 
 
 set(TEST_SRC
@@ -93,3 +93,32 @@ set(TEST_CONV2D_SRC
 )
 add_executable(test_conv2d ${TEST_CONV2D_SRC})
 target_link_libraries(test_conv2d cnpy)
+
+set(TEST_SIGMOID_SRC
+  ${SRC}
+  tests/test_sigmoid.cc
+)
+add_executable(test_sigmoid ${TEST_SIGMOID_SRC})
+target_link_libraries(test_sigmoid cnpy)
+
+
+set(TEST_MAT_MAT_MUL_SRC
+  ${SRC}
+  tests/test_mat_mat_mul.cc
+)
+add_executable(test_mat_mat_mul ${TEST_MAT_MAT_MUL_SRC})
+target_link_libraries(test_mat_mat_mul cnpy)
+
+set(TEST_MAT_RVECT_ADD_SRC
+  ${SRC}
+  tests/test_mat_rvect_add.cc
+)
+add_executable(test_mat_rvect_add ${TEST_MAT_RVECT_ADD_SRC})
+target_link_libraries(test_mat_rvect_add cnpy)
+
+set(TEST_MSE_SRC
+  ${SRC}
+  tests/test_mse.cc
+)
+add_executable(test_mse ${TEST_MSE_SRC})
+target_link_libraries(test_mse cnpy)
