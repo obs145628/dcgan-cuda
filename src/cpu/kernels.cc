@@ -32,7 +32,7 @@ namespace cpu
 
         void kernel_relu_leaky(rt::Node* node)
         {
-            vect_relu_leaky(node->in1, node->out1, node->len1);
+            vect_relu_leaky(node->in1, node->out1, node->len1, node->alpha_leaky);
         }
 
         void kernel_sigmoid(rt::Node* node)

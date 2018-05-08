@@ -7,7 +7,7 @@
 
 namespace cpu
 {
-  
+
     inline dbl_t sigmoid(dbl_t x)
     {
         //return x;
@@ -199,20 +199,21 @@ namespace cpu
             out[i] = relu(a[i]);
     }
 
-    inline dbl_t relu_leaky(dbl_t x)
+    inline dbl_t relu_leaky(dbl_t x, const dbl_t alpha)
     {
-        return x < 0 ? 0.01 * x : x;
+        return x < 0 ? alpha * x : x;
     }
 
-    inline dbl_t relu_leaky_prime(dbl_t x)
+    inline dbl_t relu_leaky_prime(dbl_t x, const dbl_t alpha = 0.2)
     {
-        return x < 0 ? 0.01 : 1;
+        return x < 0 ? alpha : 1;
     }
 
-    inline void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n)
+    inline void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n,
+                                const dbl_t alpha)
     {
         for (std::size_t i = 0; i < n; ++i)
-            out[i] = relu_leaky(a[i]);
+            out[i] = relu_leaky(a[i], alpha);
     }
 
     inline dbl_t tanh(dbl_t x)

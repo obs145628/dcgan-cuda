@@ -37,7 +37,7 @@ namespace rt
                              const std::vector<Node*>& preds);
 
         static Node* op_relu_leaky(const dbl_t* args, dbl_t* out,
-                                   std::size_t len,
+                                   std::size_t len, const dbl_t alpha,
                                    const std::vector<Node*>& preds);
 
         static Node* op_sigmoid(const dbl_t* args, dbl_t* out, std::size_t len,
@@ -83,6 +83,7 @@ namespace rt
         int intconst[2];
         int sizes1[4];
         int sizes2[4];
+        dbl_t alpha_leaky;
     };
 
 }

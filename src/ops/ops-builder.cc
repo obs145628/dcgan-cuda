@@ -12,6 +12,10 @@
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
+#include "vect-relu.hh"
+#include "vect-relu-leaky.hh"
+#include "vect-tanh.hh"
+
 
 namespace ops
 {
@@ -126,6 +130,27 @@ namespace ops
     VectSigmoid* OpsBuilder::vect_sigmoid(Op* arg)
     {
         auto res = new VectSigmoid(arg);
+        graph_.add(res);
+        return res;
+    }
+
+    VectRelu* OpsBuilder::vect_relu(Op* arg)
+    {
+        auto res = new VectRelu(arg);
+        graph_.add(res);
+        return res;
+    }
+
+    VectReluLeaky* OpsBuilder::vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2)
+    {
+        auto res = new VectReluLeaky(arg, alpha);
+        graph_.add(res);
+        return res;
+    }
+
+    VectTanh* OpsBuilder::vect_tanh(Op* arg)
+    {
+        auto res = new VectTanh(arg);
         graph_.add(res);
         return res;
     }

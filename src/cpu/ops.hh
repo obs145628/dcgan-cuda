@@ -102,13 +102,15 @@ namespace cpu
 
     dbl_t relu_prime(dbl_t x);
 
-    dbl_t relu_leaky(dbl_t x);
+    dbl_t relu_leaky(dbl_t x, const dbl_t alpha);
 
-    dbl_t relu_leaky_prime(dbl_t x);
+    dbl_t relu_leaky_prime(dbl_t x, const dbl_t alpha);
 
     dbl_t tanh(dbl_t x);
 
     dbl_t tanh_prime(dbl_t x);
+
+    dbl_t sigmoid_cross_entropy(dbl_t x);
 
    /**
      * Perform relu operation of a vector
@@ -125,8 +127,8 @@ namespace cpu
      * a - vector (n)
      * out - vector (n)
      */
-    void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n);
-
+    void vect_relu_leaky(const dbl_t* a, dbl_t* out, std::size_t n,
+                         const dbl_t alpha);
 
    /**
      * Perform tanh operation of a vector
