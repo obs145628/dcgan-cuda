@@ -62,6 +62,7 @@ test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
 test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
 test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
+test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
 
 
 
