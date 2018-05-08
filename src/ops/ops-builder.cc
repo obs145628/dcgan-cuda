@@ -7,6 +7,7 @@
 #include "mat-mat-mul.hh"
 #include "mat-rvect-add.hh"
 #include "mse.hh"
+#include "mse-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
 #include "variable.hh"
@@ -92,7 +93,25 @@ namespace ops
             throw std::runtime_error {"MSE:y must be a matrix"};
         if (y_hat->shape_get().ndims() != 2)
             throw std::runtime_error {"MSE:y_hat must be a matrix"};
+        if (y->shape_get() != y_hat->shape_get())
+            throw std::runtime_error {"MSE: y and y_hat must have the same shape"};
+        
         auto res = new MSE(y, y_hat);
+        graph_.add(res);
+        return res;
+    }
+
+    MSEGrad* OpsBuilder::mse_grad(Op* y, Op* y_hat)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"MSEGrad: y must be a matrix"};
+        if (y_hat->shape_get().ndims() != 2)
+            throw std::runtime_error {"MSEGrad: y_hat must be a matrix"};
+
+        if (y->shape_get() != y_hat->shape_get())
+            throw std::runtime_error {"MSEGrad: y and y_hat must have the same shape"};
+
+        auto res = new MSEGrad(y, y_hat);
         graph_.add(res);
         return res;
     }
