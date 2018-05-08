@@ -17,6 +17,8 @@ namespace rt
         static constexpr int OP_LOG_SOFTMAX = 5;
         static constexpr int OP_SOFTMAX_CROSS_ENTROPY = 6;
         static constexpr int OP_CONV2D = 7;
+        static constexpr int OP_MSE_GRAD = 8;
+        
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -48,6 +50,10 @@ namespace rt
         static Node* op_softmax_cross_entropy(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                               std::size_t rows, std::size_t cols,
                                               const std::vector<Node*>& preds);
+
+        static Node* op_mse_grad(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                                 std::size_t len,
+                                 const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

@@ -10,6 +10,7 @@ namespace ops
     class MatMatMul;
     class MatRvectAdd;
     class MSE;
+    class MSEGrad;
     class Op;
     class OpsBuilder;
     class Shape;

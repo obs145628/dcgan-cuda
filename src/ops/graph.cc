@@ -133,6 +133,20 @@ namespace ops
         return it->second;
     }
 
+    Op* Graph::gradient(Op* out, Op* var)
+    {
+
+        auto it = grads_.find({out, var});
+        if (it == grads_.end())
+        {
+            auto res = compute_gradient_(out, var);
+            grads_[{out, var}] = res;
+            return res;
+        }
+        else
+            return it->second;
+    }
+
 
     void Graph::remove_compiled_rec_(Op* op)
     {
@@ -155,6 +169,28 @@ namespace ops
             compile_(pred);
 
         node->compile();
+    }
+
+    Op* Graph::compute_gradient_(Op* out, Op* var)
+    {
+
+        (void) out;
+        (void) var;
+        return nullptr;
+        //dout / dvar
+
+        std::size_t vari = out->pred_index(var);
+        if (vari != std::size_t(-1))
+            return out->child_grad(vari, nullptr);
+
+        Op* succ = var->pred_of(out);
+        if (succ == nullptr)
+            throw std::runtime_error {"Can't compute the gradient: the nodes are not related"};
+
+        Op* succ_grad = gradient(out, var);
+        vari = succ->pred_index(var);
+        assert(vari != std::size_t(-1));
+        return out->child_grad(vari, succ_grad);
     }
     
 }

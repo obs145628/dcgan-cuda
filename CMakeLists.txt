@@ -17,7 +17,6 @@ add_subdirectory(src/memory)
 add_subdirectory(src/ops)
 add_subdirectory(src/runtime)
 
-
 set(SRC
   $<TARGET_OBJECTS:api_obj>
   $<TARGET_OBJECTS:cpu_obj>

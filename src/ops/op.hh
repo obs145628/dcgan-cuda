@@ -12,20 +12,44 @@ namespace ops
     {
 
     public:
-  Op(const Shape& shape,
-     const std::vector<Op*> preds = {},
-     const std::vector<Op*> succs = {});
-  virtual ~Op() = default;
+        /**
+         * Graph operation
+         * shape - shape of the result of the operation
+         * preds - inputs of the operation
+         * succs - every node whose input contains this node
+         */
+        Op(const Shape& shape,
+           const std::vector<Op*> preds = {},
+           const std::vector<Op*> succs = {});
+        virtual ~Op() = default;
 
-  const Shape& shape_get() const;
-  std::vector<Op*> preds();
-  std::vector<Op*> succs();
+        const Shape& shape_get() const;
+        std::vector<Op*> preds();
+        std::vector<Op*> succs();
 
-  virtual void compile() = 0;
+        /**
+         * Allocate necessary memory
+         * Create equivalent rt::Node objects fort the operation
+         */
+        virtual void compile() = 0;
 
-    private:
-  Shape shape_;
-  std::vector<Op*> preds_;
-  std::vector<Op*> succs_;
+        /**
+         * Return the index of pred in the lists of inputs
+         * or -1 if not found
+         */
+        std::size_t pred_index(Op* pred);
+
+        /**
+         * Find which of the succesors of the node is a direct or undirect predecessor of node
+         */
+        Op* pred_of(Op* node);
+
+
+        virtual Op* child_grad(std::size_t index, Op* dout);
+
+        private:
+        Shape shape_;
+        std::vector<Op*> preds_;
+        std::vector<Op*> succs_;
     };
 }
