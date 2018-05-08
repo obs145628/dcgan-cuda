@@ -28,7 +28,7 @@ namespace ops
         Variable* variable(const Shape& shape);
         VectSigmoid* vect_sigmoid(Op* arg);
         VectRelu* vect_relu(Op* arg);
-        VectReluLeaky* vect_relu_leaky(Op* arg, const dbl_t alpha);
+        VectReluLeaky* vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2);
         VectTanh* vect_tanh(Op* arg);
 
     private:

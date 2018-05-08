@@ -141,7 +141,7 @@ namespace ops
         return res;
     }
 
-    VectReluLeaky* OpsBuilder::vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2)
+    VectReluLeaky* OpsBuilder::vect_relu_leaky(Op* arg, const dbl_t alpha)
     {
         auto res = new VectReluLeaky(arg, alpha);
         graph_.add(res);

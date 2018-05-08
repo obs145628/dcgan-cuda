@@ -2,6 +2,7 @@
 #include <cmath>
 
 #include "../src/memory/types.hh"
+#include "../src/ops/vect-relu-leaky.hh"
 #include "../src/ops/vect-relu.hh"
 #include "../src/ops/softmax.hh"
 #include "../src/ops/variable.hh"
@@ -30,7 +31,7 @@ int main(int argc, char** argv)
     auto& builder = ops::OpsBuilder::instance();
 
     auto x = builder.input(ops::Shape({1, 12}));
-    auto y = builder.vect_relu(x);
+    auto y = builder.vect_relu_leaky(x);
 
     auto& graph = ops::Graph::instance();
 
