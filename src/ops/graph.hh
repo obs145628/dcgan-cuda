@@ -76,7 +76,12 @@ namespace ops
          * Use backpropagation algorithm
          */
         Op* gradient(Op* out, Op* var);
-        
+
+        /**
+         * Enable / diable debugging
+         * Display the compiled list of operations before running it
+         */
+        void debug_set(bool debug);
 
         
     private:
@@ -87,6 +92,7 @@ namespace ops
         std::map<Op*, CompiledOp> compiled_ops_;
 
         std::map<std::pair<Op*, Op*>, Op*> grads_;
+        bool debug_;
 
         void remove_compiled_rec_(Op* op);
 

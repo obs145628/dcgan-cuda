@@ -16,6 +16,7 @@ namespace ops
 
     Graph::Graph()
         : full_rt_graph_()
+        , debug_(false)
     {}
 
     Graph::~Graph()
@@ -93,6 +94,8 @@ namespace ops
         }
 
         //run computations
+        if (debug_)
+            rt::Graph::print_nodes(std::cout, rt_tasks);
         cpu::run_sequential(rt_tasks);
 
         //set output values
@@ -140,6 +143,11 @@ namespace ops
         }
         else
             return it->second;
+    }
+
+    void Graph::debug_set(bool debug)
+    {
+        debug_ = debug;
     }
 
 

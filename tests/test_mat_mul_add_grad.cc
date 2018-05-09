@@ -50,6 +50,7 @@ int main(int argc, char** argv)
 
 
     auto& graph = ops::Graph::instance();
+    graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
 
     auto x_node = builder.input(ops::Shape({4, 3}));

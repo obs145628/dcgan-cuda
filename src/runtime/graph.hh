@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 #include "fwd.hh"
 
@@ -43,6 +44,14 @@ namespace rt
          * Doesn't contains just the nodes of vals, but their predecessors recursively
          */
         std::vector<Node*> topological_sort(const std::vector<Node*>& vals);
+
+
+        /**
+         * print all nodes into an assembly instructions list style
+         */
+        static void print_nodes(std::ostream& os,
+                                const std::vector<Node*>& vals);
+        
 
     private:
         std::vector<Node*> nodes_;
