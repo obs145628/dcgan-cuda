@@ -41,7 +41,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0)
 
 
 set(TEST_SRC
@@ -185,3 +185,17 @@ set(TEST_MAT_MUL_ADD_GRAD_SRC
 )
 add_executable(test_mat_mul_add_grad ${TEST_MAT_MUL_ADD_GRAD_SRC})
 target_link_libraries(test_mat_mul_add_grad cnpy)
+
+set(TEST_MAT_SUM0_SRC
+  ${SRC}
+  tests/test_mat_sum0.cc
+)
+add_executable(test_mat_sum0 ${TEST_MAT_SUM0_SRC})
+target_link_libraries(test_mat_sum0 cnpy)
+
+set(TEST_MAT_SUM1_SRC
+  ${SRC}
+  tests/test_mat_sum1.cc
+)
+add_executable(test_mat_sum1 ${TEST_MAT_SUM1_SRC})
+target_link_libraries(test_mat_sum1 cnpy)

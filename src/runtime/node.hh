@@ -25,6 +25,8 @@ namespace rt
         static constexpr int OP_MAT_MUL_ADD = 13;
         static constexpr int OP_TMAT_MAT_MUL = 14;
         static constexpr int OP_MAT_TMAT_MUL = 15;
+        static constexpr int OP_MAT_SUM_ROWS = 16;
+        static constexpr int OP_MAT_SUM_COLS = 17;
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -86,6 +88,14 @@ namespace rt
 
         static Node* op_mat_tmat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                      std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_sum_rows(const dbl_t* arg, dbl_t* out,
+                                     std::size_t rows, std::size_t cols,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_sum_cols(const dbl_t* arg, dbl_t* out,
+                                     std::size_t rows, std::size_t cols,
                                      const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);

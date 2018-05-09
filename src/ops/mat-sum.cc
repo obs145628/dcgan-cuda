@@ -27,12 +27,12 @@ namespace ops
 
         
         auto out_node = axis_ == 0 ?
-            rt::Node::op_mat_sum_rows(carg.out_data, out_data,
+            rt::Node::op_mat_sum_cols(carg.out_data, out_data,
                                       rows, cols,
                                       {carg.out_node})
-            :
-            nullptr;
-        assert(out_node);
+            : rt::Node::op_mat_sum_rows(carg.out_data, out_data,
+                                        rows, cols,
+                                        {carg.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
     }

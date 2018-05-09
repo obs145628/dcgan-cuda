@@ -74,6 +74,9 @@ test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
 '''
 
+test_basic('ops', 'mat_sum0', 'ref_mat_sum0.py', 'test_mat_sum0')
+test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
+
 test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
 
 

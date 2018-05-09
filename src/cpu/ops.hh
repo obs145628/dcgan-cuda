@@ -199,6 +199,25 @@ namespace cpu
     void mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b, dbl_t* out,
                      std::size_t m, std::size_t n, std::size_t p);
 
+
+    /**
+     * Perform the sum of each row of a matrix m
+     * out = sum(m, axis=1)
+     * m - matrix (m * n)
+     * out - vector (m)
+     */
+    void mat_sum_rows(const dbl_t* a, dbl_t* out,
+                      std::size_t m, std::size_t n);
+
+    /**
+     * Perform the sum of each col of a matrix m
+     * out = sum(m, axis=0)
+     * m - matrix (m * n)
+     * out - vector (n)
+     */
+    void mat_sum_cols(const dbl_t* a, dbl_t* out,
+                      std::size_t m, std::size_t n);
+    
 }
 
 #include "ops.hxx"

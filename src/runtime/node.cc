@@ -214,6 +214,30 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_mat_sum_rows(const dbl_t* arg, dbl_t* out,
+                                std::size_t rows, std::size_t cols,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MAT_SUM_ROWS, preds);
+        res->in1 = arg;
+        res->out1 = out;
+        res->len1 = rows;
+        res->len2 = cols;
+        return res;
+    }
+
+    Node* Node::op_mat_sum_cols(const dbl_t* arg, dbl_t* out,
+                                std::size_t rows, std::size_t cols,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MAT_SUM_COLS, preds);
+        res->in1 = arg;
+        res->out1 = out;
+        res->len1 = rows;
+        res->len2 = cols;
+        return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
     {

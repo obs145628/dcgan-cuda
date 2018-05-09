@@ -297,4 +297,30 @@ namespace cpu
         }
     }
 
+    inline void mat_sum_rows(const dbl_t* a, dbl_t* out,
+                             std::size_t m, std::size_t n)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i * n;
+            dbl_t sum = 0;
+            for (std::size_t j = 0; j < n; ++j)
+                sum += ai[j];
+            out[i] = sum;
+        }
+    }
+
+    inline void mat_sum_cols(const dbl_t* a, dbl_t* out,
+                             std::size_t m, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            const dbl_t* ai = a + i;
+            dbl_t sum = 0;
+            for (std::size_t j = 0; j < m; ++j)
+                sum += ai[j * n];
+            out[i] = sum;
+        }
+    }
+
 }

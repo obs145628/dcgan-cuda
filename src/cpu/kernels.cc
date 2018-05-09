@@ -93,6 +93,16 @@ namespace cpu
                     node->len1, node->len2, node->len3);
         }
 
+        void kernel_mat_sum_rows(rt::Node* node)
+        {
+            mat_sum_rows(node->in1, node->out1, node->len1, node->len2);
+        }
+
+        void kernel_mat_sum_cols(rt::Node* node)
+        {
+            mat_sum_cols(node->in1, node->out1, node->len1, node->len2);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -111,6 +121,8 @@ namespace cpu
         kernel_sigmoid_grad,
         kernel_mat_mul_add,
         kernel_tmat_mat_mul,
-        kernel_mat_tmat_mul
+        kernel_mat_tmat_mul,
+        kernel_mat_sum_rows,
+        kernel_mat_sum_cols
     };
 }
