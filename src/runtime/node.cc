@@ -186,6 +186,34 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_tmat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_TMAT_MAT_MUL, preds);
+        res->in1 = left;
+        res->in2 = right;
+        res->out1 = output;
+        res->len1 = rowsl;
+        res->len2 = colsl;
+        res->len3 = colsr;
+        return res;
+    }
+
+    Node* Node::op_mat_tmat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MAT_TMAT_MUL, preds);
+        res->in1 = left;
+        res->in2 = right;
+        res->out1 = output;
+        res->len1 = rowsl;
+        res->len2 = colsl;
+        res->len3 = colsr;
+        return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
     {

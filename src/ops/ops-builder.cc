@@ -61,16 +61,16 @@ namespace ops
         return res;
     }
 
-    MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right)
+    MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right, bool left_tr, bool right_tr)
     {
         if (left->shape_get().ndims() != 2)
             throw std::runtime_error{"left operand must be a matrix"};
         if (right->shape_get().ndims() != 2)
             throw std::runtime_error{"right operand must be a matrix"};
-        if (left->shape_get()[1] != right->shape_get()[0])
+        if (left->shape_get()[!left_tr] != right->shape_get()[right_tr])
             throw std::runtime_error{"left[1] and right[0] differ"};
 
-        auto res = new MatMatMul(left, right);
+        auto res = new MatMatMul(left, right, left_tr, right_tr);
         graph_.add(res);
         return res;
     }

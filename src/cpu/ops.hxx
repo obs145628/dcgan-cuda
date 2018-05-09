@@ -58,6 +58,40 @@ namespace cpu
         }
     }
 
+    inline void tmm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                        std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* bj = b + j;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += ai[k * m] * bj[k * p];
+                out[i * p + j] = x;
+            }
+        }
+    }
+
+    inline void mtm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                       std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i * n;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* bj = b + j * n;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += ai[k] * bj[k];
+                out[i * p + j] = x;
+            }
+        }
+    }
+
     inline void mvrow_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
                           std::size_t m, std::size_t n)
     {

@@ -23,6 +23,8 @@ namespace rt
         static constexpr int OP_MSE_GRAD = 11;
         static constexpr int OP_SIGMOID_GRAD = 12;
         static constexpr int OP_MAT_MUL_ADD = 13;
+        static constexpr int OP_TMAT_MAT_MUL = 14;
+        static constexpr int OP_MAT_TMAT_MUL = 15;
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -77,6 +79,14 @@ namespace rt
                                     dbl_t* output,
                                     std::size_t rowsx, std::size_t colsx, std::size_t colsw,
                                     const std::vector<Node*>& preds);
+
+        static Node* op_tmat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_tmat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                     const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

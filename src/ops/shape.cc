@@ -1,4 +1,5 @@
 #include "shape.hh"
+#include <cassert>
 
 namespace ops
 {
@@ -36,6 +37,12 @@ namespace ops
         for (auto x : dims_)
             res *= x;
         return res;
+    }
+
+    Shape Shape::transpose() const
+    {
+        assert(dims_.size() == 2);
+        return Shape({dims_[1], dims_[0]});
     }
 
     bool operator==(const Shape& a, const Shape& b)

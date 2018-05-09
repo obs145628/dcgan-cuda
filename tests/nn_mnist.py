@@ -17,8 +17,6 @@ def main():
 
   l1 = tf.layers.dense(X, units=100, activation=tf.nn.relu)
   l2 = tf.layers.dense(l1, units=10)
-
-  
   
   # Define loss and optimizer
   

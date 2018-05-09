@@ -81,6 +81,18 @@ namespace cpu
                         node->len1, node->len2, node->len3);
         }
 
+        void kernel_tmat_mat_mul(rt::Node* node)
+        {
+            tmm_mul(node->in1, node->in2, node->out1,
+                    node->len1, node->len2, node->len3);
+        }
+
+        void kernel_mat_tmat_mul(rt::Node* node)
+        {
+            mtm_mul(node->in1, node->in2, node->out1,
+                    node->len1, node->len2, node->len3);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -97,6 +109,8 @@ namespace cpu
         kernel_tanh,
         kernel_mse_grad,
         kernel_sigmoid_grad,
-        kernel_mat_mul_add
+        kernel_mat_mul_add,
+        kernel_tmat_mat_mul,
+        kernel_mat_tmat_mul
     };
 }

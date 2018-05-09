@@ -20,7 +20,7 @@ namespace ops
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Input* input(const Shape& shape);
         LogSoftmax* log_softmax(Op* arg);
-        MatMatMul* mat_mat_mul(Op* left, Op* right);
+        MatMatMul* mat_mat_mul(Op* left, Op* right, bool left_tr = false, bool right_tr = false);
         MatMulAdd* mat_mul_add(Op* x, Op* w, Op* b);
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
         MSE* mse(Op* y, Op* y_hat);
