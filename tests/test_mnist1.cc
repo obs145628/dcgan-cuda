@@ -42,11 +42,6 @@ int main(int argc, char** argv)
 
     auto& graph = ops::Graph::instance();
 
-    graph.compile({
-	    {x, ops::Shape({20, 784})},
-	    {y, ops::Shape({20, 10})}
-	});
-
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(20, 10));
     dbl_t* y_hat_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);

@@ -28,6 +28,26 @@ namespace cpu
                 std::size_t m, std::size_t n, std::size_t p);
 
     /**
+     * perform matrix matrix multiplication
+     * out = tr(a) * b
+     * a - matrix (n * m)
+     * b - matrix (n * p)
+     * out - matrix (m * p)
+     */
+    void tmm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                 std::size_t m, std::size_t n, std::size_t p);
+
+    /**
+     * perform matrix matrix multiplication
+     * out = a * tr(b)
+     * a - matrix (m * n)
+     * b - matrix (p * n)
+     * out - matrix (m * p)
+     */
+    void mtm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                 std::size_t m, std::size_t n, std::size_t p);
+
+    /**
      * perform matrix - vector addition
      * row vector brodcasted and added to all lines of a
      * out = a + b
@@ -168,6 +188,36 @@ namespace cpu
     void sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
                       std::size_t n);
 
+    /**
+     * perform matrix matrix multiplication followed by row vector addition
+     * out = np.dot(x, w) + b
+     * x - matrix (m * n)
+     * w - matrix (n * p)
+     * b - vector (p)
+     * out - matrix (m * p)
+     */
+    void mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b, dbl_t* out,
+                     std::size_t m, std::size_t n, std::size_t p);
+
+
+    /**
+     * Perform the sum of each row of a matrix m
+     * out = sum(m, axis=1)
+     * m - matrix (m * n)
+     * out - vector (m)
+     */
+    void mat_sum_rows(const dbl_t* a, dbl_t* out,
+                      std::size_t m, std::size_t n);
+
+    /**
+     * Perform the sum of each col of a matrix m
+     * out = sum(m, axis=0)
+     * m - matrix (m * n)
+     * out - vector (n)
+     */
+    void mat_sum_cols(const dbl_t* a, dbl_t* out,
+                      std::size_t m, std::size_t n);
+    
 }
 
 #include "ops.hxx"

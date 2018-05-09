@@ -2,6 +2,7 @@
 #include "../ops/ops-builder.hh"
 #include "../ops/mat-mat-mul.hh"
 #include "../ops/mat-rvect-add.hh"
+#include "../ops/mat-mul-add.hh"
 #include "../ops/variable.hh"
 #include "../ops/vect-sigmoid.hh"
 
@@ -21,9 +22,7 @@ ops::Op* dense_layer(ops::Op* input,
     if (b_init)
         b->write(b_init);
     
-
-    ops::Op* z = builder.mat_mat_mul(input, w);
-    z = builder.mat_rvect_add(z, b);
+    ops::Op* z = builder.mat_mul_add(input, w, b);
     auto out = builder.vect_sigmoid(z);
     return out;
 }

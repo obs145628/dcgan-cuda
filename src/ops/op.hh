@@ -45,9 +45,15 @@ namespace ops
         Op* pred_of(Op* node);
 
 
+        /**
+         * Compute the gradient nabla(C) / nabla(i-th child)
+         * C: any node that outputs a number
+         * dout: nabla(C) / nabla(this)
+         * if C = this, then dout is nullptr
+         */
         virtual Op* child_grad(std::size_t index, Op* dout);
 
-        private:
+    private:
         Shape shape_;
         std::vector<Op*> preds_;
         std::vector<Op*> succs_;

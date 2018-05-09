@@ -5,7 +5,9 @@
 #include "input.hh"
 #include "log-softmax.hh"
 #include "mat-mat-mul.hh"
+#include "mat-mul-add.hh"
 #include "mat-rvect-add.hh"
+#include "mat-sum.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
 #include "sigmoid-grad.hh"
@@ -59,17 +61,36 @@ namespace ops
         graph_.add(res);
         return res;
     }
+    
 
-    MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right)
+    MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right, bool left_tr, bool right_tr)
     {
         if (left->shape_get().ndims() != 2)
             throw std::runtime_error{"left operand must be a matrix"};
         if (right->shape_get().ndims() != 2)
             throw std::runtime_error{"right operand must be a matrix"};
-        if (left->shape_get()[1] != right->shape_get()[0])
+        if (left->shape_get()[!left_tr] != right->shape_get()[right_tr])
             throw std::runtime_error{"left[1] and right[0] differ"};
 
-        auto res = new MatMatMul(left, right);
+        auto res = new MatMatMul(left, right, left_tr, right_tr);
+        graph_.add(res);
+        return res;
+    }
+
+    MatMulAdd* OpsBuilder::mat_mul_add(Op* x, Op* w, Op* b)
+    {
+        if (x->shape_get().ndims() != 2)
+            throw std::runtime_error{"x must be a matrix"};
+        if (w->shape_get().ndims() != 2)
+            throw std::runtime_error{"w must be a matrix"};
+        if (b->shape_get().ndims() != 1)
+            throw std::runtime_error{"b must be a vector"};
+        if (x->shape_get()[1] != w->shape_get()[0])
+            throw std::runtime_error{"x[1] and w[0] differ"};
+        if (w->shape_get()[1] != b->shape_get()[0])
+            throw std::runtime_error{"w[1] and b[0] differ"};
+
+        auto res = new MatMulAdd(x, w, b);
         graph_.add(res);
         return res;
     }
@@ -87,6 +108,19 @@ namespace ops
         graph_.add(res);
         return res;
     }
+
+    MatSum* OpsBuilder::mat_sum(Op* arg, std::size_t axis)
+    {
+        if (arg->shape_get().ndims() != 2)
+            throw std::runtime_error {"arg must be a matrix"};
+        if (axis >= 2)
+            throw std::runtime_error {"axis must be 0 or 1"};
+
+        auto res = new MatSum(arg, axis);
+        graph_.add(res);
+        return res;
+    }
+                        
     
     MSE* OpsBuilder::mse(Op* y, Op* y_hat)
     {
