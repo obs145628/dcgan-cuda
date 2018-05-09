@@ -39,20 +39,12 @@ namespace ops
         return input_shapes_;
     }
 
-    void Graph::compile(const std::map<Input*, Shape>& inputs)
-    {
-        input_shapes_ = inputs;
-        compiled_ops_.clear();
-        for (auto node : ops_)
-            compile_(node);
-    }
-
     void Graph::run(std::vector<Op*> ops,
                     const std::map<Input*, std::pair<const dbl_t*, Shape>>& inputs,
                     const std::vector<dbl_t*>& outputs)
     {
 
-//remove already compiled nodes with different shapes, and update shapes
+        //remove already compiled nodes with different shapes, and update shapes
         for (const auto& it: inputs)
         {
             const auto& shape = it.second.second;
@@ -71,7 +63,7 @@ namespace ops
             input_shapes_[it.first] = shape;
         }
 
-// compare nodes that are not already compiled and build ops list
+        // compare nodes that are not already compiled and build ops list
         std::vector<rt::Node*> rt_ops;
         for (auto o : ops)
         {
@@ -87,10 +79,10 @@ namespace ops
             rt_ops.push_back(it->second.out_node);
         }
 
-//Get list of taks
+        //Get list of taks
         std::vector<rt::Node*> rt_tasks = full_rt_graph_.topological_sort(rt_ops);
 
-//set inut values
+        //set inut values
         for (auto x : inputs)
         {
             auto it = compiled_ops_.find(x.first);
@@ -100,13 +92,16 @@ namespace ops
             tensor_write(dst, dst + x.second.second.total(), x.second.first);
         }
 
-//run computations
+        //run computations
         cpu::run_sequential(rt_tasks);
 
-//set output values
+        //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)
         {
             dbl_t* out_ptr = outputs[i];
+            if (!out_ptr)
+                continue;
+            
             auto it = compiled_ops_.find(ops[i]);
             assert(it != compiled_ops_.end());
             const dbl_t* src_ptr = it->second.out_data;

@@ -28,6 +28,8 @@ namespace rt
         static constexpr int OP_MAT_SUM_ROWS = 16;
         static constexpr int OP_MAT_SUM_COLS = 17;
 
+        static const char* OP_NAMES[18];
+
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
                                const std::vector<Node*>& preds);

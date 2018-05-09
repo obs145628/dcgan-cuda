@@ -5,6 +5,29 @@
 namespace rt
 {
 
+    const char* Node::OP_NAMES[18] =
+    {
+        "mat_mat_mul",
+        "mat_rvect_add",
+        "sigmoid",
+        "mse",
+        "softmax",
+        "log_softmax",
+        "softmax_cross_entropy",
+        "conv2d",
+        "relu",
+        "relu_leaky",
+        "tanh",
+        "mse_grad",
+        "sigmoid_grad",
+        "mat_mul_add",
+        "tmat_mat_mul",
+        "mat_tmat_mul",
+        "mat_sum_rows",
+        "mat_sum_cols"
+    };
+    
+
     Node* Node::op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                std::size_t rowsl, std::size_t colsl, std::size_t colsr,
                                const std::vector<Node*>& preds)
@@ -240,6 +263,14 @@ namespace rt
 
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
+        , in1(nullptr)
+        , in2(nullptr)
+        , in3(nullptr)
+        , out1(nullptr)
+        , out2(nullptr)
+        , len1(0)
+        , len2(0)
+        , len3(0)
     {
         for (auto n : preds)
         {
