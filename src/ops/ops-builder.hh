@@ -21,6 +21,7 @@ namespace ops
         Input* input(const Shape& shape);
         LogSoftmax* log_softmax(Op* arg);
         MatMatMul* mat_mat_mul(Op* left, Op* right);
+        MatMulAdd* mat_mul_add(Op* x, Op* w, Op* b);
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);

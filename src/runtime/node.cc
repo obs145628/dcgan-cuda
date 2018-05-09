@@ -170,6 +170,22 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b,
+                               dbl_t* output,
+                               std::size_t rowsx, std::size_t colsx, std::size_t colsw,
+                               const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MAT_MUL_ADD, preds);
+        res->in1 = x;
+        res->in2 = w;
+        res->in3 = b;
+        res->out1 = output;
+        res->len1 = rowsx;
+        res->len2 = colsx;
+        res->len3 = colsw;
+        return res;
+    }
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
     {

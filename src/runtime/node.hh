@@ -22,6 +22,7 @@ namespace rt
         static constexpr int OP_TANH = 10;
         static constexpr int OP_MSE_GRAD = 11;
         static constexpr int OP_SIGMOID_GRAD = 12;
+        static constexpr int OP_MAT_MUL_ADD = 13;
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -71,6 +72,11 @@ namespace rt
         static Node* op_sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
                                      std::size_t len,
                                      const std::vector<Node*>& preds);
+
+        static Node* op_mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b,
+                                    dbl_t* output,
+                                    std::size_t rowsx, std::size_t colsx, std::size_t colsw,
+                                    const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

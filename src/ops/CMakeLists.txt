@@ -4,6 +4,7 @@ set(SRC
   input.cc
   log-softmax.cc
   mat-mat-mul.cc
+  mat-mul-add.cc
   mat-rvect-add.cc
   mse.cc
   mse-grad.cc

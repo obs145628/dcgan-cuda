@@ -246,4 +246,21 @@ namespace cpu
             out[i] = sig_out[i] * (1 - sig_out[i]) * dout[i];
     }
 
+    inline void mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b, dbl_t* out,
+                            std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* xi = x + i * n;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* wj = w + j;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += xi[k] * wj[k * p];
+                out[i * p + j] = x + b[j];
+            }
+        }
+    }
+
 }

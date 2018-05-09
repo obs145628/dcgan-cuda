@@ -64,9 +64,11 @@ test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
 test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
 test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
+test_basic('ops', 'mat_mul_add', 'ref_mat_mul_add.py', 'test_mat_mul_add')
 
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
+
 
 
 

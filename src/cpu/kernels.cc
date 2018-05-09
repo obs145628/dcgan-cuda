@@ -75,6 +75,12 @@ namespace cpu
             sigmoid_grad(node->in1, node->in2, node->out1, node->len1);
         }
 
+        void kernel_mat_mul_add(rt::Node* node)
+        {
+            mat_mul_add(node->in1, node->in2, node->in3, node->out1,
+                        node->len1, node->len2, node->len3);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -90,6 +96,7 @@ namespace cpu
         kernel_relu_leaky,
         kernel_tanh,
         kernel_mse_grad,
-        kernel_sigmoid_grad
+        kernel_sigmoid_grad,
+        kernel_mat_mul_add
     };
 }

@@ -168,6 +168,17 @@ namespace cpu
     void sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
                       std::size_t n);
 
+    /**
+     * perform matrix matrix multiplication followed by row vector addition
+     * out = np.dot(x, w) + b
+     * x - matrix (m * n)
+     * w - matrix (n * p)
+     * b - vector (p)
+     * out - matrix (m * p)
+     */
+    void mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b, dbl_t* out,
+                     std::size_t m, std::size_t n, std::size_t p);
+
 }
 
 #include "ops.hxx"

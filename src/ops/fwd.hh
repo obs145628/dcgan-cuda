@@ -8,6 +8,7 @@ namespace ops
     class Input;
     class LogSoftmax;
     class MatMatMul;
+    class MatMulAdd;
     class MatRvectAdd;
     class MSE;
     class MSEGrad;
