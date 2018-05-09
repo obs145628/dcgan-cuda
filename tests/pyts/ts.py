@@ -51,6 +51,7 @@ def test_basic(cat, sub, ref_script, bin_file):
                 code = 0)
 
 
+'''
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
@@ -71,7 +72,9 @@ test_basic('ops', 'mat_tmat_mul', 'ref_mat_tmat_mul.py', 'test_mat_tmat_mul')
 
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
+'''
 
+test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
 
 
 

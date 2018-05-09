@@ -21,7 +21,7 @@ namespace ops
 
         virtual void compile() override;
 
-        //virtual Op* child_grad(std::size_t index, Op* dout) override;
+        virtual Op* child_grad(std::size_t index, Op* dout) override;
         
     };
     

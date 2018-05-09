@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include "fwd.hh"
 #include "../memory/types.hh"
 
@@ -23,6 +24,7 @@ namespace ops
         MatMatMul* mat_mat_mul(Op* left, Op* right, bool left_tr = false, bool right_tr = false);
         MatMulAdd* mat_mul_add(Op* x, Op* w, Op* b);
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
+        MatSum* mat_sum(Op* arg, std::size_t axis);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
         SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);

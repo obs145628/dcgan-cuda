@@ -7,6 +7,7 @@
 #include "mat-mat-mul.hh"
 #include "mat-mul-add.hh"
 #include "mat-rvect-add.hh"
+#include "mat-sum.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
 #include "sigmoid-grad.hh"
@@ -60,6 +61,7 @@ namespace ops
         graph_.add(res);
         return res;
     }
+    
 
     MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right, bool left_tr, bool right_tr)
     {
@@ -106,6 +108,19 @@ namespace ops
         graph_.add(res);
         return res;
     }
+
+    MatSum* OpsBuilder::mat_sum(Op* arg, std::size_t axis)
+    {
+        if (arg->shape_get().ndims() != 2)
+            throw std::runtime_error {"arg must be a matrix"};
+        if (axis >= 2)
+            throw std::runtime_error {"axis must be 0 or 1"};
+
+        auto res = new MatSum(arg, axis);
+        graph_.add(res);
+        return res;
+    }
+                        
     
     MSE* OpsBuilder::mse(Op* y, Op* y_hat)
     {

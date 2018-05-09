@@ -6,6 +6,7 @@ set(SRC
   mat-mat-mul.cc
   mat-mul-add.cc
   mat-rvect-add.cc
+  mat-sum.cc
   mse.cc
   mse-grad.cc
   op.cc
