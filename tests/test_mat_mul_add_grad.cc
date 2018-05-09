@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 
     auto dx_node = graph.gradient(loss_node, x_node);
     auto dw_node = graph.gradient(loss_node, w_node);
-    //auto db_node = graph.gradient(loss_node, b_node);
+    auto db_node = graph.gradient(loss_node, b_node);
     auto dy_hat_node = graph.gradient(loss_node, y_hat_node);
 
 
@@ -70,15 +70,17 @@ int main(int argc, char** argv)
     dbl_t* dx = reinterpret_cast<dbl_t*>(out.arr()[0].data);
     out.add(tocha::Tensor::f32(3, 2));
     dbl_t* dw = reinterpret_cast<dbl_t*>(out.arr()[1].data);
+    out.add(tocha::Tensor::f32(2));
+    dbl_t* db = reinterpret_cast<dbl_t*>(out.arr()[2].data);
     out.add(tocha::Tensor::f32(4, 2));
-    dbl_t* dy_hat = reinterpret_cast<dbl_t*>(out.arr()[2].data);
+    dbl_t* dy_hat = reinterpret_cast<dbl_t*>(out.arr()[3].data);
 
-    graph.run({dx_node, dw_node, dy_hat_node},
+    graph.run({dx_node, dw_node, db_node, dy_hat_node},
               {{x_node, {x, ops::Shape({4, 3})}},
                   {w_node, {w, ops::Shape({3, 2})}},
                   {b_node, {b, ops::Shape({2})}},
                   {y_node, {y, ops::Shape({4, 2})}}},
-	      {dx, dw, dy_hat});
+	      {dx, dw, db, dy_hat});
     
     
     out.save(argv[1]);

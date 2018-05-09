@@ -51,5 +51,5 @@ tf_dy_hat = sess.run(dy_hat_node)
 
 tensors_saver.add(tf_dx.astype(np.float32))
 tensors_saver.add(tf_dw.astype(np.float32))
-#tensors_saver.add(tf_db.astype(np.float32))
+tensors_saver.add(tf_db.astype(np.float32))
 tensors_saver.add(tf_dy_hat.astype(np.float32))

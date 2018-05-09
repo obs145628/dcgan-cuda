@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "graph.hh"
 #include "mat-mat-mul.hh"
+#include "mat-sum.hh"
 #include "ops-builder.hh"
 #include "../runtime/node.hh"
 #include "../memory/alloc.hh"
@@ -60,7 +61,7 @@ namespace ops
 
         // dC/db
         else
-            return nullptr;
+            return builder.mat_sum(dout, 0);
     }
     
 }
