@@ -221,4 +221,3 @@ set(TEST_MNIST_GRAD_SRC
 )
 add_executable(test_mnist_grad ${TEST_MNIST_GRAD_SRC})
 target_link_libraries(test_mnist_grad cnpy)
->>>>>>> origin
