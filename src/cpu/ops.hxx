@@ -358,4 +358,11 @@ namespace cpu
             out[i] = z[i] > 0 ? dout[i] : 0;
     }
 
+    inline void vect_update(const dbl_t* dv, dbl_t* out, dbl_t coeff,
+                            std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] += coeff * dv[i];
+    }
+
 }

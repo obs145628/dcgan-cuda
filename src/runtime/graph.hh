@@ -54,6 +54,11 @@ namespace rt
                                 const std::vector<Node*>& vals);
 
         /**
+         * Returns a new vector of nodes without nop
+         */
+        static std::vector<Node*> clear_nops(const std::vector<Node*>& nodes);
+
+        /**
          * Transform the graph into dot-graph
          * for debugging purposes only
          */

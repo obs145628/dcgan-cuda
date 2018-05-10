@@ -18,10 +18,12 @@ namespace ops
     class OpsBuilder;
     class ReluGrad;
     class Shape;
+    class Seq;
     class SigmoidGrad;
     class Softmax;
     class SoftmaxCrossEntropy;
     class SoftmaxCrossEntropyGrad;
+    class Update;
     class Variable;
     class VectSigmoid;
     class VectRelu;

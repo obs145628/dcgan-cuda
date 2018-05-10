@@ -8,6 +8,7 @@
 #include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
 #include "../src/api/cost.hh"
+#include "../src/api/sgd-optimizer.hh"
 
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
@@ -26,7 +27,7 @@ int main(int argc, char** argv)
     mnist::load(argv[1], &x_train, &y_train);
 
     auto& graph = ops::Graph::instance();
-    graph.debug_set(true);
+    //graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
     
     auto x = builder.input(ops::Shape({-1, 784}));
@@ -36,14 +37,22 @@ int main(int argc, char** argv)
     auto l2 = dense_layer(l1, 100, 10, nullptr);
     auto loss = softmax_cross_entropy(y, l2);
 
+    SGDOptimizer optimizer(0.5 / 100);
+    auto train_op = optimizer.minimize(loss);
+
     dbl_t loss_val;
 
-    graph.run({loss},
-	      {{x, {x_train, ops::Shape({20, 784})}},
-		  {y, {y_train, ops::Shape({20, 10})}}},
-	      {&loss_val});
+    for (int i = 0; i < 100; ++i)
+    {
 
-    std::cout << loss_val << std::endl;
+        graph.run({train_op, loss},
+                  {{x, {x_train, ops::Shape({100, 784})}},
+                      {y, {y_train, ops::Shape({100, 10})}}},
+                  {nullptr, &loss_val});
+
+        std::cout << "epoch " << i << ", "
+                  << "loss = " << loss_val << std::endl;
+    }
 
     tensor_free(x_train);
     tensor_free(y_train);

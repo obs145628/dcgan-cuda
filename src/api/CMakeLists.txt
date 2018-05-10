@@ -4,6 +4,7 @@ set(SRC
   cost.cc
   layers.cc
   normal-initializer.cc
+  sgd-optimizer.cc
   zero-initializer.cc
 )
 

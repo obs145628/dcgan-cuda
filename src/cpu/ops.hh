@@ -255,6 +255,16 @@ namespace cpu
      */
     void relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
                    std::size_t n);
+
+    /**
+     * Perform vector-scalar addition on out
+     * out = out + coeff * dv
+     * out - vector(n)
+     * dv - vector(n)
+     * coeff - scalar
+     */
+    void vect_update(const dbl_t* dv, dbl_t* out, dbl_t coeff,
+                     std::size_t n);
     
 }
 

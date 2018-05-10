@@ -26,6 +26,7 @@ namespace ops
         virtual ~Op() = default;
 
         const std::string& name_get();
+        void extend_name(const std::string& str);
         const Shape& shape_get() const;
         std::vector<Op*> preds();
         std::vector<Op*> succs();

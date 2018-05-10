@@ -21,7 +21,9 @@ ops::Op* dense_layer(ops::Op* input,
     auto& builder = ops::OpsBuilder::instance();
     
     auto w = builder.variable(ops::Shape({int(in_size), int(out_size)}), true);
+    w->extend_name("dense_w");
     auto b = builder.variable(ops::Shape({int(out_size)}), true);
+    b->extend_name("dense_b");
 
     NormalInitializer base_init;
     if (!w_init)
@@ -35,7 +37,10 @@ ops::Op* dense_layer(ops::Op* input,
     ops::Op* out = builder.mat_mul_add(input, w, b);
     ops::Op* z = out;
     if (activ)
+    {
         out = activ(z);
+        out->extend_name("dense_activ");
+    }
 
     if (tmp_data)
     {
@@ -61,7 +66,9 @@ ops::Op* conv2d_layer(ops::Op* input,
    
     auto w = builder.variable(ops::Shape({int(kernel_size[0]), int(kernel_size[1]),
                     int(in_size[3]), int(nb_filter)}), true);
+    w->extend_name("conv2d_w");
     auto b = builder.variable(ops::Shape({int(nb_filter)}), true);
+    b->extend_name("conv2d_b");
 
     NormalInitializer base_init;
     if (!w_init)
@@ -76,7 +83,10 @@ ops::Op* conv2d_layer(ops::Op* input,
     ops::Op* out = builder.conv2d_bias_add(out_conv, b);
     ops::Op* z = out;
     if (activ)
+    {
         out = activ(z);
+        out->extend_name("conv2d_activ");
+    }
     
     if (tmp_data)
     {

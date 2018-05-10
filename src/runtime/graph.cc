@@ -123,7 +123,7 @@ namespace rt
             throw std::runtime_error {"Topological sort failed"};
 
 
-        return res;
+        return clear_nops(res);
     }
 
 
@@ -191,6 +191,15 @@ namespace rt
         
     }
 
+    std::vector<Node*> Graph::clear_nops(const std::vector<Node*>& nodes)
+    {
+        std::vector<Node*> res;
+        for (auto n : nodes)
+            if (n->type != Node::OP_NOP)
+                res.push_back(n);
+        return res;
+    }
+
 
     namespace
     {
@@ -198,6 +207,9 @@ namespace rt
         std::string op_name(const Node* node,
                             std::map<const Node*, std::string>& names)
         {
+            if (node->type == Node::OP_NOP)
+                return "nop";
+            
             auto it = names.find(node);
             if (it != names.end())
                 return it->second;

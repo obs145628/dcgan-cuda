@@ -37,6 +37,11 @@ namespace ops
         return name_;
     }
 
+    void Op::extend_name(const std::string& str)
+    {
+        name_ += ":" + str;
+    }
+
     const Shape& Op::shape_get() const
     {
         return shape_;

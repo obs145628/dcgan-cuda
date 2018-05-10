@@ -46,6 +46,13 @@ namespace ops
         void add(Op* op);
 
         /**
+         * Add a new variable to the graph, never called directly
+         * Called by ops-builder
+         * add(var) is called by this method, no need to call it
+         */
+        void add_var(Variable* var);
+
+        /**
          * Realise network computations
          * ops - the list of operations to be realised
          * input - the data for each input
