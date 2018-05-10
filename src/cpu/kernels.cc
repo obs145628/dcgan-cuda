@@ -103,6 +103,11 @@ namespace cpu
             mat_sum_cols(node->in1, node->out1, node->len1, node->len2);
         }
 
+        void kernel_softmax_cross_entropy_grad(rt::Node* node)
+        {
+            softmax_cross_entropy_grad(node->in1, node->in2, node->out1, node->len1, node->len2);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -123,6 +128,7 @@ namespace cpu
         kernel_tmat_mat_mul,
         kernel_mat_tmat_mul,
         kernel_mat_sum_rows,
-        kernel_mat_sum_cols
+        kernel_mat_sum_cols,
+        kernel_softmax_cross_entropy_grad
     };
 }

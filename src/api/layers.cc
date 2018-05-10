@@ -9,8 +9,10 @@
 ops::Op* dense_layer(ops::Op* input,
                      std::size_t in_size,
                      std::size_t out_size,
+                     activ_f activ,
                      dbl_t* w_init,
-                     dbl_t* b_init)
+                     dbl_t* b_init,
+                     DenseLayerData* tmp_data)
 {
     auto& builder = ops::OpsBuilder::instance();
     
@@ -22,7 +24,17 @@ ops::Op* dense_layer(ops::Op* input,
     if (b_init)
         b->write(b_init);
     
-    ops::Op* z = builder.mat_mul_add(input, w, b);
-    auto out = builder.vect_sigmoid(z);
+    ops::Op* out = builder.mat_mul_add(input, w, b);
+    ops::Op* z = out;
+    if (activ)
+        out = activ(z);
+
+    if (tmp_data)
+    {
+        tmp_data->w = w;
+        tmp_data->b = b;
+        tmp_data->z = z;
+    }
+    
     return out;
 }

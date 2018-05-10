@@ -50,8 +50,8 @@ def test_basic(cat, sub, ref_script, bin_file):
                 ],
                 code = 0)
 
-
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
+test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
 
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
@@ -74,7 +74,7 @@ test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
 test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
-
+test_basic('ops_grad', 'softmax_cross_entrop_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
 
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts

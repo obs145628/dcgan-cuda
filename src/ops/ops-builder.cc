@@ -13,6 +13,7 @@
 #include "sigmoid-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
+#include "softmax-cross-entropy-grad.hh"
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
@@ -174,10 +175,27 @@ namespace ops
     SoftmaxCrossEntropy* OpsBuilder::softmax_cross_entropy(Op* y, Op* logits)
     {
         if (y->shape_get().ndims() != 2)
-            throw std::runtime_error {"CrossEntropy:y must be a matrix"};
+            throw std::runtime_error {"y must be a matrix"};
         if (logits->shape_get().ndims() != 2)
-            throw std::runtime_error {"CrossEntropy:logits must be a matrix"};
+            throw std::runtime_error {"logits must be a matrix"};
+        if (y->shape_get() != logits->shape_get())
+            throw std::runtime_error {"y and logits must have the same shape"};
+            
         auto res = new SoftmaxCrossEntropy(y, logits);
+        graph_.add(res);
+        return res;
+    }
+
+    SoftmaxCrossEntropyGrad* OpsBuilder::softmax_cross_entropy_grad(Op* y, Op* logits)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"y must be a matrix"};
+        if (logits->shape_get().ndims() != 2)
+            throw std::runtime_error {"logits must be a matrix"};
+        if (y->shape_get() != logits->shape_get())
+            throw std::runtime_error {"y and logits must have the same shape"};
+        
+        auto res = new SoftmaxCrossEntropyGrad(y, logits);
         graph_.add(res);
         return res;
     }

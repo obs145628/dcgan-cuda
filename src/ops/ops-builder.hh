@@ -30,6 +30,7 @@ namespace ops
         SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
+        SoftmaxCrossEntropyGrad* softmax_cross_entropy_grad(Op* y, Op* logits);
         Variable* variable(const Shape& shape);
         VectSigmoid* vect_sigmoid(Op* arg);
         VectRelu* vect_relu(Op* arg);

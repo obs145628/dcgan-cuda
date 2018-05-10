@@ -217,6 +217,18 @@ namespace cpu
      */
     void mat_sum_cols(const dbl_t* a, dbl_t* out,
                       std::size_t m, std::size_t n);
+
+
+    /**
+     * Cmpute the gradient of the cross-entrpy cost between y and softmax(logits) from logits
+     * C = cross_entropy(y, softmax(logits))
+     * y - matrix (m * n) - labels
+     * logits - matrix (m * n) - logits of final layer (before y_hat = softmax(logits)
+     * out - matrix (m * n)
+     * out = nabla(C) / nabla(logits)
+     */
+    void softmax_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                    std::size_t m, std::size_t n);
     
 }
 
