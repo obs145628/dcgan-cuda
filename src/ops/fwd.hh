@@ -19,6 +19,7 @@ namespace ops
     class SigmoidGrad;
     class Softmax;
     class SoftmaxCrossEntropy;
+    class SoftmaxCrossEntropyGrad;
     class Variable;
     class VectSigmoid;
     class VectRelu;

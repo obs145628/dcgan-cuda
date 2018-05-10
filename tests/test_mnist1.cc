@@ -3,6 +3,7 @@
 #include "../src/ops/input.hh"
 #include "../src/ops/ops-builder.hh"
 #include "../src/ops/graph.hh"
+#include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
 #include "../src/api/cost.hh"
 
@@ -30,17 +31,17 @@ int main(int argc, char** argv)
     dbl_t* b2 = reinterpret_cast<dbl_t*>(weights.arr()[3].data);
 
 
+    auto& graph = ops::Graph::instance();
+    graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
     
     auto x = builder.input(ops::Shape({-1, 784}));
     auto y = builder.input(ops::Shape({-1, 10}));
 
-    auto l1 = dense_layer(x, 784, 100, w1, b1);
-    auto l2 = dense_layer(l1, 100, 10, w2, b2);
+    auto l1 = dense_layer(x, 784, 100, sigmoid, w1, b1);
+    auto l2 = dense_layer(l1, 100, 10, sigmoid, w2, b2);
     auto y_hat = l2;
     auto cost = quadratic_cost(y, y_hat);
-
-    auto& graph = ops::Graph::instance();
 
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(20, 10));

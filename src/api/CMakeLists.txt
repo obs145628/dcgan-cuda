@@ -1,4 +1,5 @@
 set(SRC
+  activ.cc
   cost.cc
   layers.cc
 )

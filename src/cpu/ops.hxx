@@ -323,4 +323,12 @@ namespace cpu
         }
     }
 
+    inline void softmax_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                           std::size_t m, std::size_t n)
+    {
+        softmax(logits, out, m, n);
+        for (std::size_t i = 0; i < m * n; ++i)
+            out[i] = (out[i] - y[i]) / m;
+    }
+
 }

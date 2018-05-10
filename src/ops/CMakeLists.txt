@@ -15,6 +15,7 @@ set(SRC
   sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc
+  softmax-cross-entropy-grad.cc
   variable.cc
   vect-sigmoid.cc
   vect-relu.cc
