@@ -11,7 +11,7 @@ namespace ops
 {
 
     VectSigmoid::VectSigmoid(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("vect-sigmoid", arg->shape_get(), {arg})
     {}
 
     void VectSigmoid::compile()

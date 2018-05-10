@@ -11,7 +11,7 @@ namespace ops
 {
 
     MatSum::MatSum(Op* arg, std::size_t axis)
-        : Op(Shape({arg->shape_get()[!axis]}), {arg})
+        : Op("mat_sum", Shape({arg->shape_get()[!axis]}), {arg})
         , axis_(axis)
     {}
 

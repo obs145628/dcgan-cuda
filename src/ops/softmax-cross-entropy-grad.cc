@@ -7,7 +7,7 @@ namespace ops
 {
 
     SoftmaxCrossEntropyGrad::SoftmaxCrossEntropyGrad(Op* y, Op* logits)
-        : Op(y->shape_get(), {y, logits})
+        : Op("softmax_cross_entropy_grad", y->shape_get(), {y, logits})
     {}
 
     void SoftmaxCrossEntropyGrad::compile()

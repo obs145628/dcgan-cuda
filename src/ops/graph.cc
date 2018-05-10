@@ -30,9 +30,18 @@ namespace ops
         return ops_;
     }
 
+    const std::map<std::string, Op*> Graph::ops_by_name() const
+    {
+        return ops_by_name_;
+    }
+
     void Graph::add(Op* op)
     {
         ops_.push_back(op);
+        
+        if (ops_by_name_.find(op->name_get()) != ops_by_name_.end())
+            throw std::runtime_error {"Operand with same name already exists"};
+        ops_by_name_[op->name_get()] = op;
     }
 
     const std::map<Input*, Shape>& Graph::input_shapes_get()
@@ -93,9 +102,18 @@ namespace ops
             tensor_write(dst, dst + x.second.second.total(), x.second.first);
         }
 
-        //run computations
+
+        //debug display
         if (debug_)
+        {
             rt::Graph::print_nodes(std::cout, rt_tasks);
+            auto dot = to_dot_graph();
+            dot.write_file("./graph.dot");
+            auto rt_dot = full_rt_graph_.to_dot_graph();
+            rt_dot.write_file("./rt_graph.dot");
+        }
+
+        //run computations
         cpu::run_sequential(rt_tasks);
 
         //set output values
@@ -148,6 +166,15 @@ namespace ops
     void Graph::debug_set(bool debug)
     {
         debug_ = debug;
+    }
+
+    utils::DotGraph Graph::to_dot_graph()
+    {
+        utils::DotGraph res;
+        for (auto op : ops_)
+            for (auto succ : op->succs())
+                res.add_edge(op->name_get(), succ->name_get());
+        return res;
     }
 
 

@@ -7,7 +7,7 @@ namespace ops
 {
 
     SigmoidGrad::SigmoidGrad(Op* sig_out, Op* dout)
-        : Op(sig_out->shape_get(), {sig_out, dout})
+        : Op("sigmoid_grad", sig_out->shape_get(), {sig_out, dout})
     {}
 
     void SigmoidGrad::compile()

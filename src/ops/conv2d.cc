@@ -8,7 +8,8 @@ namespace ops
 {
 
     Conv2D::Conv2D(Op* input, Op* kernel, const int strides[])
-        : Op(Shape({input->shape_get()[0],
+        : Op("conv2d",
+            Shape({input->shape_get()[0],
                         (input->shape_get()[1] - kernel->shape_get()[0]) / strides[0] + 1,
                         (input->shape_get()[2] - kernel->shape_get()[1]) / strides[1] + 1,
                         kernel->shape_get()[3]}),

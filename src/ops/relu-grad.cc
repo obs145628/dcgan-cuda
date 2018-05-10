@@ -7,7 +7,7 @@ namespace ops
 {
 
     ReluGrad::ReluGrad(Op* z, Op* dout)
-        : Op(z->shape_get(), {z, dout})
+        : Op("relu_grad", z->shape_get(), {z, dout})
     {}
 
     void ReluGrad::compile()

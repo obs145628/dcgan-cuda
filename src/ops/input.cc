@@ -17,7 +17,7 @@ namespace ops
     }
 
     Input::Input(const Shape& shape)
-        : Op(shape)
+        : Op("input", shape)
         , id_(unique_id())
         , data_(nullptr)
     {}

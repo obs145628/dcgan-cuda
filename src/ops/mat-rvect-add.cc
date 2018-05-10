@@ -8,7 +8,7 @@ namespace ops
 {
 
     MatRvectAdd::MatRvectAdd(Op* left, Op* right)
-        : Op(left->shape_get(), {left, right})
+        : Op("mat_rvect_add", left->shape_get(), {left, right})
     {}
 
     void MatRvectAdd::compile()
