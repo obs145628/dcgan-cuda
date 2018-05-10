@@ -108,7 +108,9 @@ namespace ops
         {
             rt::Graph::print_nodes(std::cout, rt_tasks);
             auto dot = to_dot_graph();
-            dot.write_file("graph.dot");
+            dot.write_file("./graph.dot");
+            auto rt_dot = full_rt_graph_.to_dot_graph();
+            rt_dot.write_file("./rt_graph.dot");
         }
 
         //run computations
