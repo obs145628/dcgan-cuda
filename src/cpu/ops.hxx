@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <stdlib.h>
 
 namespace cpu
 {
@@ -176,16 +177,16 @@ namespace cpu
 
     inline void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
                        const int* strides,
-                       const int* input_size, const int* kernel_size)
+                       FilterAccessor* faI, FilterAccessor* faK)
     {
-        const std::size_t kernelH = kernel_size[0];
-        const std::size_t kernelW = kernel_size[1];
-        const std::size_t nbFilter = kernel_size[3];
+        const std::size_t kernelH = faK->size_get(0);
+        const std::size_t kernelW = faK->size_get(1);
+        const std::size_t nbFilter = faK->size_get(3);
 
-        const std::size_t nbImage = input_size[0];
-        const std::size_t nbChan = input_size[3];
-        const std::size_t inputH = input_size[1];
-        const std::size_t inputW = input_size[2];
+        const std::size_t nbImage = faI->size_get(0);
+        const std::size_t nbChan =  faI->size_get(3);
+        const std::size_t inputH =  faI->size_get(1);
+        const std::size_t inputW =  faI->size_get(2);
 
         const std::size_t stepLenH = (inputH - kernelH) / strides[0] + 1;
         const std::size_t stepLenW = (inputW - kernelW) / strides[1] + 1;
@@ -200,21 +201,27 @@ namespace cpu
                             for (std::size_t di = 0; di < kernelH; ++di)
                                 for (std::size_t dj = 0; dj < kernelW; ++dj)
                                 {
-                                    std::size_t imgIndex = b * inputH * inputW * nbChan;
-                                    std::size_t ihIndex = (strides[0] * i + di) * inputW * nbChan;
-                                    std::size_t iwIndex = (strides[1] * j + dj) * nbChan;
-
-                                    std::size_t khIndex = di * kernelW * nbChan * nbFilter;
-                                    std::size_t kwIndex = dj * nbChan * nbFilter;
-                                    std::size_t chIndex = q * nbFilter;
-                                    val += input[imgIndex + ihIndex + iwIndex + q]
-                                        * kernel[khIndex + kwIndex + chIndex + k];
+                                  int inputInd = faI->access(b, (strides[0] * i + di),
+                                                            (strides[1] * j + dj), q);
+                                  int kernelInd = faK->access(di, dj, q, k);
+                                  val += input[inputInd] * kernel[kernelInd];
                                 }
                         std::size_t oimgIndex = b * stepLenH * stepLenW * nbFilter;
                         std::size_t ohIndex = i * stepLenW * nbFilter;
                         std::size_t owIndex = j * nbFilter;
                         out[oimgIndex + ohIndex + owIndex + k] = val;
                     }
+    }
+    
+    inline void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
+                       const int* strides,
+                       const int* input_size, const int* kernel_size)
+    {
+        IdentityAccessor* iaI = new IdentityAccessor(input_size);
+        IdentityAccessor* iaK = new IdentityAccessor(kernel_size);
+        conv2d(input, kernel, out, strides, iaI, iaK);
+        delete iaI;
+        delete iaK;
     }
     
     inline void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
@@ -386,4 +393,275 @@ namespace cpu
             out[i] = (sigmoid(logits[i]) - y[i]) / n;
     }
 
+    inline void padd_full_conv(const dbl_t* input, dbl_t* out, int stride,
+                               const int* kernel_size,
+                               const int* out_size,
+                               FilterAccessor* faI)
+    {
+          const int sOutTot0 = out_size[1] * out_size[2] * out_size[3];
+          const int sOutTot1 = out_size[2] * out_size[3];
+        
+          for (int img = 0; img < out_size[0]; ++img)
+              for (int hIndex = 0; hIndex < out_size[1]; ++hIndex)
+                  for (int wIndex = 0; wIndex < out_size[2]; ++wIndex)
+                      for (int chan = 0; chan < out_size[3]; ++chan)
+                      {
+                          if ((wIndex - 1) % stride == 0 && (hIndex - 1) % stride == 0)
+                          {
+                            int prevHIndex = hIndex - (kernel_size[0] - 1) - ((hIndex - 1) / stride * (stride - 1));
+                            int prevWIndex = wIndex - (kernel_size[1] - 1) - ((wIndex - 1) / stride * (stride - 1));
+                            if (prevHIndex >= 0 && prevHIndex < faI->size_get(1)
+                                && prevWIndex >= 0 && prevWIndex < faI->size_get(2))
+                            {
+                                int inputInd = faI->access(img, prevHIndex, prevWIndex, chan);
+                                out[img * sOutTot0 + hIndex * sOutTot1
+                                    + wIndex * out_size[3] + chan] = input[inputInd];
+                            }
+                          }
+                      }
+    }
+    
+    inline void padd_ker(const dbl_t* kernel, dbl_t* out, int stride,
+                         const int* out_size, FilterAccessor* fa)
+    {
+        const int sOutTot0 = out_size[1] * out_size[2] * out_size[3];
+        const int sOutTot1 = out_size[2] * out_size[3];
+        
+        for (int hIndex = 0; hIndex < out_size[0]; ++hIndex)
+            for (int wIndex = 0; wIndex < out_size[1]; ++wIndex)
+                for (int inCh = 0; inCh < out_size[2]; ++inCh)
+                    for (int oCh = 0; oCh < out_size[3]; ++oCh)
+                    {
+                      if (wIndex % stride == 0 && hIndex % stride == 0)
+                      {
+                          int prevHIndex = hIndex - (hIndex / stride * (stride - 1));
+                          int prevWIndex = wIndex - (wIndex / stride * (stride - 1));
+                          int kernelInd = fa->access(prevHIndex, prevWIndex, inCh, oCh);
+                          out[hIndex * sOutTot0 + wIndex * sOutTot1
+                              + inCh * out_size[3] + oCh] = kernel[kernelInd];
+                      }
+                    }
+    }
+    
+    inline dbl_t* formatDw(dbl_t* dldw, const int* size)
+    {
+        dbl_t* out = (dbl_t*)malloc(size[0] * size[1] * size[2] * size[3] * sizeof(dbl_t));
+        const int sOutTot0 = size[2] * size[0] * size[3];
+        const int sOutTot1 = size[0] * size[3];
+      
+        const int sdlTot0 = size[1] * size[2] * size[3];
+        const int sdlTot1 = size[2] * size[3];
+      
+        for (int hIndex = 0; hIndex < size[1]; ++hIndex)
+            for (int wIndex = 0; wIndex < size[2]; ++wIndex)
+                for (int ch = 0; ch < size[0]; ++ch)
+                    for (int nbFilter = 0; nbFilter < size[3]; ++nbFilter)
+                        out[hIndex * sOutTot0 + wIndex * sOutTot1
+                            + ch * size[3] + nbFilter] = dldw[ch * sdlTot0
+                                                              + hIndex * sdlTot1
+                                                              + wIndex * size[3] + nbFilter];
+      
+        free(dldw);
+        return out;
+    }
+    
+    inline void tensor_add(dbl_t* t1, dbl_t* t2, const int* size)
+    {
+        int sTot = size[0] * size[1] * size[2] * size[3];
+        for (int i = 0; i < sTot; ++i)
+            t1[i] = t1[i] + t2[i];
+    }
+    
+    inline dbl_t* tensor_concat_axis3(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2)
+    {
+        dbl_t* out = (dbl_t*)malloc(size_t1[0] * size_t1[1] * size_t1[2]
+                                      * (size_t1[3] + size_t2[3]) * sizeof(dbl_t));
+        const int new_axis3_size = (size_t1[3] + size_t2[3]);
+        const int sOutTot0 = size_t1[1] * size_t1[2] * (new_axis3_size);
+        const int sOutTot1 = size_t1[2] * new_axis3_size;
+      
+        const int st1Tot0 = size_t1[1] * size_t1[2] * size_t1[3];
+        const int st1Tot1 = size_t1[2] * size_t1[3];
+      
+        const int st2Tot0 = size_t2[1] * size_t2[2] * size_t2[3];
+        const int st2Tot1 = size_t2[2] * size_t2[3];
+      
+        for (int hIndex = 0; hIndex < size_t1[0]; ++hIndex)
+            for (int wIndex = 0; wIndex < size_t1[1]; ++wIndex)
+                for (int ch = 0; ch < size_t1[2]; ++ch)
+                    for (int nbFilter = 0; nbFilter < new_axis3_size; ++nbFilter)
+                    {
+                      if (nbFilter >= size_t1[3])
+                          out[hIndex * sOutTot0 + wIndex * sOutTot1
+                              + ch * new_axis3_size + nbFilter] = t2[hIndex * st2Tot0
+                                                  + wIndex * st2Tot1 + ch * size_t2[3]
+                                                  + nbFilter - size_t1[3]];
+                      else
+                          out[hIndex * sOutTot0 + wIndex * sOutTot1
+                              + ch * new_axis3_size + nbFilter] = t1[hIndex * st1Tot0
+                                                  + wIndex * st1Tot1 + ch * size_t1[3]
+                                                  + nbFilter];
+                    }
+        free(t1);
+        free(t2);
+        return out;
+    }
+    
+    inline dbl_t* tensor_concat_axis0(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2)
+    {
+        const int new_size = size_t1[0] * size_t1[1] * size_t1[2] * size_t1[3]
+                       + size_t2[0] * size_t2[1] * size_t2[2] * size_t2[3];
+        dbl_t* out = (dbl_t*)malloc(new_size * sizeof(dbl_t));
+        memcpy(out, t1, size_t1[0] * size_t1[1] * size_t1[2] * size_t1[3] * sizeof(dbl_t));
+        memcpy(out + size_t1[0] * size_t1[1] * size_t1[2] * size_t1[3], t2,
+              size_t2[0] * size_t2[1] * size_t2[2] * size_t2[3] * sizeof(dbl_t));
+        free(t1);
+        free(t2);
+        return out;
+    }
+    
+    inline void conv2d_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
+                                  const int* W1_size, dbl_t* out)
+    {
+      const int nbChan = W1_size[2];
+      const int nbFilter = dX1_size[3];
+  
+      dbl_t* dLdX = nullptr;
+      int add_size[4] = {0,0,0,0};
+      int concat_size[4] = {0,0,0,0};
+      for (int chan = 0; chan < nbChan; ++chan)
+      {
+          dbl_t* dLdXFilter = nullptr;
+          for (int filter = 0; filter < nbFilter; ++filter)
+          {
+              WFilterRot180Accessor* wf = new WFilterRot180Accessor(W1_size, filter, chan);
+              YFilterAccessor* yf = new YFilterAccessor(dX1_size, filter);
+  
+              const int striddedWidth = (yf->size_get(2) - 1) * (stride - 1) + yf->size_get(2);
+              const int striddedHeight = (yf->size_get(1) - 1) * (stride - 1) + yf->size_get(1);
+              const int outWidth = ((wf->size_get(1) - 1) * 2 + striddedWidth);
+              const int outHeight = ((wf->size_get(0) - 1) * 2 + striddedHeight);
+              dbl_t* padded = (dbl_t*)calloc(yf->size_get(0) * outHeight
+                                              * outWidth * yf->size_get(3),
+                                              sizeof(dbl_t));
+              const int padded_size[4] =
+              {
+                  yf->size_get(0), outHeight, outWidth, yf->size_get(3)
+              };
+              padd_full_conv(dX1, padded, stride, wf->size_ptr_get(), padded_size, yf);
+  
+              const int stepLenH = (outHeight - wf->size_get(0)) + 1;
+              const int stepLenW = (outWidth - wf->size_get(1)) + 1;
+              dbl_t* out_conv = (dbl_t*)calloc(padded_size[0] * stepLenH
+                                                * stepLenW * wf->size_get(3), sizeof(dbl_t));
+              const int strides[2] = {1, 1};
+              IdentityAccessor* ia = new IdentityAccessor(padded_size);
+              conv2d(padded, W1, out_conv, strides, ia, wf);
+  
+              add_size[0] = padded_size[0];
+              add_size[1] = stepLenH;
+              add_size[2] = stepLenW;
+              add_size[3] = wf->size_get(3);
+  
+              free(padded);
+              delete wf;
+              delete yf;
+              delete ia;
+              if (dLdXFilter == nullptr)
+                  dLdXFilter = out_conv;
+              else
+              {
+                  tensor_add(dLdXFilter, out_conv, add_size);
+                  free(out_conv);
+              }
+          }
+          if (dLdX == nullptr)
+          {
+              dLdX = dLdXFilter;
+              concat_size[0] = add_size[0];
+              concat_size[1] = add_size[1];
+              concat_size[2] = add_size[2];
+              concat_size[3] = add_size[3];
+          }
+          else
+          {
+            dLdX = tensor_concat_axis3(dLdX, dLdXFilter, concat_size, add_size);
+            concat_size[3] += add_size[3];
+          }
+      }
+      memcpy(out, dLdX, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
+    }
+    
+    inline void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
+                                   dbl_t* out)
+    {
+        const int nbFilterTotal = dX1_size[3];
+        const int nbChan = X0_size[3];
+        const int nbImg = X0_size[0];
+    
+        dbl_t* dLdW = nullptr;
+        int add_size[4] = {0,0,0,0};
+        int concat_size[4] = {0,0,0,0};
+        for (int chan = 0; chan < nbChan; ++chan)
+        {
+            dbl_t* dLdWImg = nullptr;
+            for (int img = 0; img < nbImg; ++img)
+            {
+                ChFilterAccessor* ch = new ChFilterAccessor(X0_size, img, chan);
+                YtoKerAccessor* yk = new YtoKerAccessor(dX1_size, nbFilterTotal, img);
+    
+                const int striddedWidth = (yk->size_get(1) - 1) * (stride - 1) + yk->size_get(1);
+                const int striddedHeight = (yk->size_get(0) - 1) * (stride - 1) + yk->size_get(0);
+                dbl_t* padded = (dbl_t*)calloc(striddedHeight * striddedWidth
+                                                * yk->size_get(2) * yk->size_get(3)
+                                                , sizeof(dbl_t));
+                const int padded_size[4] =
+                {
+                    striddedHeight, striddedWidth, yk->size_get(2), yk->size_get(3)
+                };
+    
+                padd_ker(dX1, padded, stride, padded_size, yk);
+    
+                const int stepLenH = (ch->size_get(1) - padded_size[0]) + 1;
+                const int stepLenW = (ch->size_get(2) - padded_size[1]) + 1;
+                dbl_t* out_conv = (dbl_t*)calloc(ch->size_get(0) * stepLenH
+                                                  * stepLenW * padded_size[3], sizeof(dbl_t));
+                const int strides[2] = {1, 1};
+                IdentityAccessor* ia = new IdentityAccessor(padded_size);
+                conv2d(X0, padded, out_conv, strides, ch, ia);
+    
+                add_size[0] = ch->size_get(0);
+                add_size[1] = stepLenH;
+                add_size[2] = stepLenW;
+                add_size[3] = padded_size[3];
+    
+                free(padded);
+                delete ch;
+                delete yk;
+                delete ia;
+                if (dLdWImg == nullptr)
+                    dLdWImg = out_conv;
+                else
+                {
+                    tensor_add(dLdWImg, out_conv, add_size);
+                    free(out_conv);
+                }
+            }
+            if (dLdW == nullptr)
+            {
+                dLdW = dLdWImg;
+                concat_size[0] = add_size[0];
+                concat_size[1] = add_size[1];
+                concat_size[2] = add_size[2];
+                concat_size[3] = add_size[3];
+            }
+            else
+            {
+              dLdW = tensor_concat_axis0(dLdW, dLdWImg, concat_size, add_size);
+              concat_size[0] += add_size[0];
+            }
+        }
+        dLdW = formatDw(dLdW, concat_size);
+        memcpy(out, dLdW, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
+    }
 }

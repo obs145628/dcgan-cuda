@@ -5,7 +5,7 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[24] =
+    const char* Node::OP_NAMES[26] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -30,7 +30,9 @@ namespace rt
         "conv2d_bias_add",
         "update",
         "sigmoid_cross_entropy",
-        "sigmoid_cross_entropy_grad"
+        "sigmoid_cross_entropy_grad",
+        "conv2d_input_grad",
+        "conv2d_kernel_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -133,6 +135,48 @@ namespace rt
         res->sizes1[1] = input_size[1];
         res->sizes1[2] = input_size[2];
         res->sizes1[3] = input_size[3];
+        return res;
+    }
+    
+    Node* Node::op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                     dbl_t* output, const int y_size[], const int kernel_size[],
+                                     const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_INPUT_GRAD, preds);
+        res->in1 = y;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = kernel_size[0];
+        res->sizes2[1] = kernel_size[1];
+        res->sizes2[2] = kernel_size[2];
+        res->sizes2[3] = kernel_size[3];
+        return res;
+    }
+                                          
+    Node* Node::op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                dbl_t* output, const int y_size[], const int input_size[],
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_KERNEL_GRAD, preds);
+        res->in1 = y;
+        res->in2 = input;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
         return res;
     }
 
