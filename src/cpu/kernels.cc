@@ -108,6 +108,11 @@ namespace cpu
             softmax_cross_entropy_grad(node->in1, node->in2, node->out1, node->len1, node->len2);
         }
 
+        void kernel_relu_grad(rt::Node* node)
+        {
+            relu_grad(node->in1, node->in2, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -129,6 +134,7 @@ namespace cpu
         kernel_mat_tmat_mul,
         kernel_mat_sum_rows,
         kernel_mat_sum_cols,
-        kernel_softmax_cross_entropy_grad
+        kernel_softmax_cross_entropy_grad,
+        kernel_relu_grad
     };
 }

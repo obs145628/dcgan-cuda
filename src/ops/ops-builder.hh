@@ -27,6 +27,7 @@ namespace ops
         MatSum* mat_sum(Op* arg, std::size_t axis);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
+        ReluGrad* relu_grad(Op* z, Op* dout);
         SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);

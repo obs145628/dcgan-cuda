@@ -56,7 +56,7 @@ X_train, y_train = gen_mnist.get_dataset()
 
 
 
-l1 = layer_dense(X, 100, tf.sigmoid)
+l1 = layer_dense(X, 100, tf.nn.relu)
 w1 = find_weight(l1)
 b1 = find_bias(l1)
 

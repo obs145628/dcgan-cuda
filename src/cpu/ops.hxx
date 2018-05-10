@@ -331,4 +331,11 @@ namespace cpu
             out[i] = (out[i] - y[i]) / m;
     }
 
+    inline void relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                          std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = z[i] > 0 ? dout[i] : 0;
+    }
+
 }

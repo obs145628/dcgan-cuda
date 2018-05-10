@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     auto y = builder.input(ops::Shape({-1, 10}));
 
     DenseLayerData l1_data;
-    auto l1 = dense_layer(x, 784, 100, sigmoid, w1, b1, &l1_data);
+    auto l1 = dense_layer(x, 784, 100, relu, w1, b1, &l1_data);
     DenseLayerData l2_data;
     auto l2 = dense_layer(l1, 100, 10, nullptr, w2, b2, &l2_data);
     auto cost = softmax_cross_entropy(y, l2);

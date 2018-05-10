@@ -15,6 +15,7 @@ namespace ops
     class MSEGrad;
     class Op;
     class OpsBuilder;
+    class ReluGrad;
     class Shape;
     class SigmoidGrad;
     class Softmax;

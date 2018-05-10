@@ -229,6 +229,24 @@ namespace cpu
      */
     void softmax_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                     std::size_t m, std::size_t n);
+
+    /**
+     * Compute the gradient of the relu operation
+     * z - vector (n)
+     * dout - vector(n)
+     * out - vector(n)
+     *
+     * let:
+     * relu_out = relu(z)
+     * dout = nabla(E) / nabla(relu_out)
+     * out = nabla(E) / nabla(Z)
+     * relu'(z) = 1 if z > 0, 0 otherwhise
+     *
+     * out = relu'(z) * dout
+     *
+     */
+    void relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                   std::size_t n);
     
 }
 

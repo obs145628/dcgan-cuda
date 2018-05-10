@@ -5,7 +5,7 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[19] =
+    const char* Node::OP_NAMES[20] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -26,6 +26,7 @@ namespace rt
         "mat_sum_rows",
         "mat_sum_cols",
         "softmax_cross_entropy_grad",
+        "relu_grad"
     };
     
 
@@ -272,6 +273,18 @@ namespace rt
         res->out1 = out;
         res->len1 = rows;
         res->len2 = cols;
+        return res;
+    }
+
+    Node* Node::op_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                             std::size_t len,
+                             const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_RELU_GRAD, preds);
+        res->in1 = z;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
         return res;
     }
 
