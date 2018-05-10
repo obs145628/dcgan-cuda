@@ -5,7 +5,7 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[22] =
+    const char* Node::OP_NAMES[24] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -28,7 +28,9 @@ namespace rt
         "softmax_cross_entropy_grad",
         "relu_grad",
         "conv2d_bias_add",
-        "update"
+        "update",
+        "sigmoid_cross_entropy",
+        "sigmoid_cross_entropy_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -316,6 +318,30 @@ namespace rt
         res->in1 = dt;
         res->in2 = coeff;
         res->out1 = var;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_sigmoid_cross_entropy(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                         std::size_t len,
+                                         const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_SIGMOID_CROSS_ENTROPY, preds);
+        res->in1 = y;
+        res->in2 = logits;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                              std::size_t len,
+                                              const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_SIGMOID_CROSS_ENTROPY_GRAD, preds);
+        res->in1 = y;
+        res->in2 = logits;
+        res->out1 = out;
         res->len1 = len;
         return res;
     }

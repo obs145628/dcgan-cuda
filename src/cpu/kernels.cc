@@ -123,6 +123,16 @@ namespace cpu
             vect_update(node->in1, node->out1, *node->in2, node->len1);
         }
 
+        void kernel_sigmoid_cross_entropy(rt::Node* node)
+        {
+            *(node->out1) = sigmoid_cross_entropy(node->in1, node->in2, node->len1);
+        }
+
+        void kernel_sigmoid_cross_entropy_grad(rt::Node* node)
+        {
+            sigmoid_cross_entropy_grad(node->in1, node->in2, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -147,6 +157,8 @@ namespace cpu
         kernel_softmax_cross_entropy_grad,
         kernel_relu_grad,
         kernel_conv2d_bias_add,
-        kernel_update
+        kernel_update,
+        kernel_sigmoid_cross_entropy,
+        kernel_sigmoid_cross_entropy_grad
     };
 }

@@ -365,4 +365,25 @@ namespace cpu
             out[i] += coeff * dv[i];
     }
 
+    inline dbl_t sigmoid_cross_entropy(const dbl_t* y, const dbl_t* x,
+                                       std::size_t n)
+    {
+        dbl_t res = 0;
+        for (std::size_t i = 0; i < n; ++i)
+        {
+             if (x[i] >= 0)
+                 res += x[i] - x[i] * y[i] + std::log(1 + std::exp(-x[i]));
+             else
+                 res += - x[i] * y[i] + std::log(1 + std::exp(x[i]));
+        }
+        return res / n;
+    }
+
+    inline void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                           std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = (sigmoid(logits[i]) - y[i]) / n;
+    }
+
 }
