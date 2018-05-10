@@ -1,5 +1,6 @@
 set(SRC
   conv2d.cc
+  conv2d-bias-add.cc
   graph.cc
   input.cc
   log-softmax.cc

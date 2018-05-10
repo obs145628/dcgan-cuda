@@ -28,12 +28,16 @@ namespace rt
         static constexpr int OP_MAT_SUM_ROWS = 16;
         static constexpr int OP_MAT_SUM_COLS = 17;
         static constexpr int OP_SOFTMAX_CROSS_ENTROPY_GRAD = 18;
+        static constexpr int OP_CONV2D_BIAS_ADD = 19;
 
-        static const char* OP_NAMES[19];
+        static const char* OP_NAMES[20];
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
                                const std::vector<Node*>& preds);
+                               
+        static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
+                                        const int input_size[], const std::vector<Node*>& preds);
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,

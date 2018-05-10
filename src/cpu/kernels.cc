@@ -12,6 +12,11 @@ namespace cpu
         {
             conv2d(node->in1, node->in2, node->out1, node->intconst, node->sizes1, node->sizes2);
         }
+        
+        void kernel_conv2d_bias_add(rt::Node* node)
+        {
+            conv2d_bias_add(node->in1, node->in2, node->out1, node->sizes1);
+        }
 
         void kernel_mat_mat_mul(rt::Node* node)
         {
@@ -129,6 +134,7 @@ namespace cpu
         kernel_mat_tmat_mul,
         kernel_mat_sum_rows,
         kernel_mat_sum_cols,
-        kernel_softmax_cross_entropy_grad
+        kernel_softmax_cross_entropy_grad,
+        kernel_conv2d_bias_add
     };
 }
