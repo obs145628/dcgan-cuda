@@ -16,6 +16,7 @@ add_subdirectory(src/datasets)
 add_subdirectory(src/memory)
 add_subdirectory(src/ops)
 add_subdirectory(src/runtime)
+add_subdirectory(src/utils)
 
 set(SRC
   $<TARGET_OBJECTS:api_obj>
@@ -24,6 +25,7 @@ set(SRC
   $<TARGET_OBJECTS:memory_obj>
   $<TARGET_OBJECTS:ops_obj>
   $<TARGET_OBJECTS:runtime_obj>
+  $<TARGET_OBJECTS:utils_obj>
 )
 
 
@@ -219,3 +221,4 @@ set(TEST_MNIST_GRAD_SRC
 )
 add_executable(test_mnist_grad ${TEST_MNIST_GRAD_SRC})
 target_link_libraries(test_mnist_grad cnpy)
+>>>>>>> origin

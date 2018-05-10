@@ -7,6 +7,7 @@
 #include "shape.hh"
 #include "../memory/types.hh"
 #include "../runtime/graph.hh"
+#include "../utils/dot-graph.hh"
 
 namespace ops
 {
@@ -24,6 +25,7 @@ namespace ops
         ~Graph();
 
         const std::vector<Op*>& ops_list() const;
+        const std::map<std::string, Op*> ops_by_name() const;
 
         /**
          * Get the real shapes of allocated inputs
@@ -83,9 +85,16 @@ namespace ops
          */
         void debug_set(bool debug);
 
+
+        /**
+         * Convert the graph into a displayable dot-graph object
+         * for debug purposes
+         */
+        utils::DotGraph to_dot_graph();
         
     private:
         std::vector<Op*> ops_;
+        std::map<std::string, Op*> ops_by_name_;
         std::map<Input*, Shape> input_shapes_;
 
         rt::Graph full_rt_graph_;

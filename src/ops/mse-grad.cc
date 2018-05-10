@@ -7,7 +7,7 @@ namespace ops
 {
 
     MSEGrad::MSEGrad(Op* y, Op* y_hat)
-        : Op(y->shape_get(), {y, y_hat})
+        : Op("mse_grad", y->shape_get(), {y, y_hat})
     {}
 
     void MSEGrad::compile()

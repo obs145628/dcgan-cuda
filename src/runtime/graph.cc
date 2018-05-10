@@ -191,4 +191,32 @@ namespace rt
         
     }
 
+
+    namespace
+    {
+
+        std::string op_name(const Node* node,
+                            std::map<const Node*, std::string>& names)
+        {
+            auto it = names.find(node);
+            if (it != names.end())
+                return it->second;
+
+            std::string res = Node::OP_NAMES[node->type] + std::string(":") + std::to_string(names.size());
+            names[node] = res;
+            return res;
+        }
+    }
+
+
+    utils::DotGraph Graph::to_dot_graph() const
+    {
+        std::map<const Node*, std::string> names;
+        utils::DotGraph g;
+        for (auto n : nodes_)
+            for (auto succ : n->succs)
+                g.add_edge(op_name(n, names), op_name(succ, names));
+        return g;
+    }
+
 }

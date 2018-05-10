@@ -14,15 +14,18 @@ namespace ops
     public:
         /**
          * Graph operation
+         * name - name of the node, for debugging purposes only
          * shape - shape of the result of the operation
          * preds - inputs of the operation
          * succs - every node whose input contains this node
          */
-        Op(const Shape& shape,
+        Op(const std::string& name,
+           const Shape& shape,
            const std::vector<Op*> preds = {},
            const std::vector<Op*> succs = {});
         virtual ~Op() = default;
 
+        const std::string& name_get();
         const Shape& shape_get() const;
         std::vector<Op*> preds();
         std::vector<Op*> succs();
@@ -54,6 +57,7 @@ namespace ops
         virtual Op* child_grad(std::size_t index, Op* dout);
 
     private:
+        std::string name_;
         Shape shape_;
         std::vector<Op*> preds_;
         std::vector<Op*> succs_;

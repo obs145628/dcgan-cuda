@@ -7,7 +7,7 @@ namespace ops
 {
 
     LogSoftmax::LogSoftmax(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("log_softmax", arg->shape_get(), {arg})
     {}
 
     void LogSoftmax::compile()

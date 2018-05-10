@@ -3,19 +3,38 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include "graph.hh"
 
 namespace ops
 {
 
-    Op::Op(const Shape& shape,
+    namespace
+    {
+
+        std::string unique_name(std::string str)
+        {
+            auto id = Graph::instance().ops_by_name().size();
+            return str + ":" + std::to_string(id);
+        }
+        
+    }
+
+    Op::Op(const std::string& name,
+           const Shape& shape,
            const std::vector<Op*> preds,
            const std::vector<Op*> succs)
-        : shape_(shape)
+        : name_(unique_name(name))
+        , shape_(shape)
         , preds_(preds)
         , succs_(succs)
     {
         for (auto pred : preds_)
             pred->succs_.push_back(this);
+    }
+
+    const std::string& Op::name_get()
+    {
+        return name_;
     }
 
     const Shape& Op::shape_get() const

@@ -18,7 +18,7 @@ namespace ops
     }
 
     Variable::Variable(const Shape& shape)
-        : Op(shape)
+        : Op("variable", shape)
         , data_(tensor_alloc(shape.total()))
         , id_(unique_id())
     {

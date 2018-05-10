@@ -9,7 +9,8 @@ namespace ops
 {
 
     MatMatMul::MatMatMul(Op* left, Op* right, bool left_tr, bool right_tr)
-        : Op(Shape({left->shape_get()[left_tr], right->shape_get()[!right_tr]}),
+        : Op("mat_mat_mul",
+             Shape({left->shape_get()[left_tr], right->shape_get()[!right_tr]}),
              {left, right})
         , left_tr_(left_tr)
         , right_tr_(right_tr)

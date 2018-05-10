@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "fwd.hh"
+#include "../utils/dot-graph.hh"
 
 namespace rt
 {
@@ -51,6 +52,12 @@ namespace rt
          */
         static void print_nodes(std::ostream& os,
                                 const std::vector<Node*>& vals);
+
+        /**
+         * Transform the graph into dot-graph
+         * for debugging purposes only
+         */
+        utils::DotGraph to_dot_graph() const;
         
 
     private:
