@@ -216,6 +216,26 @@ namespace cpu
                         out[oimgIndex + ohIndex + owIndex + k] = val;
                     }
     }
+    
+    inline void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
+                                const int* input_size)
+    {
+        const std::size_t batch = input_size[0];
+        const std::size_t height = input_size[1];
+        const std::size_t width = input_size[2];
+        const std::size_t outputCh = input_size[3];
+        
+        for (std::size_t b = 0; b < batch; ++b)
+            for (std::size_t i = 0; i < height; ++i)
+                for (std::size_t j = 0; j < width; ++j)
+                    for (std::size_t k = 0; k < outputCh; ++k)
+                    {
+                        std::size_t imgIndex = b * height * width * outputCh;
+                        std::size_t hIndex = i * width * outputCh;
+                        std::size_t wIndex = j * outputCh;
+                        out[imgIndex + hIndex + wIndex + k] = z[imgIndex + hIndex + wIndex + k] + bias[k];
+                    }
+    }
 
     inline dbl_t relu(dbl_t x)
     {

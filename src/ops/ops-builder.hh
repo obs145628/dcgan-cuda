@@ -19,6 +19,7 @@ namespace ops
         OpsBuilder& operator=(OpsBuilder&&) = delete;
 
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
+        Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
         Input* input(const Shape& shape);
         LogSoftmax* log_softmax(Op* arg);
         MatMatMul* mat_mat_mul(Op* left, Op* right, bool left_tr = false, bool right_tr = false);

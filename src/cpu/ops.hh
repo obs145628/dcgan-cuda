@@ -100,23 +100,31 @@ namespace cpu
     dbl_t softmax_cross_entropy(const dbl_t* y, const dbl_t* logits,
                                 std::size_t m, std::size_t n);
 
-/**
- * Input and kernel are two 4D tensors, out contain
- * the conv2d result between input and kernel
- * - Input is formatted with this form [batch, height, width, in_channels]
- * - Kernel is formatted with this form [height, width, in_channels, out_channels]
- * - Out is formatted with this form [batch, nbBoxH, nbBoxW, nbFilter]
- * - Strides is an array of size 2, the first item is the Y-axis stride,
- *  the other one the X-axis stride
- * - Input_size is an array of size 4 containing the size of the input
- *   tensor with respect of the format given above
- * - Kernel_size is an array of size 4 containing the size of the kernel
- * tensor with respect of the format given above
- */
+    /**
+     * Input and kernel are two 4D tensors, out contain
+     * the conv2d result between input and kernel
+     * - Input is formatted with this form [batch, height, width, in_channels]
+     * - Kernel is formatted with this form [height, width, in_channels, out_channels]
+     * - Out is formatted with this form [batch, nbBoxH, nbBoxW, nbFilter]
+     * - Strides is an array of size 2, the first item is the Y-axis stride,
+     *  the other one the X-axis stride
+     * - Input_size is an array of size 4 containing the size of the input
+     *   tensor with respect of the format given above
+     * - Kernel_size is an array of size 4 containing the size of the kernel
+     * tensor with respect of the format given above
+    */
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
                 const int* strides,
                 const int* input_size, const int* kernel_size);
-
+                
+    /**
+     * z is a 4D tensor output coming from a conv2d Op
+     * bias is a vector with a value for each matrix in z
+     * The result is the addition of each bias to its
+     * corresponding matrix in z.
+    */
+    void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
+                         const int* input_size);
 
     dbl_t relu(dbl_t x);
 

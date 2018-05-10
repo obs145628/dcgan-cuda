@@ -5,7 +5,7 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[20] =
+    const char* Node::OP_NAMES[21] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -26,9 +26,10 @@ namespace rt
         "mat_sum_rows",
         "mat_sum_cols",
         "softmax_cross_entropy_grad",
-        "relu_grad"
+        "relu_grad",
+        "conv2d_bias_add"
     };
-    
+
 
     Node* Node::op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -111,6 +112,20 @@ namespace rt
         res->sizes2[1] = kernel_size[1];
         res->sizes2[2] = kernel_size[2];
         res->sizes2[3] = kernel_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
+                             const int input_size[], const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_BIAS_ADD, preds);
+        res->in1 = z;
+        res->in2 = bias;
+        res->out1 = output;
+        res->sizes1[0] = input_size[0];
+        res->sizes1[1] = input_size[1];
+        res->sizes1[2] = input_size[2];
+        res->sizes1[3] = input_size[3];
         return res;
     }
 

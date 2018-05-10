@@ -18,6 +18,7 @@
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
+#include "conv2d-bias-add.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -45,6 +46,19 @@ namespace ops
         auto res = new Conv2D(input, kernel, strides);
         graph_.add(res);
         return res;
+    }
+    
+    Conv2DBiasAdd* OpsBuilder::conv2d_bias_add(Op* z, Op* bias)
+    {
+        if (z->shape_get().ndims() != 4)
+            throw std::runtime_error {"Conv2DBiasAdd:z must be a 4D tensor"};
+        if (bias->shape_get().ndims() != 1)
+            throw std::runtime_error {"Conv2DBiasAdd:bias must be a 1D array"};
+        if (z->shape_get()[3] != bias->shape_get()[0])
+            throw std::runtime_error {"Conv2DBiasAdd:z and bias shape are not corresponding"};
+        auto res = new Conv2DBiasAdd(z, bias);
+        graph_.add(res);
+        return res; 
     }
     
     Input* OpsBuilder::input(const Shape& shape)
