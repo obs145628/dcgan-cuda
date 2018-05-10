@@ -225,11 +225,11 @@ namespace ops
         return res;
     }
 
-    Variable* OpsBuilder::variable(const Shape& shape)
+    Variable* OpsBuilder::variable(const Shape& shape, bool trainable)
     {
         if (!shape.defined())
             throw std::runtime_error{"shape not fully defined"};
-        auto res = new Variable(shape);
+        auto res = new Variable(shape, trainable);
         graph_.add(res);
         return res;
     }

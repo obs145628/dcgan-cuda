@@ -55,6 +55,13 @@ target_link_libraries(my_test cnpy)
 
 
 
+set(NN_MNIST_SRC
+  ${SRC}
+  examples/nn_mnist.cc
+)
+add_executable(nn_mnist ${NN_MNIST_SRC})
+
+
 
 
 

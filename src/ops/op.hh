@@ -40,12 +40,12 @@ namespace ops
          * Return the index of pred in the lists of inputs
          * or -1 if not found
          */
-        std::size_t pred_index(Op* pred);
+        std::size_t pred_index(const Op* pred);
 
         /**
          * Find which of the succesors of the node is a direct or undirect predecessor of node
          */
-        Op* pred_of(Op* node);
+        Op* pred_of(const Op* node);
 
 
         /**

@@ -26,6 +26,13 @@ namespace ops
 
         const std::vector<Op*>& ops_list() const;
         const std::map<std::string, Op*> ops_by_name() const;
+        const std::vector<Variable*>& vars_list() const;
+
+        /**
+         * Returns the list of trainables variables
+         * cost - if not null, only returns predecessors of cost
+         */
+        std::vector<Variable*> train_vars_get(const Op* cost = nullptr);
 
         /**
          * Get the real shapes of allocated inputs
@@ -94,6 +101,7 @@ namespace ops
         
     private:
         std::vector<Op*> ops_;
+        std::vector<Variable*> vars_;
         std::map<std::string, Op*> ops_by_name_;
         std::map<Input*, Shape> input_shapes_;
 

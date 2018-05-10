@@ -4,6 +4,7 @@
 #include "../cpu/runner.hh"
 #include "../memory/copy.hh"
 #include "input.hh"
+#include "variable.hh"
 
 namespace ops
 {
@@ -33,6 +34,20 @@ namespace ops
     const std::map<std::string, Op*> Graph::ops_by_name() const
     {
         return ops_by_name_;
+    }
+    
+    const std::vector<Variable*>& Graph::vars_list() const
+    {
+        return vars_;
+    }
+
+    std::vector<Variable*> Graph::train_vars_get(const Op* cost)
+    {
+        std::vector<Variable*> res;
+        for (auto v : vars_)
+            if (!cost || v->pred_of(cost))
+                res.push_back(v);
+        return res;
     }
 
     void Graph::add(Op* op)

@@ -33,7 +33,7 @@ namespace ops
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
         SoftmaxCrossEntropyGrad* softmax_cross_entropy_grad(Op* y, Op* logits);
-        Variable* variable(const Shape& shape);
+        Variable* variable(const Shape& shape, bool trainable = false);
         VectSigmoid* vect_sigmoid(Op* arg);
         VectRelu* vect_relu(Op* arg);
         VectReluLeaky* vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2);
