@@ -166,8 +166,16 @@ namespace rt
                 os << ", " << tensor_name(node->in2, tmap) ;
             if (node->in3)
                 os << ", " << tensor_name(node->in3, tmap);
-            os << ") [";
+            os << ") ";
 
+            os << "{" << node->len1;
+            if (node->len2)
+                os << ", " << node->len2;
+            if (node->len3)
+                os << ", " << node->len3;
+            os << "} ";
+            
+            os << "[";
             for (std::size_t i = 0; i < node->preds.size(); ++i)
             {
                 auto it = std::find(vals.begin(), vals.end(), node->preds[i]);
