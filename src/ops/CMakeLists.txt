@@ -11,6 +11,7 @@ set(SRC
   mse-grad.cc
   op.cc
   ops-builder.cc
+  relu-grad.cc
   shape.cc
   sigmoid-grad.cc
   softmax.cc

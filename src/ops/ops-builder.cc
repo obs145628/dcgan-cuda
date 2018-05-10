@@ -10,6 +10,7 @@
 #include "mat-sum.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
+#include "relu-grad.hh"
 #include "sigmoid-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
@@ -147,6 +148,16 @@ namespace ops
             throw std::runtime_error {"MSEGrad: y and y_hat must have the same shape"};
 
         auto res = new MSEGrad(y, y_hat);
+        graph_.add(res);
+        return res;
+    }
+
+    ReluGrad* OpsBuilder::relu_grad(Op* z, Op* dout)
+    {
+        if (z->shape_get() != dout->shape_get())
+            throw std::runtime_error {"ReluGrad: z and dout must have the same shape"};
+
+        auto res = new ReluGrad(z, dout);
         graph_.add(res);
         return res;
     }
