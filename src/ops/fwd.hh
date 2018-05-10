@@ -19,6 +19,8 @@ namespace ops
     class ReluGrad;
     class Shape;
     class Seq;
+    class SigmoidCrossEntropy;
+    class SigmoidCrossEntropyGrad;
     class SigmoidGrad;
     class Softmax;
     class SoftmaxCrossEntropy;

@@ -265,6 +265,26 @@ namespace cpu
      */
     void vect_update(const dbl_t* dv, dbl_t* out, dbl_t coeff,
                      std::size_t n);
+
+    /**
+     * Compute sigmoid_cross_entropy
+     * return sum(cross_entropy(y, sigmoid(logits))) / n
+     * y - vector(n)
+     * logits - vector(n)
+     */
+    dbl_t sigmoid_cross_entropy(const dbl_t* y, const dbl_t* logits,
+                                std::size_t n);
+
+    /**
+     * Cmpute the gradient of the cross-entrpy cost between y and sigmoid(logits) from logits
+     * C = cross_entropy(y, sigmoid(logits))
+     * y - vector (n) - labels
+     * logits - vector (n) - logits of final layer (before y_hat = sigmoid(logits)
+     * out - vector (n)
+     * out = nabla(C) / nabla(logits)
+     */
+    void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                    std::size_t n);
     
 }
 

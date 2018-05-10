@@ -12,6 +12,8 @@
 #include "mse-grad.hh"
 #include "relu-grad.hh"
 #include "seq.hh"
+#include "sigmoid-cross-entropy.hh"
+#include "sigmoid-cross-entropy-grad.hh"
 #include "sigmoid-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
@@ -183,6 +185,34 @@ namespace ops
         if (ops.empty())
             throw std::runtime_error {"seq: ops can't be empty"};
         auto res = new Seq(ops);
+        graph_.add(res);
+        return res;
+    }
+
+    SigmoidCrossEntropy* OpsBuilder::sigmoid_cross_entropy(Op* y, Op* logits)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"y must be a matrix"};
+        if (logits->shape_get().ndims() != 2)
+            throw std::runtime_error {"logits must be a matrix"};
+        if (y->shape_get() != logits->shape_get())
+            throw std::runtime_error {"y and logits must have the same shape"};
+            
+        auto res = new SigmoidCrossEntropy(y, logits);
+        graph_.add(res);
+        return res;
+    }
+
+    SigmoidCrossEntropyGrad* OpsBuilder::sigmoid_cross_entropy_grad(Op* y, Op* logits)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"y must be a matrix"};
+        if (logits->shape_get().ndims() != 2)
+            throw std::runtime_error {"logits must be a matrix"};
+        if (y->shape_get() != logits->shape_get())
+            throw std::runtime_error {"y and logits must have the same shape"};
+        
+        auto res = new SigmoidCrossEntropyGrad(y, logits);
         graph_.add(res);
         return res;
     }

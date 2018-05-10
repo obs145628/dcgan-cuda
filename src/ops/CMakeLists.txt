@@ -15,6 +15,8 @@ set(SRC
   relu-grad.cc
   seq.cc
   shape.cc
+  sigmoid-cross-entropy.cc
+  sigmoid-cross-entropy-grad.cc
   sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc

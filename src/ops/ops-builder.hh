@@ -31,6 +31,8 @@ namespace ops
         MSEGrad* mse_grad(Op* y, Op* y_hat);
         ReluGrad* relu_grad(Op* z, Op* dout);
         Seq* seq(const std::vector<Op*>& ops);
+        SigmoidCrossEntropy* sigmoid_cross_entropy(Op* y, Op* logits);
+        SigmoidCrossEntropyGrad* sigmoid_cross_entropy_grad(Op* y, Op* logits);
         SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
