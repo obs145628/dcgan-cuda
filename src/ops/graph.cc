@@ -4,6 +4,7 @@
 #include "../cpu/runner.hh"
 #include "../memory/copy.hh"
 #include "input.hh"
+#include "variable.hh"
 
 namespace ops
 {
@@ -34,6 +35,20 @@ namespace ops
     {
         return ops_by_name_;
     }
+    
+    const std::vector<Variable*>& Graph::vars_list() const
+    {
+        return vars_;
+    }
+
+    std::vector<Variable*> Graph::train_vars_get(const Op* cost)
+    {
+        std::vector<Variable*> res;
+        for (auto v : vars_)
+            if (v->is_trainable() && (!cost || v->pred_of(cost)))
+                res.push_back(v);
+        return res;
+    }
 
     void Graph::add(Op* op)
     {
@@ -42,6 +57,12 @@ namespace ops
         if (ops_by_name_.find(op->name_get()) != ops_by_name_.end())
             throw std::runtime_error {"Operand with same name already exists"};
         ops_by_name_[op->name_get()] = op;
+    }
+
+    void Graph::add_var(Variable* var)
+    {
+        add(var);
+        vars_.push_back(var);
     }
 
     const std::map<Input*, Shape>& Graph::input_shapes_get()

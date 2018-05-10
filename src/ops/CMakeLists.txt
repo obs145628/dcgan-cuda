@@ -13,11 +13,13 @@ set(SRC
   op.cc
   ops-builder.cc
   relu-grad.cc
+  seq.cc
   shape.cc
   sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc
   softmax-cross-entropy-grad.cc
+  update.cc
   variable.cc
   vect-sigmoid.cc
   vect-relu.cc

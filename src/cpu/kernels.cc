@@ -118,6 +118,11 @@ namespace cpu
             relu_grad(node->in1, node->in2, node->out1, node->len1);
         }
 
+        void kernel_update(rt::Node* node)
+        {
+            vect_update(node->in1, node->out1, *node->in2, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -141,6 +146,7 @@ namespace cpu
         kernel_mat_sum_cols,
         kernel_softmax_cross_entropy_grad,
         kernel_relu_grad,
-        kernel_conv2d_bias_add
+        kernel_conv2d_bias_add,
+        kernel_update
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fwd.hh"
+#include "initializer.hh"
 #include "../ops/op.hh"
 
 struct DenseLayerData
@@ -22,8 +23,8 @@ ops::Op* dense_layer(ops::Op* input,
                      std::size_t in_size,
                      std::size_t out_size,
                      activ_f activ = nullptr,
-                     dbl_t* w_init = nullptr,
-                     dbl_t* b_init = nullptr,
+                     Initializer* w_init = nullptr,
+                     Initializer* b_init = nullptr,
                      DenseLayerData* tmp_data = nullptr);
 
 ops::Op* conv2d_layer(ops::Op* input,
@@ -32,6 +33,6 @@ ops::Op* conv2d_layer(ops::Op* input,
                       std::size_t* strides,
                       std::size_t* in_size,
                       activ_f activ = nullptr,
-                      dbl_t* w_init = nullptr,
-                      dbl_t* b_init = nullptr,
+                      Initializer* w_init = nullptr,
+                      Initializer* b_init = nullptr,
                       Conv2DLayerData* tmp_data = nullptr);

@@ -9,6 +9,12 @@ namespace rt
     struct Node
     {
 
+        /*
+         * used only because it's predecessor must be executed
+         * never kept in exec list
+         */
+        static constexpr int OP_NOP = 1000;
+
         static constexpr int OP_MAT_MAT_MUL = 0;
         static constexpr int OP_MAT_RVECT_ADD = 1;
         static constexpr int OP_SIGMOID = 2;
@@ -30,8 +36,11 @@ namespace rt
         static constexpr int OP_SOFTMAX_CROSS_ENTROPY_GRAD = 18;
         static constexpr int OP_RELU_GRAD = 19;
         static constexpr int OP_CONV2D_BIAS_ADD = 20;
+        static constexpr int OP_UPDATE = 21;
 
-        static const char* OP_NAMES[21];
+        static const char* OP_NAMES[22];
+
+        static Node* nop(const std::vector<Node*>& preds);
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
@@ -113,6 +122,10 @@ namespace rt
         static Node* op_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
                                   std::size_t len,
                                   const std::vector<Node*>& preds);
+
+        static Node* op_update(dbl_t* var, const dbl_t* dt, const dbl_t* coeff,
+                               std::size_t len,
+                               const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

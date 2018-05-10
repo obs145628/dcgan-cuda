@@ -11,10 +11,12 @@
 #include "mse.hh"
 #include "mse-grad.hh"
 #include "relu-grad.hh"
+#include "seq.hh"
 #include "sigmoid-grad.hh"
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
 #include "softmax-cross-entropy-grad.hh"
+#include "update.hh"
 #include "variable.hh"
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
@@ -176,6 +178,15 @@ namespace ops
         return res;
     }
 
+    Seq* OpsBuilder::seq(const std::vector<Op*>& ops)
+    {
+        if (ops.empty())
+            throw std::runtime_error {"seq: ops can't be empty"};
+        auto res = new Seq(ops);
+        graph_.add(res);
+        return res;
+    }
+
     SigmoidGrad* OpsBuilder::sigmoid_grad(Op* sig_out, Op* dout)
     {
         if (sig_out->shape_get() != dout->shape_get())
@@ -225,12 +236,24 @@ namespace ops
         return res;
     }
 
-    Variable* OpsBuilder::variable(const Shape& shape)
+    Update* OpsBuilder::update(Variable* var, Op* dt, Op* coeff)
+    {
+        if (var->shape_get() != dt->shape_get())
+            throw std::runtime_error {"var and dt must have the same shape"};
+        if (coeff->shape_get().ndims())
+            throw std::runtime_error {"coeff must be a scalar"};
+
+        auto res = new Update(var, dt, coeff);
+        graph_.add(res);
+        return res;
+    }
+
+    Variable* OpsBuilder::variable(const Shape& shape, bool trainable)
     {
         if (!shape.defined())
             throw std::runtime_error{"shape not fully defined"};
-        auto res = new Variable(shape);
-        graph_.add(res);
+        auto res = new Variable(shape, trainable);
+        graph_.add_var(res);
         return res;
     }
 

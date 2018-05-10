@@ -37,6 +37,11 @@ namespace ops
         return name_;
     }
 
+    void Op::extend_name(const std::string& str)
+    {
+        name_ += ":" + str;
+    }
+
     const Shape& Op::shape_get() const
     {
         return shape_;
@@ -52,7 +57,7 @@ namespace ops
         return succs_;
     }
 
-    std::size_t Op::pred_index(Op* pred)
+    std::size_t Op::pred_index(const Op* pred)
     {
         auto it = std::find(preds_.begin(), preds_.end(), pred);
         if (it == preds_.end())
@@ -61,7 +66,7 @@ namespace ops
             return it - preds_.begin();
     }
 
-    Op* Op::pred_of(Op* node)
+    Op* Op::pred_of(const Op* node)
     {
         for (auto succ: succs_)
             if (succ == node

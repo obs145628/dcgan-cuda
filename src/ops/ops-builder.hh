@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <vector>
 #include "fwd.hh"
 #include "../memory/types.hh"
 
@@ -29,11 +30,13 @@ namespace ops
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
         ReluGrad* relu_grad(Op* z, Op* dout);
+        Seq* seq(const std::vector<Op*>& ops);
         SigmoidGrad* sigmoid_grad(Op* sig_out, Op* dout);
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
         SoftmaxCrossEntropyGrad* softmax_cross_entropy_grad(Op* y, Op* logits);
-        Variable* variable(const Shape& shape);
+        Update* update(Variable* var, Op* dt, Op* coeff);
+        Variable* variable(const Shape& shape, bool trainable = false);
         VectSigmoid* vect_sigmoid(Op* arg);
         VectRelu* vect_relu(Op* arg);
         VectReluLeaky* vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2);

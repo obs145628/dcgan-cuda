@@ -5,7 +5,7 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[21] =
+    const char* Node::OP_NAMES[22] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -27,9 +27,14 @@ namespace rt
         "mat_sum_cols",
         "softmax_cross_entropy_grad",
         "relu_grad",
-        "conv2d_bias_add"
+        "conv2d_bias_add",
+        "update"
     };
 
+    Node* Node::nop(const std::vector<Node*>& preds)
+    {
+        return new Node(OP_NOP, preds);
+    }
 
     Node* Node::op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -299,6 +304,18 @@ namespace rt
         res->in1 = z;
         res->in2 = dout;
         res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_update(dbl_t* var, const dbl_t* dt, const dbl_t* coeff,
+                    std::size_t len,
+                    const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_UPDATE, preds);
+        res->in1 = dt;
+        res->in2 = coeff;
+        res->out1 = var;
         res->len1 = len;
         return res;
     }
