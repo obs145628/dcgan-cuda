@@ -16,6 +16,7 @@ add_subdirectory(src/datasets)
 add_subdirectory(src/memory)
 add_subdirectory(src/ops)
 add_subdirectory(src/runtime)
+add_subdirectory(src/utils)
 
 set(SRC
   $<TARGET_OBJECTS:api_obj>
@@ -24,6 +25,7 @@ set(SRC
   $<TARGET_OBJECTS:memory_obj>
   $<TARGET_OBJECTS:ops_obj>
   $<TARGET_OBJECTS:runtime_obj>
+  $<TARGET_OBJECTS:utils_obj>
 )
 
 

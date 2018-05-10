@@ -11,7 +11,7 @@ namespace ops
 {
 
     VectRelu::VectRelu(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("vect-relu", arg->shape_get(), {arg})
     {}
 
     void VectRelu::compile()

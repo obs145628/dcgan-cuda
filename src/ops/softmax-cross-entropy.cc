@@ -11,7 +11,7 @@ namespace ops
 {
 
     SoftmaxCrossEntropy::SoftmaxCrossEntropy(Op* y, Op* logits)
-        : Op(Shape{}, {y, logits})
+        : Op("softmax_cross_entropy", Shape{}, {y, logits})
     {}
 
     void SoftmaxCrossEntropy::compile()

@@ -12,7 +12,8 @@ namespace ops
 {
 
     MatMulAdd::MatMulAdd(Op* x, Op* w, Op* b)
-        : Op(Shape({x->shape_get()[0], w->shape_get()[1]}), {x, w, b})
+        : Op("mat_mul_add",
+             Shape({x->shape_get()[0], w->shape_get()[1]}), {x, w, b})
     {}
 
     void MatMulAdd::compile()

@@ -11,7 +11,7 @@ namespace ops
 {
 
     MSE::MSE(Op* y, Op* y_hat)
-        : Op(Shape{}, {y, y_hat})
+        : Op("mse", Shape{}, {y, y_hat})
     {}
 
     void MSE::compile()

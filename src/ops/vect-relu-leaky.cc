@@ -7,7 +7,7 @@ namespace ops
 {
 
     VectReluLeaky::VectReluLeaky(Op* arg, const dbl_t alpha)
-        : Op(arg->shape_get(), {arg})
+        : Op("vect_relu_leaky", arg->shape_get(), {arg})
         , alpha(alpha)
     {}
 
