@@ -8,6 +8,7 @@ set(SRC
   mse.cc
   op.cc
   ops-builder.cc
+  reshape.cc
   shape.cc
   softmax.cc
   softmax-cross-entropy.cc
