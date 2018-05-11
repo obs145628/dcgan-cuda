@@ -57,8 +57,9 @@ sess.run(init)
 
 
 
-l3_tf, logits_tf, loss_tf = sess.run([l3, logits, loss], feed_dict={X: imgs})
+l1_tf, l3_tf, logits_tf, loss_tf = sess.run([l1, l3, logits, loss], feed_dict={X: imgs})
 
+tensors_saver.add(l1_tf)
 tensors_saver.add(l3_tf)
 tensors_saver.add(logits_tf)
 tensors_saver.add(loss_tf)
