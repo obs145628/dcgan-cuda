@@ -5,12 +5,16 @@
 #include "../runtime/graph.hh"
 #include "../runtime/node.hh"
 #include "../memory/alloc.hh"
+#include "ops-builder.hh"
+#include <cassert>
+#include <stdexcept>
 
 namespace ops
 {
 
     Reshape::Reshape(Op* arg, const Shape& shape)
         : Op("reshape", shape, {arg})
+        , m_initial_size(arg->shape_get())
     {}
 
     void Reshape::compile()
@@ -32,5 +36,16 @@ namespace ops
                     new_dims.push_back(x);
             g.add_compiled(this, {}, {}, nullptr, Shape(new_dims), carg.out_data);
         }
+    }
+
+    Op* Reshape::child_grad(std::size_t index, Op* dout)
+    {
+        assert(index < 1);
+        if (dout != nullptr)
+            throw std::runtime_error {"reshape must be the final node of the gradient"};
+
+        auto& builder = OpsBuilder::instance();
+
+        return builder.reshape(preds()[0], m_initial_size);
     }
 }

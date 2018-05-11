@@ -103,7 +103,7 @@ int main(int argc, char** argv)
     int strides[] = {2, 2};
     auto y_hat_node = builder.conv2d(x_node, k_node, strides);
     auto y_node_reshape = builder.reshape(y_node, ops::Shape({2, 8}));
-    auto y_node_hat_reshape = build.reshape(y_hat, ops::Shape({2, 8}));
+    auto y_hat_node_reshape = builder.reshape(y_hat_node, ops::Shape({2, 8}));
     auto loss_node_shape = builder.mse(y_node_reshape, y_hat_node_reshape);
     //auto loss_node = builder.input(ops::Shape({2, 2, 2, 2}));
     auto loss_node = builder.reshape(loss_node_shape, ops::Shape({2, 2, 2, 2}));
@@ -124,8 +124,7 @@ int main(int argc, char** argv)
     graph.run({dx_node, dk_node, dy_hat_node},
               {{x_node, {input, ops::Shape({2, 4, 4, 3})}},
                   {k_node, {kernel, ops::Shape({2, 2, 3, 2})}},
-                  //{y_node, {y, ops::Shape({2, 2, 2, 2})}},
-                  {loss_node, {mse, ops::Shape({2, 2, 2, 2})}}},
+                  {y_node, {y, ops::Shape({2, 2, 2, 2})}}},
 	      {dx, dk, dy_hat});
 
     out.save(argv[1]);
