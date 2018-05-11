@@ -76,3 +76,9 @@ new_weights.add(sess.run(w4))
 new_weights.add(sess.run(b4))
 
 new_weights.save()
+
+print(l0.get_shape())
+print(l1.get_shape())
+print(l2.get_shape())
+print(l3.get_shape())
+print(l4.get_shape())

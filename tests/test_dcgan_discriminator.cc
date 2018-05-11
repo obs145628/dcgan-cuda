@@ -2,6 +2,8 @@
 #include "../src/ops/variable.hh"
 #include "../src/ops/input.hh"
 #include "../src/ops/ops-builder.hh"
+#include "../src/ops/sigmoid-cross-entropy.hh"
+#include "../src/ops/reshape.hh"
 #include "../src/ops/graph.hh"
 #include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
@@ -34,10 +36,10 @@ int main(int argc, char** argv)
     CopyInitializer b1(reinterpret_cast<dbl_t*>(weights.arr()[3].data));
     CopyInitializer w2(reinterpret_cast<dbl_t*>(weights.arr()[4].data));
     CopyInitializer b2(reinterpret_cast<dbl_t*>(weights.arr()[5].data));
-    CopyInitializer w2(reinterpret_cast<dbl_t*>(weights.arr()[6].data));
+    CopyInitializer w3(reinterpret_cast<dbl_t*>(weights.arr()[6].data));
     CopyInitializer b3(reinterpret_cast<dbl_t*>(weights.arr()[7].data));
     CopyInitializer w4(reinterpret_cast<dbl_t*>(weights.arr()[8].data));
-    CopyInitializer bb(reinterpret_cast<dbl_t*>(weights.arr()[9].data));
+    CopyInitializer b4(reinterpret_cast<dbl_t*>(weights.arr()[9].data));
 
 
     auto& graph = ops::Graph::instance();
@@ -49,11 +51,13 @@ int main(int argc, char** argv)
 
     
     std::size_t kernel_size[] = {5, 5};
-    std::size_t stride_size[] = {2, 2};
+    int stride_size[] = {2, 2};
 
     std::size_t l0_size[] = {10, 64, 64, 3};
     auto l0 = conv2d_layer(x, 64, kernel_size, stride_size, l0_size, leaky_relu,
                            &w0, &b0, nullptr);
+
+    std::cout << l0->shape_get() << std::endl;
 
     std::size_t l1_size[] = {10, 32, 32, 64};
     auto l1 = conv2d_layer(l0, 128, kernel_size, stride_size, l1_size, leaky_relu,
@@ -67,7 +71,7 @@ int main(int argc, char** argv)
     auto l3 = conv2d_layer(l2, 512, kernel_size, stride_size, l3_size, leaky_relu,
                            &w3, &b3, nullptr);
 
-    auto l4 = builder.reshape(-1, 4 * 4 * 512);
+    ops::Op* l4 = builder.reshape(l3, ops::Shape({10, 4 * 4 * 512}));
     l4 = dense_layer(l4, 4 * 4 * 512, 1, nullptr, &w4, &b4, nullptr);
 
     auto logits = l4;
@@ -82,7 +86,7 @@ int main(int argc, char** argv)
     graph.run({l4, loss},
 	      {{x, {x_train, ops::Shape({10, 64, 64, 3})}},
 		  {y, {y_train, ops::Shape({10, 1})}}},
-	      {l2_out, loss_out});
+	      {l4_out, loss_out});
     
 
     out.save(argv[3]);
