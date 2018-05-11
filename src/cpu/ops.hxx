@@ -176,7 +176,7 @@ namespace cpu
     }
 
     inline void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
-                       const int* strides,
+                       const int* strides, int pad_top, int pad_left,
                        FilterAccessor* faI, FilterAccessor* faK)
     {
         const std::size_t kernelH = faK->size_get(0);
@@ -188,8 +188,10 @@ namespace cpu
         const std::size_t inputH =  faI->size_get(1);
         const std::size_t inputW =  faI->size_get(2);
 
-        const std::size_t stepLenH = (inputH - kernelH) / strides[0] + 1;
-        const std::size_t stepLenW = (inputW - kernelW) / strides[1] + 1;
+        const std::size_t stepLenH = (std::size_t)std::ceil(
+                        static_cast<float>(inputH) / (float)strides[0]);
+        const std::size_t stepLenW = (std::size_t)std::ceil(
+                        static_cast<float>(inputW) / (float)strides[1]);
 
         for (std::size_t b = 0; b < nbImage; ++b)
             for (std::size_t i = 0; i < stepLenH; ++i)
@@ -201,10 +203,16 @@ namespace cpu
                             for (std::size_t di = 0; di < kernelH; ++di)
                                 for (std::size_t dj = 0; dj < kernelW; ++dj)
                                 {
-                                  int inputInd = faI->access(b, (strides[0] * i + di),
-                                                            (strides[1] * j + dj), q);
-                                  int kernelInd = faK->access(di, dj, q, k);
-                                  val += input[inputInd] * kernel[kernelInd];
+                                  int hIndex = strides[0] * i + di - pad_top;
+                                  int wIndex = strides[1] * j + dj - pad_left;
+                                  if (hIndex >= 0 && wIndex >= 0
+                                      && (size_t)hIndex < inputH
+                                      && (size_t)wIndex < inputW)
+                                  {
+                                    int inputInd = faI->access(b, hIndex, wIndex, q);
+                                    int kernelInd = faK->access(di, dj, q, k);
+                                    val += input[inputInd] * kernel[kernelInd];
+                                  }
                                 }
                         std::size_t oimgIndex = b * stepLenH * stepLenW * nbFilter;
                         std::size_t ohIndex = i * stepLenW * nbFilter;
@@ -214,12 +222,12 @@ namespace cpu
     }
 
     inline void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
-                       const int* strides,
+                       const int* strides, int pad_top, int pad_left,
                        const int* input_size, const int* kernel_size)
     {
         IdentityAccessor* iaI = new IdentityAccessor(input_size);
         IdentityAccessor* iaK = new IdentityAccessor(kernel_size);
-        conv2d(input, kernel, out, strides, iaI, iaK);
+        conv2d(input, kernel, out, strides, pad_top, pad_left, iaI, iaK);
         delete iaI;
         delete iaK;
     }
@@ -556,7 +564,7 @@ namespace cpu
                                                 * stepLenW * wf->size_get(3), sizeof(dbl_t));
               const int strides[2] = {1, 1};
               IdentityAccessor* ia = new IdentityAccessor(padded_size);
-              conv2d(padded, W1, out_conv, strides, ia, wf);
+              conv2d(padded, W1, out_conv, strides, 0, 0, ia, wf);//Change pad
 
               add_size[0] = padded_size[0];
               add_size[1] = stepLenH;
@@ -628,7 +636,7 @@ namespace cpu
                                                   * stepLenW * padded_size[3], sizeof(dbl_t));
                 const int strides[2] = {1, 1};
                 IdentityAccessor* ia = new IdentityAccessor(padded_size);
-                conv2d(X0, padded, out_conv, strides, ch, ia);
+                conv2d(X0, padded, out_conv, strides, 0, 0, ch, ia);//Change pad
 
                 add_size[0] = ch->size_get(0);
                 add_size[1] = stepLenH;

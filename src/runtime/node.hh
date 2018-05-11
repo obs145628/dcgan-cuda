@@ -47,7 +47,8 @@ namespace rt
         static Node* nop(const std::vector<Node*>& preds);
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
-                               dbl_t* output, const int input_size[], const int kernel_size[],
+                               int pad_top, int pad_left, dbl_t* output,
+                               const int input_size[], const int kernel_size[],
                                const std::vector<Node*>& preds);
 
         static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
@@ -168,6 +169,8 @@ namespace rt
         int intconst[2];
         int sizes1[4];
         int sizes2[4];
+        int int_cons1;
+        int int_cons2;
         dbl_t alpha_leaky;
     };
 

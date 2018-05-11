@@ -100,8 +100,6 @@ namespace cpu
      */
     dbl_t softmax_cross_entropy(const dbl_t* y, const dbl_t* logits,
                                 std::size_t m, std::size_t n);
-                                
-                                
      /**
      * Classes used to filter data access from a dblt_t array
      */
@@ -141,13 +139,13 @@ namespace cpu
      * tensor with respect of the format given above
     */
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
-                const int* strides,
+                const int* strides, int pad_top, int pad_left,
                 FilterAccessor* faI, FilterAccessor* faK);
-               
+
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
-                const int* strides,
+                const int* strides, int pad_top, int pad_left,
                 const int* input_size, const int* kernel_size);
-                
+
     /**
      * z is a 4D tensor output coming from a conv2d Op
      * bias is a vector with a value for each matrix in z

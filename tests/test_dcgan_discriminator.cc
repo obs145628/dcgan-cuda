@@ -78,15 +78,19 @@ int main(int argc, char** argv)
     auto loss = builder.sigmoid_cross_entropy(y, logits);
 
     tocha::Tensors out;
+    out.add(tocha::Tensor::f32(10, 4, 4, 512));
+    dbl_t* l3_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
+    
     out.add(tocha::Tensor::f32(10, 1));
-    dbl_t* l4_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
-    out.add(tocha::Tensor::f32(1));
-    dbl_t* loss_out = reinterpret_cast<dbl_t*>(out.arr()[1].data);
+    dbl_t* logits_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
-    graph.run({l4, loss},
+    out.add(tocha::Tensor::f32(1));
+    dbl_t* loss_out = reinterpret_cast<dbl_t*>(out.arr()[2].data);
+
+    graph.run({l3, logits, loss},
 	      {{x, {x_train, ops::Shape({10, 64, 64, 3})}},
 		  {y, {y_train, ops::Shape({10, 1})}}},
-	      {l4_out, loss_out});
+	      {l3_out, logits_out, loss_out});
     
 
     out.save(argv[3]);

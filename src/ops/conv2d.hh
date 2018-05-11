@@ -17,5 +17,7 @@ namespace ops
         const int* m_strides;
         const ops::Shape m_input_shape;
         const ops::Shape m_kernel_shape;
+        int m_pad_top = 0;
+        int m_pad_left = 0;
     };
 }
