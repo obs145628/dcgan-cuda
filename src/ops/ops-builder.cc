@@ -28,6 +28,7 @@
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
+#include "reshape.hh"
 
 
 namespace ops
@@ -53,7 +54,7 @@ namespace ops
         graph_.add(res);
         return res;
     }
-    
+
     Conv2DBiasAdd* OpsBuilder::conv2d_bias_add(Op* z, Op* bias)
     {
         if (z->shape_get().ndims() != 4)
@@ -64,7 +65,7 @@ namespace ops
             throw std::runtime_error {"Conv2DBiasAdd:z and bias shape are not corresponding"};
         auto res = new Conv2DBiasAdd(z, bias);
         graph_.add(res);
-        return res; 
+        return res;
     }
     
     Conv2DInputGrad* OpsBuilder::conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size)
@@ -97,7 +98,6 @@ namespace ops
         graph_.add(res);
         return res;
     }
-    
 
     MatMatMul* OpsBuilder::mat_mat_mul(Op* left, Op* right, bool left_tr, bool right_tr)
     {
@@ -156,8 +156,7 @@ namespace ops
         graph_.add(res);
         return res;
     }
-                        
-    
+
     MSE* OpsBuilder::mse(Op* y, Op* y_hat)
     {
         if (y->shape_get().ndims() != 2)
@@ -166,10 +165,23 @@ namespace ops
             throw std::runtime_error {"MSE:y_hat must be a matrix"};
         if (y->shape_get() != y_hat->shape_get())
             throw std::runtime_error {"MSE: y and y_hat must have the same shape"};
-        
+
         auto res = new MSE(y, y_hat);
         graph_.add(res);
         return res;
+    }
+
+    Reshape* OpsBuilder::reshape(Op* arg, const Shape& shape)
+    {
+      auto& arg_shape = arg->shape_get();
+      if (shape.defined() && shape.total() != arg_shape.total())
+          throw std::runtime_error {"Reshape:"};
+      //    if (! shape.defined() && (arg_shape.total() % (- shape.total()) != 0))
+      //    throw std::runtime_error {"Reshape:"};
+      // nb -1 = max 1 ?? has to be checked
+      auto res = new Reshape(arg, shape);
+      graph_.add(res);
+      return res;
     }
 
     MSEGrad* OpsBuilder::mse_grad(Op* y, Op* y_hat)
@@ -243,7 +255,6 @@ namespace ops
         return res;
     }
     
-
     Softmax* OpsBuilder::softmax(Op* arg)
     {
         if (arg->shape_get().ndims() != 2)

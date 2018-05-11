@@ -106,6 +106,7 @@ namespace ops
          */
         utils::DotGraph to_dot_graph();
         
+
     private:
         std::vector<Op*> ops_;
         std::vector<Variable*> vars_;

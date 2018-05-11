@@ -14,6 +14,7 @@ set(SRC
   mse-grad.cc
   op.cc
   ops-builder.cc
+  reshape.cc
   relu-grad.cc
   seq.cc
   shape.cc
