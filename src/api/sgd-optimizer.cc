@@ -17,9 +17,6 @@ ops::Op* SGDOptimizer::minimize(ops::Op* loss)
     auto& graph = ops::Graph::instance();
     auto& builder = ops::OpsBuilder::instance();
     auto vars = graph.train_vars_get(loss);
-    
-
-    std::cout << vars.size() << std::endl;
 
     auto coeff = builder.variable(ops::Shape(), false);
     coeff->extend_name("sgd_coeff");

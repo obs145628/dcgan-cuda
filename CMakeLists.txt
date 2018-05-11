@@ -257,3 +257,10 @@ set(TEST_DCGAN_DISCRIMINATOR_SRC
 )
 add_executable(test_dcgan_discriminator EXCLUDE_FROM_ALL ${TEST_DCGAN_DISCRIMINATOR_SRC})
 target_link_libraries(test_dcgan_discriminator cnpy)
+
+set(TEST_TRAIN_MNIST_SGD_SRC
+  ${SRC}
+  tests/test_train_mnist_sgd.cc
+)
+add_executable(test_train_mnist_sgd EXCLUDE_FROM_ALL ${TEST_TRAIN_MNIST_SGD_SRC})
+target_link_libraries(test_train_mnist_sgd cnpy)
