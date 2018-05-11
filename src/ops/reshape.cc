@@ -24,7 +24,10 @@ namespace ops
         auto& new_shape = shape_get();
 
         if (new_shape.defined())
-            g.add_compiled(this, {}, {}, nullptr, new_shape, carg.out_data);
+        {
+            auto node = rt::Node::nop({carg.out_node});
+            g.add_compiled(this, {node}, {}, node, new_shape, carg.out_data);
+        }
         else
         {
             auto& carg_shape = carg.out_shape;
@@ -36,7 +39,6 @@ namespace ops
                     new_dims.push_back(x);
 
             auto node = rt::Node::nop({carg.out_node});
-
             g.add_compiled(this, {node}, {}, node, Shape(new_dims), carg.out_data);
         }
     }
