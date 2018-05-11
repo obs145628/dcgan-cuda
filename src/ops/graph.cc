@@ -106,11 +106,8 @@ namespace ops
                 assert(it != compiled_ops_.end());
             }
 
-            if(it->second.out_node != nullptr)
-            {
-                assert(it->second.out_node);
-                rt_ops.push_back(it->second.out_node);
-            }
+            assert(it->second.out_node);
+            rt_ops.push_back(it->second.out_node);
         }
 
         //Get list of taks
