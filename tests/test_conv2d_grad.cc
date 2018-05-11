@@ -106,17 +106,12 @@ int main(int argc, char** argv)
     dbl_t* dk = reinterpret_cast<dbl_t*>(out.arr()[1].data);
     out.add(tocha::Tensor::f32(2, 2, 2, 2));
     dbl_t* dy_hat = reinterpret_cast<dbl_t*>(out.arr()[2].data);
-    out.add(tocha::Tensor::f32(2, 8));
-    dbl_t* y_n_res = reinterpret_cast<dbl_t*>(out.arr()[3].data);
-    out.add(tocha::Tensor::f32(2, 2, 2, 2));
-    dbl_t* y_conv = reinterpret_cast<dbl_t*>(out.arr()[4].data);
 
-
-    graph.run({dx_node, dk_node, dy_hat_node, loss_node_shape, y_hat_node},
+    graph.run({dx_node, dk_node, dy_hat_node},
               {{x_node, {input, ops::Shape({2, 4, 4, 3})}},
                {k_node, {kernel, ops::Shape({2, 2, 3, 2})}},
                {y_node, {y, ops::Shape({2, 2, 2, 2})}}},
-	      {dx, dk, dy_hat, y_n_res, y_conv});
+	      {dx, dk, dy_hat});
 
     out.save(argv[1]);
 }
