@@ -386,4 +386,11 @@ namespace cpu
             out[i] = (sigmoid(logits[i]) - y[i]) / n;
     }
 
+    inline void tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                             std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = (1 - std::pow(tanh_out[i], 2.0)) * dout[i];
+    }
+
 }

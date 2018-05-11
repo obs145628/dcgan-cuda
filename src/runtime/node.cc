@@ -31,6 +31,7 @@ namespace rt
         "update",
         "sigmoid_cross_entropy",
         "sigmoid_cross_entropy_grad"
+        "tanh_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -341,6 +342,18 @@ namespace rt
         auto res = new Node(OP_SIGMOID_CROSS_ENTROPY_GRAD, preds);
         res->in1 = y;
         res->in2 = logits;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                                std::size_t len,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_TANH_GRAD, preds);
+        res->in1 = tanh_out;
+        res->in2 = dout;
         res->out1 = out;
         res->len1 = len;
         return res;

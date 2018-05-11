@@ -25,6 +25,7 @@ namespace ops
     class Softmax;
     class SoftmaxCrossEntropy;
     class SoftmaxCrossEntropyGrad;
+    class TanhGrad;
     class Update;
     class Variable;
     class VectSigmoid;

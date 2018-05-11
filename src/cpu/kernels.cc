@@ -133,6 +133,11 @@ namespace cpu
             sigmoid_cross_entropy_grad(node->in1, node->in2, node->out1, node->len1);
         }
 
+        void kernel_tanh_grad(rt::Node* node)
+        {
+            tanh_grad(node->in1, node->in2, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -159,6 +164,7 @@ namespace cpu
         kernel_conv2d_bias_add,
         kernel_update,
         kernel_sigmoid_cross_entropy,
-        kernel_sigmoid_cross_entropy_grad
+        kernel_sigmoid_cross_entropy_grad,
+        kernel_tanh_grad
     };
 }

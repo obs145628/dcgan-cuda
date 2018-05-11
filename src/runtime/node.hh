@@ -39,6 +39,7 @@ namespace rt
         static constexpr int OP_UPDATE = 21;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY = 22;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY_GRAD = 23;
+        static constexpr int OP_TANH_GRAD = 24;
 
         static const char* OP_NAMES[24];
 
@@ -136,6 +137,10 @@ namespace rt
         static Node* op_sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                                    std::size_t len,
                                                    const std::vector<Node*>& preds);
+
+        static Node* op_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                                     std::size_t len,
+                                     const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;
