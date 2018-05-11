@@ -34,6 +34,7 @@ namespace ops
     Op* VectSigmoid::child_grad(std::size_t index, Op* dout)
     {
         assert(index < 1);
+        (void) index;
 
         if (dout == nullptr)
             throw std::runtime_error {"grad(Sigmoid) can't be computed on last node"};

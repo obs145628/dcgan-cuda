@@ -35,7 +35,8 @@ add_custom_target(gen_datasets
   COMMAND
   ${CMAKE_SOURCE_DIR}/tests/scripts/gen_datasets.sh
   ${CMAKE_SOURCE_DIR}/tests
-  ${CMAKE_BINARY_DIR})
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR})
 
 
 add_custom_target(check
