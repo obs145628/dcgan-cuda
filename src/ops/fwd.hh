@@ -20,4 +20,5 @@ namespace ops
     class VectRelu;
     class VectReluLeaky;
     class VectTanh;
+    class Reshape;
 }

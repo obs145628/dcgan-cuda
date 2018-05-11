@@ -30,6 +30,7 @@ namespace ops
         VectRelu* vect_relu(Op* arg);
         VectReluLeaky* vect_relu_leaky(Op* arg, const dbl_t alpha = 0.2);
         VectTanh* vect_tanh(Op* arg);
+        Reshape* reshape(Op* arg, const Shape& shape);
 
     private:
         OpsBuilder();

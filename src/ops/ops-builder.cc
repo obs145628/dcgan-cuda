@@ -15,6 +15,7 @@
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
+#include "reshape.hh"
 
 
 namespace ops
@@ -40,7 +41,7 @@ namespace ops
         graph_.add(res);
         return res;
     }
-    
+
     Input* OpsBuilder::input(const Shape& shape)
     {
         auto res = new Input(shape);
@@ -85,7 +86,7 @@ namespace ops
         graph_.add(res);
         return res;
     }
-    
+
     MSE* OpsBuilder::mse(Op* y, Op* y_hat)
     {
         if (y->shape_get().ndims() != 2)
@@ -95,6 +96,19 @@ namespace ops
         auto res = new MSE(y, y_hat);
         graph_.add(res);
         return res;
+    }
+
+    Reshape* OpsBuilder::reshape(Op* arg, const Shape& shape)
+    {
+      auto& arg_shape = arg->shape_get();
+      if (shape.defined() && shape.total() != arg_shape.total())
+          throw std::runtime_error {"Reshape:"};
+      //    if (! shape.defined() && (arg_shape.total() % (- shape.total()) != 0))
+      //    throw std::runtime_error {"Reshape:"};
+      // nb -1 = max 1 ?? has to be checked
+      auto res = new Reshape(arg, shape);
+      graph_.add(res);
+      return res;
     }
 
     Softmax* OpsBuilder::softmax(Op* arg)
