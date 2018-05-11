@@ -18,6 +18,16 @@ namespace cpu
             conv2d_bias_add(node->in1, node->in2, node->out1, node->sizes1);
         }
 
+        void kernel_conv2d_input_grad(rt::Node* node)
+        {
+            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
+        }
+
+        void kernel_conv2d_kernel_grad(rt::Node* node)
+        {
+            conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
+        }
+
         void kernel_mat_mat_mul(rt::Node* node)
         {
             mm_mul(node->in1, node->in2, node->out1,
@@ -159,6 +169,8 @@ namespace cpu
         kernel_conv2d_bias_add,
         kernel_update,
         kernel_sigmoid_cross_entropy,
-        kernel_sigmoid_cross_entropy_grad
+        kernel_sigmoid_cross_entropy_grad,
+        kernel_conv2d_input_grad,
+        kernel_conv2d_kernel_grad
     };
 }

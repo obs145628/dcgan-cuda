@@ -4,6 +4,8 @@ namespace ops
 {
     class Conv2D;
     class Conv2DBiasAdd;
+    class Conv2DInputGrad;
+    class Conv2DKernelGrad;
     class CompiledOp;
     class Graph;
     class Input;

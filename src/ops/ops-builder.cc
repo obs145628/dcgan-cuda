@@ -23,6 +23,8 @@
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
 #include "conv2d-bias-add.hh"
+#include "conv2d-input-grad.hh"
+#include "conv2d-kernel-grad.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -62,6 +64,20 @@ namespace ops
         if (z->shape_get()[3] != bias->shape_get()[0])
             throw std::runtime_error {"Conv2DBiasAdd:z and bias shape are not corresponding"};
         auto res = new Conv2DBiasAdd(z, bias);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DInputGrad* OpsBuilder::conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size)
+    {
+        auto res = new Conv2DInputGrad(y, kernel, strides, input_size);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size)
+    {
+        auto res = new Conv2DKernelGrad(y, input, strides, kernel_size);
         graph_.add(res);
         return res;
     }
