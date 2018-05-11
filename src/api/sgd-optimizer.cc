@@ -21,7 +21,7 @@ ops::Op* SGDOptimizer::minimize(ops::Op* loss)
 
     std::cout << vars.size() << std::endl;
 
-    auto coeff = builder.variable(ops::Shape({}), false);
+    auto coeff = builder.variable(ops::Shape(), false);
     coeff->extend_name("sgd_coeff");
     *(coeff->data_begin()) = - learning_rate_;
 

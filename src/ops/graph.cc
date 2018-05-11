@@ -35,7 +35,7 @@ namespace ops
     {
         return ops_by_name_;
     }
-    
+
     const std::vector<Variable*>& Graph::vars_list() const
     {
         return vars_;
@@ -53,7 +53,7 @@ namespace ops
     void Graph::add(Op* op)
     {
         ops_.push_back(op);
-        
+
         if (ops_by_name_.find(op->name_get()) != ops_by_name_.end())
             throw std::runtime_error {"Operand with same name already exists"};
         ops_by_name_[op->name_get()] = op;
@@ -105,7 +105,7 @@ namespace ops
                 it = compiled_ops_.find(o);
                 assert(it != compiled_ops_.end());
             }
-    
+
             assert(it->second.out_node);
             rt_ops.push_back(it->second.out_node);
         }
@@ -143,7 +143,7 @@ namespace ops
             dbl_t* out_ptr = outputs[i];
             if (!out_ptr)
                 continue;
-            
+
             auto it = compiled_ops_.find(ops[i]);
             assert(it != compiled_ops_.end());
             const dbl_t* src_ptr = it->second.out_data;
@@ -237,5 +237,5 @@ namespace ops
         assert(vari != std::size_t(-1));
         return succ->child_grad(vari, succ_grad);
     }
-    
+
 }
