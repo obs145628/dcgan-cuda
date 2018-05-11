@@ -1,5 +1,9 @@
 #include "vect-sigmoid.hh"
+#include <cassert>
+#include <stdexcept>
 #include "graph.hh"
+#include "ops-builder.hh"
+#include "sigmoid-grad.hh"
 #include "../runtime/node.hh"
 #include "../memory/alloc.hh"
 
@@ -7,7 +11,7 @@ namespace ops
 {
 
     VectSigmoid::VectSigmoid(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("vect-sigmoid", arg->shape_get(), {arg})
     {}
 
     void VectSigmoid::compile()
@@ -24,5 +28,17 @@ namespace ops
                                              {carg.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
+    }
+
+
+    Op* VectSigmoid::child_grad(std::size_t index, Op* dout)
+    {
+        assert(index < 1);
+
+        if (dout == nullptr)
+            throw std::runtime_error {"grad(Sigmoid) can't be computed on last node"};
+
+        auto& builder = OpsBuilder::instance();
+        return builder.sigmoid_grad(this, dout);
     }
 }

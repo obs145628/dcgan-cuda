@@ -9,6 +9,12 @@ namespace rt
     struct Node
     {
 
+        /*
+         * used only because it's predecessor must be executed
+         * never kept in exec list
+         */
+        static constexpr int OP_NOP = 1000;
+
         static constexpr int OP_MAT_MAT_MUL = 0;
         static constexpr int OP_MAT_RVECT_ADD = 1;
         static constexpr int OP_SIGMOID = 2;
@@ -20,10 +26,30 @@ namespace rt
         static constexpr int OP_RELU = 8;
         static constexpr int OP_RELU_LEAKY = 9;
         static constexpr int OP_TANH = 10;
+        static constexpr int OP_MSE_GRAD = 11;
+        static constexpr int OP_SIGMOID_GRAD = 12;
+        static constexpr int OP_MAT_MUL_ADD = 13;
+        static constexpr int OP_TMAT_MAT_MUL = 14;
+        static constexpr int OP_MAT_TMAT_MUL = 15;
+        static constexpr int OP_MAT_SUM_ROWS = 16;
+        static constexpr int OP_MAT_SUM_COLS = 17;
+        static constexpr int OP_SOFTMAX_CROSS_ENTROPY_GRAD = 18;
+        static constexpr int OP_RELU_GRAD = 19;
+        static constexpr int OP_CONV2D_BIAS_ADD = 20;
+        static constexpr int OP_UPDATE = 21;
+        static constexpr int OP_SIGMOID_CROSS_ENTROPY = 22;
+        static constexpr int OP_SIGMOID_CROSS_ENTROPY_GRAD = 23;
+
+        static const char* OP_NAMES[24];
+
+        static Node* nop(const std::vector<Node*>& preds);
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
                                dbl_t* output, const int input_size[], const int kernel_size[],
                                const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
+                                        const int input_size[], const std::vector<Node*>& preds);
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -59,8 +85,57 @@ namespace rt
                                               std::size_t rows, std::size_t cols,
                                               const std::vector<Node*>& preds);
 
+        static Node* op_mse_grad(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                                 std::size_t len,
+                                 const std::vector<Node*>& preds);
+
         static Node* op_tanh(const dbl_t* args, dbl_t* out, std::size_t len,
                              const std::vector<Node*>& preds);
+
+        static Node* op_sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                                     std::size_t len,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b,
+                                    dbl_t* output,
+                                    std::size_t rowsx, std::size_t colsx, std::size_t colsw,
+                                    const std::vector<Node*>& preds);
+
+        static Node* op_tmat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_tmat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
+                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_sum_rows(const dbl_t* arg, dbl_t* out,
+                                     std::size_t rows, std::size_t cols,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_mat_sum_cols(const dbl_t* arg, dbl_t* out,
+                                     std::size_t rows, std::size_t cols,
+                                     const std::vector<Node*>& preds);
+
+        static Node* op_softmax_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                                   std::size_t rows, std::size_t cols,
+                                                   const std::vector<Node*>& preds);
+
+        static Node* op_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                  std::size_t len,
+                                  const std::vector<Node*>& preds);
+
+        static Node* op_update(dbl_t* var, const dbl_t* dt, const dbl_t* coeff,
+                               std::size_t len,
+                               const std::vector<Node*>& preds);
+
+        static Node* op_sigmoid_cross_entropy(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                              std::size_t len,
+                                              const std::vector<Node*>& preds);
+
+        static Node* op_sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                                   std::size_t len,
+                                                   const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

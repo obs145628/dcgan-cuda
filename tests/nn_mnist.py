@@ -17,8 +17,6 @@ def main():
 
   l1 = tf.layers.dense(X, units=100, activation=tf.nn.relu)
   l2 = tf.layers.dense(l1, units=10)
-
-  
   
   # Define loss and optimizer
   
@@ -35,8 +33,10 @@ def main():
   # Train
   for i in range(10000):
     batch_xs, batch_ys = mnist.train.next_batch(100)
-    sess.run(train_step, feed_dict={X: batch_xs, y: batch_ys})
+    loss, _ = sess.run([cross_entropy, train_step], feed_dict={X: batch_xs, y: batch_ys})
 
+    print('train loss = {}'.format(loss)) 
+    
     # Test trained model
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_hat, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))

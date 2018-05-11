@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	      {{x, {features, ops::Shape({1, 12})}}},
 	      {y_out});
 
-    auto& y_shape = graph.compiled_ops_get().find(y)->second.out_shape.dims();
+    auto& y_shape = graph.compiled(y).out_shape.dims();
     o.dims = y_shape;
 
     tocha::Tensors out;

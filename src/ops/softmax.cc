@@ -7,7 +7,7 @@ namespace ops
 {
 
     Softmax::Softmax(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("softmax", arg->shape_get(), {arg})
     {}
 
     void Softmax::compile()

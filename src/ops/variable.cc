@@ -17,9 +17,11 @@ namespace ops
         }
     }
 
-    Variable::Variable(const Shape& shape)
-        : Op(shape)
+    Variable::Variable(const Shape& shape,
+                       bool trainable)
+        : Op("variable", shape)
         , data_(tensor_alloc(shape.total()))
+        , trainable_(trainable)
         , id_(unique_id())
     {
 
@@ -48,6 +50,21 @@ namespace ops
     void Variable::read(dbl_t* ptr) const
     {
         tensor_read(data_, data_ + shape_get().total(), ptr);
+    }
+
+    bool Variable::is_trainable() const
+    {
+        return trainable_;
+    }
+
+    dbl_t* Variable::data_begin()
+    {
+        return data_;
+    }
+    
+    dbl_t* Variable::data_end()
+    {
+        return data_ + shape_get().total();
     }
     
 }

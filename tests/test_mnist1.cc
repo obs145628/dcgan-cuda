@@ -3,7 +3,9 @@
 #include "../src/ops/input.hh"
 #include "../src/ops/ops-builder.hh"
 #include "../src/ops/graph.hh"
+#include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
+#include "../src/api/copy-initializer.hh"
 #include "../src/api/cost.hh"
 
 #include <tocha/tensor.hh>
@@ -24,28 +26,24 @@ int main(int argc, char** argv)
     mnist::load(argv[1], &x_train, &y_train);
     auto weights = tocha::Tensors::load(argv[2]);
 
-    dbl_t* w1 = reinterpret_cast<dbl_t*>(weights.arr()[0].data);
-    dbl_t* b1 = reinterpret_cast<dbl_t*>(weights.arr()[1].data);
-    dbl_t* w2 = reinterpret_cast<dbl_t*>(weights.arr()[2].data);
-    dbl_t* b2 = reinterpret_cast<dbl_t*>(weights.arr()[3].data);
+    CopyInitializer w1(reinterpret_cast<dbl_t*>(weights.arr()[0].data));
+    CopyInitializer b1(reinterpret_cast<dbl_t*>(weights.arr()[1].data));
+    CopyInitializer w2(reinterpret_cast<dbl_t*>(weights.arr()[2].data));
+    CopyInitializer b2(reinterpret_cast<dbl_t*>(weights.arr()[3].data));
 
 
+
+    auto& graph = ops::Graph::instance();
+    graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
     
     auto x = builder.input(ops::Shape({-1, 784}));
     auto y = builder.input(ops::Shape({-1, 10}));
 
-    auto l1 = dense_layer(x, 784, 100, w1, b1);
-    auto l2 = dense_layer(l1, 100, 10, w2, b2);
+    auto l1 = dense_layer(x, 784, 100, sigmoid, &w1, &b1);
+    auto l2 = dense_layer(l1, 100, 10, sigmoid, &w2, &b2);
     auto y_hat = l2;
     auto cost = quadratic_cost(y, y_hat);
-
-    auto& graph = ops::Graph::instance();
-
-    graph.compile({
-	    {x, ops::Shape({20, 784})},
-	    {y, ops::Shape({20, 10})}
-	});
 
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(20, 10));

@@ -51,11 +51,14 @@ def test_basic(cat, sub, ref_script, bin_file):
                 code = 0)
 
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
+test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
+
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
            'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
 test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
+test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')
 test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
 test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
 test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
@@ -64,8 +67,17 @@ test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
 test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
 test_basic('ops', 'reshape', 'ref_reshape.py', 'test_reshape')
-
-
+test_basic('ops', 'mat_mul_add', 'ref_mat_mul_add.py', 'test_mat_mul_add')
+test_basic('ops', 'tmat_mat_mul', 'ref_tmat_mat_mul.py', 'test_tmat_mat_mul')
+test_basic('ops', 'mat_tmat_mul', 'ref_mat_tmat_mul.py', 'test_mat_tmat_mul')
+test_basic('ops', 'mat_sum0', 'ref_mat_sum0.py', 'test_mat_sum0')
+test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
+test_basic('ops', 'sigmoid_cross_entropy', 'ref_sigmoid_cross_entropy.py', 'test_sigmoid_cross_entropy')
+test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
+test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
+test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
+test_basic('ops_grad', 'softmax_cross_entrop_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
+test_basic('ops_grad', 'sigmoid_cross_entropy_grad', 'ref_sigmoid_cross_entropy_grad.py', 'test_sigmoid_cross_entropy_grad')
 
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts

@@ -7,7 +7,7 @@ namespace ops
 {
 
     VectTanh::VectTanh(Op* arg)
-        : Op(arg->shape_get(), {arg})
+        : Op("vect_tanh", arg->shape_get(), {arg})
     {}
 
     void VectTanh::compile()

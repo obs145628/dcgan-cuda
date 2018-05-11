@@ -10,7 +10,7 @@ namespace ops
 {
 
     Reshape::Reshape(Op* arg, const Shape& shape)
-        : Op(shape, {arg})
+        : Op("reshape", shape, {arg})
     {}
 
     void Reshape::compile()

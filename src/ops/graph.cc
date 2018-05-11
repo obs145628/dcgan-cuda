@@ -4,6 +4,7 @@
 #include "../cpu/runner.hh"
 #include "../memory/copy.hh"
 #include "input.hh"
+#include "variable.hh"
 
 namespace ops
 {
@@ -16,6 +17,7 @@ namespace ops
 
     Graph::Graph()
         : full_rt_graph_()
+        , debug_(false)
     {}
 
     Graph::~Graph()
@@ -29,9 +31,38 @@ namespace ops
         return ops_;
     }
 
+    const std::map<std::string, Op*> Graph::ops_by_name() const
+    {
+        return ops_by_name_;
+    }
+
+    const std::vector<Variable*>& Graph::vars_list() const
+    {
+        return vars_;
+    }
+
+    std::vector<Variable*> Graph::train_vars_get(const Op* cost)
+    {
+        std::vector<Variable*> res;
+        for (auto v : vars_)
+            if (v->is_trainable() && (!cost || v->pred_of(cost)))
+                res.push_back(v);
+        return res;
+    }
+
     void Graph::add(Op* op)
     {
         ops_.push_back(op);
+
+        if (ops_by_name_.find(op->name_get()) != ops_by_name_.end())
+            throw std::runtime_error {"Operand with same name already exists"};
+        ops_by_name_[op->name_get()] = op;
+    }
+
+    void Graph::add_var(Variable* var)
+    {
+        add(var);
+        vars_.push_back(var);
     }
 
     const std::map<Input*, Shape>& Graph::input_shapes_get()
@@ -39,20 +70,12 @@ namespace ops
         return input_shapes_;
     }
 
-    void Graph::compile(const std::map<Input*, Shape>& inputs)
-    {
-        input_shapes_ = inputs;
-        compiled_ops_.clear();
-        for (auto node : ops_)
-            compile_(node);
-    }
-
     void Graph::run(std::vector<Op*> ops,
                     const std::map<Input*, std::pair<const dbl_t*, Shape>>& inputs,
                     const std::vector<dbl_t*>& outputs)
     {
 
-//remove already compiled nodes with different shapes, and update shapes
+        //remove already compiled nodes with different shapes, and update shapes
         for (const auto& it: inputs)
         {
             const auto& shape = it.second.second;
@@ -71,7 +94,7 @@ namespace ops
             input_shapes_[it.first] = shape;
         }
 
-// compare nodes that are not already compiled and build ops list
+        // compare nodes that are not already compiled and build ops list
         std::vector<rt::Node*> rt_ops;
         for (auto o : ops)
         {
@@ -90,10 +113,10 @@ namespace ops
             }
         }
 
-//Get list of taks
+        //Get list of taks
         std::vector<rt::Node*> rt_tasks = full_rt_graph_.topological_sort(rt_ops);
 
-//set inut values
+        //set inut values
         for (auto x : inputs)
         {
             auto it = compiled_ops_.find(x.first);
@@ -103,13 +126,27 @@ namespace ops
             tensor_write(dst, dst + x.second.second.total(), x.second.first);
         }
 
-//run computations
+
+        //debug display
+        if (debug_)
+        {
+            rt::Graph::print_nodes(std::cout, rt_tasks);
+            auto dot = to_dot_graph();
+            dot.write_file("./graph.dot");
+            auto rt_dot = full_rt_graph_.to_dot_graph();
+            rt_dot.write_file("./rt_graph.dot");
+        }
+
+        //run computations
         cpu::run_sequential(rt_tasks);
 
-//set output values
+        //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)
         {
             dbl_t* out_ptr = outputs[i];
+            if (!out_ptr)
+                continue;
+
             auto it = compiled_ops_.find(ops[i]);
             assert(it != compiled_ops_.end());
             const dbl_t* src_ptr = it->second.out_data;
@@ -136,6 +173,34 @@ namespace ops
         return it->second;
     }
 
+    Op* Graph::gradient(Op* out, Op* var)
+    {
+
+        auto it = grads_.find({out, var});
+        if (it == grads_.end())
+        {
+            auto res = compute_gradient_(out, var);
+            grads_[{out, var}] = res;
+            return res;
+        }
+        else
+            return it->second;
+    }
+
+    void Graph::debug_set(bool debug)
+    {
+        debug_ = debug;
+    }
+
+    utils::DotGraph Graph::to_dot_graph()
+    {
+        utils::DotGraph res;
+        for (auto op : ops_)
+            for (auto succ : op->succs())
+                res.add_edge(op->name_get(), succ->name_get());
+        return res;
+    }
+
 
     void Graph::remove_compiled_rec_(Op* op)
     {
@@ -160,9 +225,20 @@ namespace ops
         node->compile();
     }
 
-    const std::map<Op*, CompiledOp>& Graph::compiled_ops_get() const
+    Op* Graph::compute_gradient_(Op* out, Op* var)
     {
-        return compiled_ops_;
+        std::size_t vari = out->pred_index(var);
+        if (vari != std::size_t(-1))
+            return out->child_grad(vari, nullptr);
+
+        Op* succ = var->pred_of(out);
+        if (succ == nullptr)
+            throw std::runtime_error {"Can't compute the gradient: the nodes are not related"};
+
+        Op* succ_grad = gradient(out, succ);
+        vari = succ->pred_index(var);
+        assert(vari != std::size_t(-1));
+        return succ->child_grad(vari, succ_grad);
     }
 
 }

@@ -58,6 +58,40 @@ namespace cpu
         }
     }
 
+    inline void tmm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                        std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* bj = b + j;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += ai[k * m] * bj[k * p];
+                out[i * p + j] = x;
+            }
+        }
+    }
+
+    inline void mtm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                       std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i * n;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* bj = b + j * n;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += ai[k] * bj[k];
+                out[i * p + j] = x;
+            }
+        }
+    }
+
     inline void mvrow_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
                           std::size_t m, std::size_t n)
     {
@@ -182,6 +216,26 @@ namespace cpu
                         out[oimgIndex + ohIndex + owIndex + k] = val;
                     }
     }
+    
+    inline void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
+                                const int* input_size)
+    {
+        const std::size_t batch = input_size[0];
+        const std::size_t height = input_size[1];
+        const std::size_t width = input_size[2];
+        const std::size_t outputCh = input_size[3];
+        
+        for (std::size_t b = 0; b < batch; ++b)
+            for (std::size_t i = 0; i < height; ++i)
+                for (std::size_t j = 0; j < width; ++j)
+                    for (std::size_t k = 0; k < outputCh; ++k)
+                    {
+                        std::size_t imgIndex = b * height * width * outputCh;
+                        std::size_t hIndex = i * width * outputCh;
+                        std::size_t wIndex = j * outputCh;
+                        out[imgIndex + hIndex + wIndex + k] = z[imgIndex + hIndex + wIndex + k] + bias[k];
+                    }
+    }
 
     inline dbl_t relu(dbl_t x)
     {
@@ -230,6 +284,106 @@ namespace cpu
     {
         for (std::size_t i = 0; i < n; ++i)
             out[i] = tanh(a[i]);
+    }
+
+    inline void vect_sub_coeff(const dbl_t* a, const dbl_t* b, dbl_t coeff, dbl_t* out, 
+                               std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = coeff * (a[i] - b[i]);
+    }
+
+    inline void sigmoid_grad(const dbl_t* sig_out, const dbl_t* dout, dbl_t* out,
+                             std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = sig_out[i] * (1 - sig_out[i]) * dout[i];
+    }
+
+    inline void mat_mul_add(const dbl_t* x, const dbl_t* w, const dbl_t* b, dbl_t* out,
+                            std::size_t m, std::size_t n, std::size_t p)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* xi = x + i * n;
+            for (std::size_t j = 0; j < p; ++j)
+            {
+                const dbl_t* wj = w + j;
+                dbl_t x = 0;
+                for (std::size_t k = 0; k < n; ++k)
+                    x += xi[k] * wj[k * p];
+                out[i * p + j] = x + b[j];
+            }
+        }
+    }
+
+    inline void mat_sum_rows(const dbl_t* a, dbl_t* out,
+                             std::size_t m, std::size_t n)
+    {
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            const dbl_t* ai = a + i * n;
+            dbl_t sum = 0;
+            for (std::size_t j = 0; j < n; ++j)
+                sum += ai[j];
+            out[i] = sum;
+        }
+    }
+
+    inline void mat_sum_cols(const dbl_t* a, dbl_t* out,
+                             std::size_t m, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+        {
+            const dbl_t* ai = a + i;
+            dbl_t sum = 0;
+            for (std::size_t j = 0; j < m; ++j)
+                sum += ai[j * n];
+            out[i] = sum;
+        }
+    }
+
+    inline void softmax_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                           std::size_t m, std::size_t n)
+    {
+        softmax(logits, out, m, n);
+        for (std::size_t i = 0; i < m * n; ++i)
+            out[i] = (out[i] - y[i]) / m;
+    }
+
+    inline void relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                          std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = z[i] > 0 ? dout[i] : 0;
+    }
+
+    inline void vect_update(const dbl_t* dv, dbl_t* out, dbl_t coeff,
+                            std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] += coeff * dv[i];
+    }
+
+    inline dbl_t sigmoid_cross_entropy(const dbl_t* y, const dbl_t* x,
+                                       std::size_t n)
+    {
+        dbl_t res = 0;
+        for (std::size_t i = 0; i < n; ++i)
+        {
+             if (x[i] >= 0)
+                 res += x[i] - x[i] * y[i] + std::log(1 + std::exp(-x[i]));
+             else
+                 res += - x[i] * y[i] + std::log(1 + std::exp(x[i]));
+        }
+        return res / n;
+    }
+
+    inline void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
+                                           std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = (sigmoid(logits[i]) - y[i]) / n;
     }
 
 }

@@ -1,17 +1,28 @@
 set(SRC
   conv2d.cc
+  conv2d-bias-add.cc
   graph.cc
   input.cc
   log-softmax.cc
   mat-mat-mul.cc
+  mat-mul-add.cc
   mat-rvect-add.cc
+  mat-sum.cc
   mse.cc
+  mse-grad.cc
   op.cc
   ops-builder.cc
   reshape.cc
+  relu-grad.cc
+  seq.cc
   shape.cc
+  sigmoid-cross-entropy.cc
+  sigmoid-cross-entropy-grad.cc
+  sigmoid-grad.cc
   softmax.cc
   softmax-cross-entropy.cc
+  softmax-cross-entropy-grad.cc
+  update.cc
   variable.cc
   vect-sigmoid.cc
   vect-relu.cc
