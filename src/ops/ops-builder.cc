@@ -67,21 +67,21 @@ namespace ops
         graph_.add(res);
         return res;
     }
-    
+
     Conv2DInputGrad* OpsBuilder::conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size)
     {
         auto res = new Conv2DInputGrad(y, kernel, strides, input_size);
         graph_.add(res);
-        return res; 
+        return res;
     }
-    
+
     Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size)
     {
         auto res = new Conv2DKernelGrad(y, input, strides, kernel_size);
         graph_.add(res);
-        return res; 
+        return res;
     }
-    
+
     Input* OpsBuilder::input(const Shape& shape)
     {
         auto res = new Input(shape);

@@ -34,18 +34,18 @@ namespace ops
                     new_dims.push_back((int) (carg_shape.total() / (- new_shape.total())));
                 else
                     new_dims.push_back(x);
-            g.add_compiled(this, {}, {}, nullptr, Shape(new_dims), carg.out_data);
+
+            auto node = rt::Node::nop({carg.out_node});
+
+            g.add_compiled(this, {node}, {}, node, Shape(new_dims), carg.out_data);
         }
     }
 
     Op* Reshape::child_grad(std::size_t index, Op* dout)
     {
         assert(index < 1);
-        if (dout != nullptr)
-            throw std::runtime_error {"reshape must be the final node of the gradient"};
-
         auto& builder = OpsBuilder::instance();
 
-        return builder.reshape(preds()[0], m_initial_size);
+        return builder.reshape(dout, m_initial_size);
     }
 }

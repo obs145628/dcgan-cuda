@@ -106,12 +106,11 @@ int main(int argc, char** argv)
     auto y_hat_node_reshape = builder.reshape(y_hat_node, ops::Shape({2, 8}));
     auto loss_node_shape = builder.mse(y_node_reshape, y_hat_node_reshape);
     //auto loss_node = builder.input(ops::Shape({2, 2, 2, 2}));
-    auto loss_node = builder.reshape(loss_node_shape, ops::Shape({2, 2, 2, 2}));
+    //auto loss_node = builder.reshape(loss_node_shape, ops::Shape({2, 2, 2, 2}));
 
-    auto dx_node = graph.gradient(loss_node, x_node);
-    auto dk_node = graph.gradient(loss_node, k_node);
-    auto dy_hat_node = graph.gradient(loss_node, y_hat_node);
-
+    auto dy_hat_node = graph.gradient(loss_node_shape, y_hat_node);
+    auto dx_node = graph.gradient(dy_hat_node, x_node);
+    auto dk_node = graph.gradient(dy_hat_node, k_node);
 
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(2, 4, 4, 3));
