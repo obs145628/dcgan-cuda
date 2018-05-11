@@ -33,6 +33,16 @@ namespace cpu
         return res;
     }
 
+    inline std::size_t argmax(const dbl_t* begin, const dbl_t* end)
+    {
+        std::size_t res = 0;
+        std::size_t len = end - begin;
+        for (std::size_t i = 1; i < len; ++i)
+            if (begin[i] > begin[res])
+                res = i;
+        return res;
+    }
+
     inline dbl_t sum(const dbl_t* begin, const dbl_t* end)
     {
         dbl_t res = 0;
@@ -384,6 +394,16 @@ namespace cpu
     {
         for (std::size_t i = 0; i < n; ++i)
             out[i] = (sigmoid(logits[i]) - y[i]) / n;
+    }
+
+    inline std::size_t argmax_acc(const dbl_t* y, const dbl_t* y_hat,
+                                  std::size_t m, std::size_t n)
+    {
+        std::size_t res = 0;
+        for (std::size_t i = 0; i < m; ++i)
+            res += argmax(y + i * n, y + (i + 1) * n)
+                == argmax(y_hat + i * n, y_hat + (i + 1) * n);
+        return res;
     }
 
 }

@@ -19,6 +19,7 @@ namespace ops
         OpsBuilder& operator=(const OpsBuilder&) = delete;
         OpsBuilder& operator=(OpsBuilder&&) = delete;
 
+        ArgmaxAccuracy* argmax_accuracy(Op* y, Op* y_hat);
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
         Input* input(const Shape& shape);

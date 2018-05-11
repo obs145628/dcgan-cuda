@@ -39,8 +39,9 @@ namespace rt
         static constexpr int OP_UPDATE = 21;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY = 22;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY_GRAD = 23;
+        static constexpr int OP_ARGMAX_ACC = 24;
 
-        static const char* OP_NAMES[24];
+        static const char* OP_NAMES[25];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -136,6 +137,10 @@ namespace rt
         static Node* op_sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                                    std::size_t len,
                                                    const std::vector<Node*>& preds);
+
+        static Node* op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                                   std::size_t rows, std::size_t cols,
+                                   const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

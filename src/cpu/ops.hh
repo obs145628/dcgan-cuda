@@ -14,6 +14,9 @@ namespace cpu
     //returns the max value in range [begin, end[
     dbl_t max(const dbl_t* begin, const dbl_t* end);
 
+    //compute the index of the maximum value
+    std::size_t argmax(const dbl_t* begin, const dbl_t* end);
+
     //returns the sum of the values in range [begin, end[
     dbl_t sum(const dbl_t* begin, const dbl_t* end);
 
@@ -285,6 +288,15 @@ namespace cpu
      */
     void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                     std::size_t n);
+
+    /**
+     * Compute the sum of equals(argmax(y), argmax(y_hat))
+     * argmax(y) is done row by row
+     * y - matrix(m * n)
+     * y_hat - matrix (m * n)
+     */
+    std::size_t argmax_acc(const dbl_t* y, const dbl_t* y_hat,
+                           std::size_t m, std::size_t n);
     
 }
 
