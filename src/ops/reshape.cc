@@ -46,6 +46,8 @@ namespace ops
     Op* Reshape::child_grad(std::size_t index, Op* dout)
     {
         assert(index < 1);
+        if (dout == nullptr)
+            throw std::runtime_error {"reshape dout must not be null"};
         auto& builder = OpsBuilder::instance();
 
         return builder.reshape(dout, m_initial_size);
