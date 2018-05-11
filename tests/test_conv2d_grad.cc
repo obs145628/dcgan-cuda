@@ -82,17 +82,6 @@ int main(int argc, char** argv)
        18.0, -8.0
     };// 2 * 2 * 2 * 2
 
-    /*dbl_t mse[] = {
-       0.625, -0.125,
-       0.625, -2.25,
-       0.375, -1.75,
-       0.75, -0.25,
-       1.0, -0.5,
-       -0.25, 3.0,
-       0.5, 0.25,
-       -0.75, -0.375
-    };*/
-
     auto& graph = ops::Graph::instance();
     graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
@@ -105,12 +94,10 @@ int main(int argc, char** argv)
     auto y_node_reshape = builder.reshape(y_node, ops::Shape({2, 8}));
     auto y_hat_node_reshape = builder.reshape(y_hat_node, ops::Shape({2, 8}));
     auto loss_node_shape = builder.mse(y_node_reshape, y_hat_node_reshape);
-    //auto loss_node = builder.input(ops::Shape({2, 2, 2, 2}));
-    //auto loss_node = builder.reshape(loss_node_shape, ops::Shape({2, 2, 2, 2}));
 
-    auto dy_hat_node = graph.gradient(loss_node_shape, y_hat_node);
-    auto dx_node = graph.gradient(dy_hat_node, x_node);
-    auto dk_node = graph.gradient(dy_hat_node, k_node);
+    auto dy_hat_node = graph.gradient(loss_node_shape, y_hat_node_reshape);
+    auto dx_node = graph.gradient(loss_node_shape, x_node);
+    auto dk_node = graph.gradient(loss_node_shape, k_node);
 
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(2, 4, 4, 3));
@@ -119,12 +106,15 @@ int main(int argc, char** argv)
     dbl_t* dk = reinterpret_cast<dbl_t*>(out.arr()[1].data);
     out.add(tocha::Tensor::f32(2, 2, 2, 2));
     dbl_t* dy_hat = reinterpret_cast<dbl_t*>(out.arr()[2].data);
+    out.add(tocha::Tensor::f32(2, 8));
+    dbl_t* y_n_res = reinterpret_cast<dbl_t*>(out.arr()[3].data);
 
-    graph.run({dx_node, dk_node, dy_hat_node},
+
+    graph.run({dx_node, dk_node, dy_hat_node, y_node_reshape},
               {{x_node, {input, ops::Shape({2, 4, 4, 3})}},
-                  {k_node, {kernel, ops::Shape({2, 2, 3, 2})}},
-                  {y_node, {y, ops::Shape({2, 2, 2, 2})}}},
-	      {dx, dk, dy_hat});
+               {k_node, {kernel, ops::Shape({2, 2, 3, 2})}},
+               {y_node, {y, ops::Shape({2, 2, 2, 2})}}},
+	      {dx, dk, dy_hat, y_n_res});
 
     out.save(argv[1]);
 }

@@ -13,5 +13,4 @@ namespace ops
 
         virtual void compile() override;
     };
-    
 }

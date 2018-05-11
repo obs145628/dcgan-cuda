@@ -13,8 +13,12 @@ namespace ops
                    input_size[2], input_size[3]}),
              {y, kernel})
         , m_strides(strides)
-        , m_input_size(input_size)
-    {}
+    {
+        m_input_size[0] = input_size[0];
+        m_input_size[1] = input_size[1];
+        m_input_size[2] = input_size[2];
+        m_input_size[3] = input_size[3];
+    }
 
     void Conv2DInputGrad::compile()
     {

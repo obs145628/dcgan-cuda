@@ -13,8 +13,12 @@ namespace ops
                    kernel_size[2],kernel_size[3]}),
              {y, input})
         , m_strides(strides)
-        , m_kernel_size(kernel_size)
-    {}
+    {
+        m_kernel_size[0] = kernel_size[0];
+        m_kernel_size[1] = kernel_size[1];
+        m_kernel_size[2] = kernel_size[2];
+        m_kernel_size[3] = kernel_size[3];
+    }
 
     void Conv2DKernelGrad::compile()
     {

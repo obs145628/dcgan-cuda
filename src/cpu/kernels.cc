@@ -17,12 +17,12 @@ namespace cpu
         {
             conv2d_bias_add(node->in1, node->in2, node->out1, node->sizes1);
         }
-        
+
         void kernel_conv2d_input_grad(rt::Node* node)
         {
             conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
         }
-        
+
         void kernel_conv2d_kernel_grad(rt::Node* node)
         {
             conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);

@@ -13,6 +13,6 @@ namespace ops
         virtual void compile() override;
     private:
         const int* m_strides;
-        const int* m_kernel_size;
+        int m_kernel_size[4];
     };
 }

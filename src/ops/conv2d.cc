@@ -18,7 +18,9 @@ namespace ops
                    (input->shape_get()[2] - kernel->shape_get()[1]) / strides[1] + 1,
                    kernel->shape_get()[3]}),
              {input, kernel})
-        ,m_strides(strides)
+        , m_strides(strides)
+        , m_input_shape(input->shape_get())
+        , m_kernel_shape(kernel->shape_get())
     {}
 
     void Conv2D::compile()
@@ -48,23 +50,20 @@ namespace ops
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
     }
-    
+
     Op* Conv2D::child_grad(std::size_t index, Op* dout)
     {
         assert(index < 2);
         if (dout == nullptr)
             throw std::runtime_error {"conv2d must not be the final node of the gradient"};
-          
-        auto& builder = OpsBuilder::instance();
-        auto& g = Graph::instance();
-        auto& cinput =  g.compiled(preds()[0]);
-        auto& ckernel =  g.compiled(preds()[1]);
-        
-        int input_size[4] = { cinput.out_shape[0], cinput.out_shape[1],
-                              cinput.out_shape[2], cinput.out_shape[3]};
 
-        int kernel_size[4] = { ckernel.out_shape[0], ckernel.out_shape[1],
-                               ckernel.out_shape[2], ckernel.out_shape[3]};
+        auto& builder = OpsBuilder::instance();
+
+        int input_size[4] = { m_input_shape[0], m_input_shape[1],
+                              m_input_shape[2], m_input_shape[3]};
+
+        int kernel_size[4] = { m_kernel_shape[0], m_kernel_shape[1],
+                               m_kernel_shape[2], m_kernel_shape[3]};
         if (index == 0)
           return builder.conv2d_input_grad(dout , preds()[1], m_strides, input_size);
         else
