@@ -8,6 +8,7 @@
 #include "../src/ops/input.hh"
 #include "../src/ops/ops-builder.hh"
 #include "../src/ops/conv2d.hh"
+#include "../src/ops/reshape.hh"
 #include "../src/ops/graph.hh"
 #include "../src/ops/mse.hh"
 #include "../src/api/layers.hh"
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
       -1.0, 0.0, 1.0, -1.0
     };//2 * 2 * 3 * 2
 
-    /*dbl_t y[] = {
+    dbl_t y[] = {
        9.0, 13.0,
        2.0, 12.0,
        -8.0, 9.0,
@@ -79,9 +80,9 @@ int main(int argc, char** argv)
        0.0, -22.0,
        3.0, 9.0,
        18.0, -8.0
-    };// 2 * 2 * 2 * 2*/
+    };// 2 * 2 * 2 * 2
 
-    dbl_t mse[] = {
+    /*dbl_t mse[] = {
        0.625, -0.125,
        0.625, -2.25,
        0.375, -1.75,
@@ -90,7 +91,7 @@ int main(int argc, char** argv)
        -0.25, 3.0,
        0.5, 0.25,
        -0.75, -0.375
-    };
+    };*/
 
     auto& graph = ops::Graph::instance();
     graph.debug_set(true);
@@ -98,11 +99,14 @@ int main(int argc, char** argv)
 
     auto x_node = builder.input(ops::Shape({2, 4, 4, 3}));
     auto k_node = builder.input(ops::Shape({2, 2, 3, 2}));
-    //auto y_node = builder.input(ops::Shape({2, 2, 2, 2}));
+    auto y_node = builder.input(ops::Shape({2, 2, 2, 2}));
     int strides[] = {2, 2};
     auto y_hat_node = builder.conv2d(x_node, k_node, strides);
-    //auto loss_node = builder.mse(y_node, y_hat_node);
-    auto loss_node = builder.input(ops::Shape({2, 2, 2, 2}));
+    auto y_node_reshape = builder.reshape(y_node, ops::Shape({2, 8}));
+    auto y_node_hat_reshape = build.reshape(y_hat, ops::Shape({2, 8}));
+    auto loss_node_shape = builder.mse(y_node_reshape, y_hat_node_reshape);
+    //auto loss_node = builder.input(ops::Shape({2, 2, 2, 2}));
+    auto loss_node = builder.reshape(loss_node_shape, ops::Shape({2, 2, 2, 2}));
 
     auto dx_node = graph.gradient(loss_node, x_node);
     auto dk_node = graph.gradient(loss_node, k_node);
