@@ -61,6 +61,13 @@ set(NN_MNIST_SRC
 )
 add_executable(nn_mnist ${NN_MNIST_SRC})
 
+set(CONV_SRC
+  conv2d/conv.cc
+  conv2d/main.cc
+  conv2d/tensor4.cc
+)
+add_executable(conv ${CONV_SRC})
+target_link_libraries(conv cnpy)
 
 
 
