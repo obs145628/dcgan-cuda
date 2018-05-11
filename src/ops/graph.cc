@@ -82,9 +82,12 @@ namespace ops
                 it = compiled_ops_.find(o);
                 assert(it != compiled_ops_.end());
             }
-    
-            assert(it->second.out_node);
-            rt_ops.push_back(it->second.out_node);
+
+            if(it->second.out_node != nullptr)
+            {
+                assert(it->second.out_node);
+                rt_ops.push_back(it->second.out_node);
+            }
         }
 
 //Get list of taks
@@ -156,5 +159,10 @@ namespace ops
 
         node->compile();
     }
-    
+
+    const std::map<Op*, CompiledOp>& Graph::compiled_ops_get() const
+    {
+        return compiled_ops_;
+    }
+
 }

@@ -40,6 +40,8 @@ namespace ops
 
         const CompiledOp& compiled(Op* op);
 
+        const std::map<Op*, CompiledOp>& compiled_ops_get() const;
+
     private:
         std::vector<Op*> ops_;
         std::map<Input*, Shape> input_shapes_;
