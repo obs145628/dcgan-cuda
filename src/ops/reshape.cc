@@ -30,7 +30,10 @@ namespace ops
                     new_dims.push_back((int) (carg_shape.total() / (- new_shape.total())));
                 else
                     new_dims.push_back(x);
-            g.add_compiled(this, {}, {}, nullptr, Shape(new_dims), carg.out_data);
+
+            auto node = rt::Node::nop({carg.out_node});
+            
+            g.add_compiled(this, {node}, {}, node, Shape(new_dims), carg.out_data);
         }
     }
 }
