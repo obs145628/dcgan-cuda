@@ -22,7 +22,7 @@ namespace ops
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
         Conv2DInputGrad* conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size);
-        Conv2DKernelGrad* conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size);
+        Conv2DKernelGrad* conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size);
         Input* input(const Shape& shape);
         LogSoftmax* log_softmax(Op* arg);
         MatMatMul* mat_mat_mul(Op* left, Op* right, bool left_tr = false, bool right_tr = false);

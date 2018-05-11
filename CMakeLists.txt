@@ -125,6 +125,13 @@ set(TEST_CONV2D_GRAD_SRC
 add_executable(test_conv2d_grad EXCLUDE_FROM_ALL ${TEST_CONV2D_GRAD_SRC})
 target_link_libraries(test_conv2d_grad cnpy)
 
+set(TEST_CONV2D_PADDING_GRAD_SRC
+  ${SRC}
+  tests/test_conv2d_padding_grad.cc
+)
+add_executable(test_conv2d_padding_grad EXCLUDE_FROM_ALL ${TEST_CONV2D_PADDING_GRAD_SRC})
+target_link_libraries(test_conv2d_padding_grad cnpy)
+
 
 set(TEST_VECT_RELU_SRC
   ${SRC}

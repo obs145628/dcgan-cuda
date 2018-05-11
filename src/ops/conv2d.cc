@@ -41,6 +41,9 @@ namespace ops
 
       m_pad_top = pad_along_height / 2;
       m_pad_left = pad_along_width / 2;
+
+      m_padded_size[0] = pad_along_height;
+      m_padded_size[1] = pad_along_width;      
     }
 
     void Conv2D::compile()
@@ -91,6 +94,6 @@ namespace ops
         if (index == 0)
           return builder.conv2d_input_grad(dout , preds()[1], m_strides, input_size);
         else
-          return builder.conv2d_kernel_grad(dout, preds()[0], m_strides, kernel_size);
+          return builder.conv2d_kernel_grad(dout, preds()[0], m_strides, kernel_size, m_padded_size);
     }
 }

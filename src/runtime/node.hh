@@ -60,6 +60,7 @@ namespace rt
 
         static Node* op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
                                           dbl_t* output, const int y_size[], const int input_size[],
+                                          const int padded_size[],
                                           const std::vector<Node*>& preds);
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
@@ -167,6 +168,7 @@ namespace rt
         std::size_t len2;
         std::size_t len3;
         int intconst[2];
+        int intconst2[2];
         int sizes1[4];
         int sizes2[4];
         int int_cons1;

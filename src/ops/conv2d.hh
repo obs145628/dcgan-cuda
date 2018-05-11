@@ -19,5 +19,6 @@ namespace ops
         const ops::Shape m_kernel_shape;
         int m_pad_top = 0;
         int m_pad_left = 0;
+        int m_padded_size[2];
     };
 }

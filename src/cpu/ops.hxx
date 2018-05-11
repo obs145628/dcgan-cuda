@@ -601,7 +601,7 @@ namespace cpu
     }
 
     inline void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
-                                   dbl_t* out)
+                                   dbl_t* out, const int* padded_size_input)
     {
         const int nbFilterTotal = dX1_size[3];
         const int nbChan = X0_size[3];
@@ -615,7 +615,7 @@ namespace cpu
             dbl_t* dLdWImg = nullptr;
             for (int img = 0; img < nbImg; ++img)
             {
-                ChFilterAccessor* ch = new ChFilterAccessor(X0_size, img, chan);
+                ChFilterAccessor* ch = new ChFilterAccessor(X0_size, img, chan, 0, 0);
                 YtoKerAccessor* yk = new YtoKerAccessor(dX1_size, nbFilterTotal, img);
 
                 const int striddedWidth = (yk->size_get(1) - 1) * (stride - 1) + yk->size_get(1);
@@ -630,13 +630,18 @@ namespace cpu
 
                 padd_ker(dX1, padded, stride, padded_size, yk);
 
-                const int stepLenH = (ch->size_get(1) - padded_size[0]) + 1;
-                const int stepLenW = (ch->size_get(2) - padded_size[1]) + 1;
+                /*const int stepLenH = (ch->size_get(1) - padded_size[0]) + 1;
+                const int stepLenW = (ch->size_get(2) - padded_size[1]) + 1;*/
+                const int stepLenH = (int)std::ceil(
+                          static_cast<float>(ch->size_get(1)));
+                const int stepLenW = (std::size_t)std::ceil(
+                          static_cast<float>(ch->size_get(2)));
+
                 dbl_t* out_conv = (dbl_t*)calloc(ch->size_get(0) * stepLenH
                                                   * stepLenW * padded_size[3], sizeof(dbl_t));
                 const int strides[2] = {1, 1};
                 IdentityAccessor* ia = new IdentityAccessor(padded_size);
-                conv2d(X0, padded, out_conv, strides, 0, 0, ch, ia);//Change pad
+                conv2d(X0, padded, out_conv, strides, padded_size_input[0], padded_size_input[1], ch, ia);//Change pad
 
                 add_size[0] = ch->size_get(0);
                 add_size[1] = stepLenH;

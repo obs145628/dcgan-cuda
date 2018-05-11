@@ -314,7 +314,7 @@ namespace cpu
      */
     void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                     std::size_t n);
-     
+
     class IdentityAccessor : public FilterAccessor
     {
     public:
@@ -327,7 +327,7 @@ namespace cpu
           _new_size[1] = size[1];
           _new_size[2] = size[2];
           _new_size[3] = size[3];
-        } 
+        }
 
         int access(int ind0, int ind1, int ind2, int ind3) override
         {
@@ -336,7 +336,7 @@ namespace cpu
           return new_ind;
         }
     };
-    
+
     class WFilterRot180Accessor : public FilterAccessor
     {
     public:
@@ -361,7 +361,7 @@ namespace cpu
       int _nbFilter;
       int _nbChan;
     };
-    
+
     class YFilterAccessor : public FilterAccessor
     {
     public:
@@ -383,14 +383,16 @@ namespace cpu
     private:
       int _nbFilter;
     };
-    
+
     class ChFilterAccessor : public FilterAccessor
     {
     public:
-        ChFilterAccessor(const int* size, int nbImg, int nbChan)
+        ChFilterAccessor(const int* size, int nbImg, int nbChan, int pad_top, int pad_left)
               : FilterAccessor(size)
               , _nbImg(nbImg)
               , _nbChan(nbChan)
+              , _pad_top(pad_top)
+              , _pad_left(pad_left)
             {
               _new_size[0] = 1;
               _new_size[1] = size[1];
@@ -399,15 +401,25 @@ namespace cpu
             }
       int access(int, int ind1, int ind2, int) override
       {
-          int new_ind = _nbImg * _stot0 + ind1 * _stot1
-                      + ind2 * _size[3] + _nbChan;
-          return new_ind;
+          if ((ind1 - _pad_top) >= 0
+              && (ind2 - _pad_left) >= 0
+              && (ind1 - _pad_top) < _size[1]
+              && (ind2 - _pad_left) < _size[2])
+          {
+            int new_ind = _nbImg * _stot0 + ind1 * _stot1
+                        + ind2 * _size[3] + _nbChan;
+            return new_ind;
+          }
+          else
+            return -1;
       }
     private:
       int _nbImg;
       int _nbChan;
+      int _pad_top;
+      int _pad_left;
     };
-    
+
     class YtoKerAccessor : public FilterAccessor
     {
     public:
@@ -431,7 +443,7 @@ namespace cpu
       int _nbImage;
       int _outCh;
     };
-    
+
     /**
      * Add padding around and in between an input
      * given a specific stride and kernel size.
@@ -442,7 +454,7 @@ namespace cpu
                         const int* input_size, const int* kernel_size,
                         const int* out_size,
                         FilterAccessor* faI);
-     
+
     /**
      * Add padding in between a kernel
      * given a specific stride.
@@ -451,36 +463,36 @@ namespace cpu
      */
     void padd_ker(const dbl_t* kernel, dbl_t* out, int stride,
                   const int* out_size, FilterAccessor* fa);
-                  
+
     /**
      * Format the calculated gradient for
      * the kernel to a standard format.
      * WARNING: dldw is freed at the end.
      */
     dbl_t* formatDw(dbl_t* dldw, const int* size);
-    
+
     /**
      * Perform the operation t1 <- t1 + t2
      * on two 4D tensor.
      */
     void tensor_add(dbl_t* t1, dbl_t* t2, const int* size);
-     
+
     /**
      * Concatenate two 4D tensor on the fourth axis
      * WARNING: t1 and t2 are freed.
      */
     dbl_t* tensor_concat_axis3(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2);
-    
+
     /**
      * Concatenate two 4D tensor on the first axis
      * WARNING: t1 and t2 are freed.
      */
     dbl_t* tensor_concat_axis0(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2);
-    
+
     void conv2d_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
                            const int* W1_size, dbl_t* out);
     void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size,
-                            const int* X0_size, dbl_t* out);
+                            const int* X0_size, dbl_t* out, const int* padded_size);
 }
 
 #include "ops.hxx"

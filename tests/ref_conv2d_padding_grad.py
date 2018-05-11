@@ -86,7 +86,46 @@ kernel = tf.constant([
     ]
 ], dtype=tf.float32, name='kernel')
 
-res = tf.nn.conv2d(input, kernel, [1, 2, 2, 1], "SAME")
+
+Y = np.array([[[
+   [ 9.,  13.],
+   [  2.,  12.],
+   [  1.,  -5.]],
+
+  [[ -8.,  9.],
+   [  3.,  -9.],
+   [  4.,  10.]]],
+
+
+ [[[ 11.,   3.],
+   [ 0., -22.],
+   [  -4.,  0.]],
+
+  [[  3.,   9.],
+   [ 18.,  -8.],
+   [  9.,  1.]]]]
+)
+
+x_node = tf.Variable(input, dtype=tf.float32)
+k_node = tf.Variable(kernel, dtype=tf.float32)
+y_node = tf.Variable(Y, dtype=tf.float32)
+
+y_hat_node = tf.nn.conv2d(x_node, k_node, [1, 2, 2, 1], "SAME")
+
+loss_node = tf.losses.mean_squared_error(y_node, y_hat_node)
 sess = tf.Session()
-conv = sess.run(res)
-tensors_saver.add(conv)
+init = tf.global_variables_initializer()
+sess.run(init)
+
+
+dx_node, dk_node, dy_hat_node = tf.gradients(loss_node,
+                                             [x_node, k_node, y_hat_node])
+
+
+tf_dx = sess.run(dx_node)
+tf_dk = sess.run(dk_node)
+tf_dy_hat = sess.run(dy_hat_node)
+
+tensors_saver.add(tf_dx.astype(np.float32))
+tensors_saver.add(tf_dk.astype(np.float32))
+tensors_saver.add(tf_dy_hat.astype(np.float32))
