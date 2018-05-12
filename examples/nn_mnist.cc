@@ -4,11 +4,12 @@
 #include "../src/ops/variable.hh"
 #include "../src/ops/input.hh"
 #include "../src/ops/ops-builder.hh"
+#include "../src/ops/argmax-accuracy.hh"
 #include "../src/ops/graph.hh"
 #include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
 #include "../src/api/cost.hh"
-#include "../src/api/sgd-optimizer.hh"
+#include "../src/api/adam-optimizer.hh"
 
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
@@ -43,13 +44,17 @@ int main(int argc, char** argv)
     auto l1 = dense_layer(x, 784, 100, relu);
     auto l2 = dense_layer(l1, 100, 10, nullptr);
     auto loss = softmax_cross_entropy(y, l2);
+    auto acc = builder.argmax_accuracy(y, l2);
 
-    SGDOptimizer optimizer(0.05);
+    AdamOptimizer optimizer(0.01);
     auto train_op = optimizer.minimize(loss);
 
-    dbl_t loss_val;
+    
 
-    for (int i = 0; i < 1000; ++i)
+    dbl_t loss_val;
+    dbl_t acc_val;
+
+    for (int i = 0; i < 10000; ++i)
     {
 
         for (std::size_t i = 0; i < batch_size; ++i)
@@ -61,13 +66,15 @@ int main(int argc, char** argv)
         }
         
 
-        graph.run({train_op, loss},
+        graph.run({train_op, loss, acc},
                   {{x, {x_batch, ops::Shape({100, 784})}},
                       {y, {y_batch, ops::Shape({100, 10})}}},
-                  {nullptr, &loss_val});
+                  {nullptr, &loss_val, &acc_val});
 
         std::cout << "epoch " << i << ", "
-                  << "loss = " << loss_val << std::endl;
+                  << "loss = " << loss_val << ", "
+                  << "acc = " << acc_val << "/" << batch_size
+                  << " (" << (acc_val / batch_size)*100. << "%)" << std::endl;
     }
 
     tensor_free(x_train);

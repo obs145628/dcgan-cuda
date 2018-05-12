@@ -1,5 +1,6 @@
 #include "layers.hh"
 #include "normal-initializer.hh"
+#include "zero-initializer.hh"
 #include "../ops/ops-builder.hh"
 #include "../ops/mat-mat-mul.hh"
 #include "../ops/mat-rvect-add.hh"
@@ -25,11 +26,12 @@ ops::Op* dense_layer(ops::Op* input,
     auto b = builder.variable(ops::Shape({int(out_size)}), true);
     b->extend_name("dense_b");
 
-    NormalInitializer base_init;
+    NormalInitializer w_base_init;
+    ZeroInitializer b_base_init;
     if (!w_init)
-        w_init = &base_init;
+        w_init = &w_base_init;
     if (!b_init)
-        b_init = &base_init;
+        b_init = &b_base_init;
 
     w_init->fill(w->data_begin(), w->data_end());
     b_init->fill(b->data_begin(), b->data_end());

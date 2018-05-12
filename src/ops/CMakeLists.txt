@@ -1,4 +1,6 @@
 set(SRC
+  adam-update.cc
+  argmax-accuracy.cc
   conv2d.cc
   conv2d-bias-add.cc
   conv2d-input-grad.cc
@@ -10,6 +12,7 @@ set(SRC
   mat-mul-add.cc
   mat-rvect-add.cc
   mat-sum.cc
+  moment-update.cc
   mse.cc
   mse-grad.cc
   op.cc
