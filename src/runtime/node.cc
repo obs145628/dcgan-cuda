@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[27] =
+    const char* Node::OP_NAMES[30] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -34,7 +34,10 @@ namespace rt
         "sigmoid_cross_entropy_grad",
         "conv2d_input_grad",
         "conv2d_kernel_grad",
-        "argmax_acc"
+        "argmax_acc",
+        "moment_update",
+        "moment_update2",
+        "adam_update"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -402,6 +405,50 @@ namespace rt
         res->out1 = out;
         res->len1 = rows;
         res->len2 = cols;
+        return res;
+    }
+
+    Node* Node::op_moment_update(dbl_t* var, const dbl_t* dt,
+                                 dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                 const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MOMENT_UPDATE, preds);
+        res->in1 = dt;
+        res->out1 = var;
+        res->len1 = len;
+        res->cons1 = coeff1;
+        res->cons2 = coeff2;
+        return res;
+    }
+
+    Node* Node::op_moment_update2(dbl_t* var, const dbl_t* dt,
+                                  dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                  const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MOMENT_UPDATE2, preds);
+        res->in1 = dt;
+        res->out1 = var;
+        res->len1 = len;
+        res->cons1 = coeff1;
+        res->cons2 = coeff2;
+        return res;
+    }
+
+    Node* Node::op_adam_update(dbl_t* var, dbl_t* t, const dbl_t* m, const dbl_t* v,
+                               dbl_t lr, dbl_t beta1, dbl_t beta2, dbl_t eps,
+                               std::size_t len,
+                               const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_ADAM_UPDATE, preds);
+        res->in1 = m;
+        res->in2 = v;
+        res->out1 = var;
+        res->out2 = t;
+        res->len1 = len;
+        res->cons1 = lr;
+        res->cons2 = beta1;
+        res->cons3 = beta2;
+        res->cons4 = eps;
         return res;
     }
 

@@ -9,7 +9,7 @@
 #include "../src/api/activ.hh"
 #include "../src/api/layers.hh"
 #include "../src/api/cost.hh"
-#include "../src/api/sgd-optimizer.hh"
+#include "../src/api/adam-optimizer.hh"
 
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
     auto loss = softmax_cross_entropy(y, l2);
     auto acc = builder.argmax_accuracy(y, l2);
 
-    SGDOptimizer optimizer(0.01);
+    AdamOptimizer optimizer(0.01);
     auto train_op = optimizer.minimize(loss);
 
     

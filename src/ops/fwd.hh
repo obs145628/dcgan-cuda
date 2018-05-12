@@ -2,6 +2,7 @@
 
 namespace ops
 {
+    class AdamUpdate;
     class ArgmaxAccuracy;
     class Conv2D;
     class Conv2DBiasAdd;
@@ -15,6 +16,7 @@ namespace ops
     class MatMulAdd;
     class MatRvectAdd;
     class MatSum;
+    class MomentUpdate;
     class MSE;
     class MSEGrad;
     class Op;

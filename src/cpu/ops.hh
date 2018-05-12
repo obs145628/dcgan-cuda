@@ -495,6 +495,29 @@ namespace cpu
                            const int* W1_size, dbl_t* out);
     void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size,
                             const int* X0_size, dbl_t* out);
+
+
+    /**
+     * Perform moment update
+     * out = a * out + b * dv
+     * out - vector (n)
+     * dv - vector (n)
+     * a - scalar
+     * b - scalar
+     */
+    void moment_update(const dbl_t* dv, dbl_t* out,
+                       dbl_t a, dbl_t b, std::size_t len);
+
+    /**
+     * Perform squared moment update
+     * out = a * out + b * dv * dv
+     * out - vector (n)
+     * dv - vector (n)
+     * a - scalar
+     * b - scalar
+     */
+    void moment_update2(const dbl_t* dv, dbl_t* out,
+                        dbl_t a, dbl_t b, std::size_t len);
 }
 
 #include "ops.hxx"

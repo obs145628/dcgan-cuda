@@ -19,6 +19,9 @@ namespace ops
         OpsBuilder& operator=(const OpsBuilder&) = delete;
         OpsBuilder& operator=(OpsBuilder&&) = delete;
 
+        AdamUpdate* adam_update(Variable* var, Op* m, Op* v,
+                                dbl_t learning_rate,
+                                dbl_t beta1, dbl_t beta2, dbl_t eps);
         ArgmaxAccuracy* argmax_accuracy(Op* y, Op* y_hat);
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
@@ -30,6 +33,8 @@ namespace ops
         MatMulAdd* mat_mul_add(Op* x, Op* w, Op* b);
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
         MatSum* mat_sum(Op* arg, std::size_t axis);
+        MomentUpdate* moment_update(Variable* var, Op* dt,
+                                    dbl_t coeff1, dbl_t coeff2, bool sq_update);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
         ReluGrad* relu_grad(Op* z, Op* dout);

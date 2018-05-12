@@ -685,4 +685,35 @@ namespace cpu
         memcpy(out, dLdW, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
     }
 
+
+    inline void moment_update(const dbl_t* dv, dbl_t* out,
+                              dbl_t a, dbl_t b, std::size_t len)
+    {
+        for (std::size_t i = 0; i < len; ++i)
+            out[i] = a * out[i] + b * dv[i];
+    }
+
+    inline void moment_update2(const dbl_t* dv, dbl_t* out,
+                               dbl_t a, dbl_t b, std::size_t len)
+    {
+        for (std::size_t i = 0; i < len; ++i)
+            out[i] = a * out[i] + b * dv[i] * dv[i];
+    }
+
+    /**
+     * Perform an adam update
+     * out = out - lrt * m / (sqrt(v) + eps)
+     * out - vector (n)
+     * m - vector (n)
+     * v - vector (n)
+     * lrt - scalar
+     * eps - scalar
+     */
+    inline void adam_update(const dbl_t* m, const dbl_t* v, dbl_t* out,
+                            dbl_t lrt, dbl_t eps, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = out[i] - lrt * m[i] / (std::sqrt(v[i]) + eps);
+    }
+
 }

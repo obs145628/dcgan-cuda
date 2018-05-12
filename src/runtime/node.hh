@@ -42,8 +42,11 @@ namespace rt
         static constexpr int OP_CONV2D_INPUT_GRAD = 24;
         static constexpr int OP_CONV2D_KERNEL_GRAD = 25;
         static constexpr int OP_ARGMAX_ACC = 26;
+        static constexpr int OP_MOMENT_UPDATE = 27;
+        static constexpr int OP_MOMENT_UPDATE2 = 28;
+        static constexpr int OP_ADAM_UPDATE = 29;
 
-        static const char* OP_NAMES[27];
+        static const char* OP_NAMES[30];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -152,6 +155,19 @@ namespace rt
                                    std::size_t rows, std::size_t cols,
                                    const std::vector<Node*>& preds);
 
+        static Node* op_moment_update(dbl_t* var, const dbl_t* dt,
+                                      dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                      const std::vector<Node*>& preds);
+
+        static Node* op_moment_update2(dbl_t* var, const dbl_t* dt,
+                                       dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                       const std::vector<Node*>& preds);
+
+        static Node* op_adam_update(dbl_t* var, dbl_t* t, const dbl_t* m, const dbl_t* v,
+                                    dbl_t lr, dbl_t beta1, dbl_t beta2, dbl_t eps,
+                                    std::size_t len,
+                                    const std::vector<Node*>& preds);
+
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;
         Node& operator=(const Node&) = delete;
@@ -167,6 +183,7 @@ namespace rt
         dbl_t cons1;
         dbl_t cons2;
         dbl_t cons3;
+        dbl_t cons4;
         std::size_t len1;
         std::size_t len2;
         std::size_t len3;
