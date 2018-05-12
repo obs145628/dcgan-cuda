@@ -5,7 +5,8 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[26] =
+
+    const char* Node::OP_NAMES[27] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -32,7 +33,8 @@ namespace rt
         "sigmoid_cross_entropy",
         "sigmoid_cross_entropy_grad",
         "conv2d_input_grad",
-        "conv2d_kernel_grad"
+        "conv2d_kernel_grad",
+        "argmax_acc"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -387,6 +389,19 @@ namespace rt
         res->in2 = logits;
         res->out1 = out;
         res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                              std::size_t rows, std::size_t cols,
+                              const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_ARGMAX_ACC, preds);
+        res->in1 = y;
+        res->in2 = y_hat;
+        res->out1 = out;
+        res->len1 = rows;
+        res->len2 = cols;
         return res;
     }
 

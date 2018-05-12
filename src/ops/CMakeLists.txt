@@ -1,4 +1,5 @@
 set(SRC
+  argmax-accuracy.cc
   conv2d.cc
   conv2d-bias-add.cc
   conv2d-input-grad.cc

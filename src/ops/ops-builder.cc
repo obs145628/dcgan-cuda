@@ -1,7 +1,9 @@
 #include "ops-builder.hh"
 #include <stdexcept>
 
+
 #include "graph.hh"
+#include "argmax-accuracy.hh"
 #include "input.hh"
 #include "log-softmax.hh"
 #include "mat-mat-mul.hh"
@@ -43,6 +45,20 @@ namespace ops
     OpsBuilder::OpsBuilder()
         : graph_(Graph::instance())
     {}
+
+    ArgmaxAccuracy* OpsBuilder::argmax_accuracy(Op* y, Op* y_hat)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"y must be a matrix"};
+        if (y_hat->shape_get().ndims() != 2)
+            throw std::runtime_error {"y_hat must be a matrix"};
+        if (y->shape_get() != y_hat->shape_get())
+            throw std::runtime_error {"y and y_hat must have the same shape"};
+
+        auto res = new ArgmaxAccuracy(y, y_hat);
+        graph_.add(res);
+        return res;
+    }
 
     Conv2D* OpsBuilder::conv2d(Op* input, Op* kernel, const int* strides)
     {

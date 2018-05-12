@@ -2,6 +2,7 @@
 
 namespace ops
 {
+    class ArgmaxAccuracy;
     class Conv2D;
     class Conv2DBiasAdd;
     class Conv2DInputGrad;

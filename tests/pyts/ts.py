@@ -75,6 +75,7 @@ test_basic('ops', 'mat_tmat_mul', 'ref_mat_tmat_mul.py', 'test_mat_tmat_mul')
 test_basic('ops', 'mat_sum0', 'ref_mat_sum0.py', 'test_mat_sum0')
 test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
 test_basic('ops', 'sigmoid_cross_entropy', 'ref_sigmoid_cross_entropy.py', 'test_sigmoid_cross_entropy')
+test_basic('ops', 'argmax_accuracy', 'ref_argmax.py', 'test_argmax')
 
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
