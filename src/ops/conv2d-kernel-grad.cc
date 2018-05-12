@@ -20,7 +20,7 @@ namespace ops
         m_kernel_size[3] = kernel_size[3];
         m_padded_size[0] = padded_size[0];
         m_padded_size[1] = padded_size[1];
-    }
+   }
 
     void Conv2DKernelGrad::compile()
     {

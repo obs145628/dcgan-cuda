@@ -21,7 +21,7 @@ namespace cpu
 
         void kernel_conv2d_input_grad(rt::Node* node)
         {
-            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
+            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
         }
 
         void kernel_conv2d_kernel_grad(rt::Node* node)

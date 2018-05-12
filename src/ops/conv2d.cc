@@ -43,7 +43,7 @@ namespace ops
       m_pad_left = pad_along_width / 2;
 
       m_padded_size[0] = pad_along_height;
-      m_padded_size[1] = pad_along_width;      
+      m_padded_size[1] = pad_along_width;
     }
 
     void Conv2D::compile()
@@ -71,7 +71,7 @@ namespace ops
                                ckernel.out_shape[2], ckernel.out_shape[3]};
 
         auto out_node = rt::Node::op_conv2d(cinput.out_data, ckernel.out_data,
-                                            m_strides, m_pad_top, m_pad_left,
+                                            m_strides, m_padded_size[0], m_padded_size[1],
                                             out_data, input_size, kernel_size,
                                             {cinput.out_node, ckernel.out_node});
 

@@ -140,11 +140,11 @@ namespace cpu
     */
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
                 const int* strides, int pad_top, int pad_left,
-                FilterAccessor* faI, FilterAccessor* faK);
+                FilterAccessor* faI, FilterAccessor* faK, int valid);
 
     void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
                 const int* strides, int pad_top, int pad_left,
-                const int* input_size, const int* kernel_size);
+                const int* input_size, const int* kernel_size, int valid);
 
     /**
      * z is a 4D tensor output coming from a conv2d Op
@@ -451,8 +451,7 @@ namespace cpu
      *          or filled with zeros.
      */
     void padd_full_conv(const dbl_t* input, dbl_t* out, int stride,
-                        const int* input_size, const int* kernel_size,
-                        const int* out_size,
+                        const int* input_size, const int* out_size,
                         FilterAccessor* faI);
 
     /**
@@ -490,7 +489,7 @@ namespace cpu
     dbl_t* tensor_concat_axis0(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2);
 
     void conv2d_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
-                           const int* W1_size, dbl_t* out);
+                           const int* W1_size, dbl_t* out, const int* input_size);
     void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size,
                             const int* X0_size, dbl_t* out, const int* padded_size);
 }
