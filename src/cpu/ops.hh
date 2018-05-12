@@ -158,6 +158,8 @@ namespace cpu
     void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
                          const int* input_size);
 
+    void conv2d_bias_add_grad(const dbl_t* z, const int* size, dbl_t* out);
+
     dbl_t relu(dbl_t x);
 
     dbl_t relu_prime(dbl_t x);

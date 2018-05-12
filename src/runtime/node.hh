@@ -46,8 +46,9 @@ namespace rt
         static constexpr int OP_MOMENT_UPDATE2 = 28;
         static constexpr int OP_ADAM_UPDATE = 29;
         static constexpr int OP_LEAKY_RELU_GRAD = 30;
+        static constexpr int OP_CONV2D_BIAS_ADD_GRAD = 31;
 
-        static const char* OP_NAMES[31];
+        static const char* OP_NAMES[32];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -58,6 +59,10 @@ namespace rt
 
         static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
                                         const int input_size[], const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_bias_add_grad(const dbl_t* z, const int size[],
+                                             dbl_t* output,
+                                             const std::vector<Node*>& preds);
 
         static Node* op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
                                           dbl_t* output, const int y_size[], const int kernel_size[],

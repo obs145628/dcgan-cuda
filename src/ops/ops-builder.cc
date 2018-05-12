@@ -30,6 +30,7 @@
 #include "conv2d-bias-add.hh"
 #include "conv2d-input-grad.hh"
 #include "conv2d-kernel-grad.hh"
+#include "conv2d-bias-add-grad.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -97,6 +98,15 @@ namespace ops
         if (z->shape_get()[3] != bias->shape_get()[0])
             throw std::runtime_error {"Conv2DBiasAdd:z and bias shape are not corresponding"};
         auto res = new Conv2DBiasAdd(z, bias);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DBiasAddGrad* OpsBuilder::conv2d_bias_add_grad(Op* z)
+    {
+        if (z->shape_get().ndims() != 4)
+            throw std::runtime_error {"Conv2DBiasAddGrad:z must be a 4D tensor"};
+        auto res = new Conv2DBiasAddGrad(z);
         graph_.add(res);
         return res;
     }

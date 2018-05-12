@@ -276,6 +276,29 @@ namespace cpu
                     }
     }
 
+    inline void conv2d_bias_add_grad(const dbl_t* z, const int* size, dbl_t* out)
+    {
+        const std::size_t batch = size[0];
+        const std::size_t height = size[1];
+        const std::size_t width = size[2];
+        const std::size_t outputCh = size[3];
+
+        for (std::size_t k = 0; k < outputCh; ++k)
+            out[k] = 0;
+
+        for (std::size_t b = 0; b < batch; ++b)
+            for (std::size_t i = 0; i < height; ++i)
+                for (std::size_t j = 0; j < width; ++j)
+                    for (std::size_t k = 0; k < outputCh; ++k)
+                    {
+                        std::size_t imgIndex = b * height * width * outputCh;
+                        std::size_t hIndex = i * width * outputCh;
+                        std::size_t wIndex = j * outputCh;
+
+                        out[k] += z[imgIndex + hIndex + wIndex + k];
+                    }
+    }
+
     inline dbl_t relu(dbl_t x)
     {
         return x < 0 ? 0 : x;
