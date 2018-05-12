@@ -697,7 +697,7 @@ namespace cpu
                                dbl_t a, dbl_t b, std::size_t len)
     {
         for (std::size_t i = 0; i < len; ++i)
-            out[i] = a * out[i] + b * dv[i] * dv[i] * dv[i];
+            out[i] = a * out[i] + b * dv[i] * dv[i];
     }
 
 }
