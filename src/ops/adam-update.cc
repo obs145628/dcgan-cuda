@@ -15,7 +15,7 @@ namespace ops
     AdamUpdate::AdamUpdate(Variable* var, Op* m, Op* v,
                            dbl_t learning_rate,
                            dbl_t beta1, dbl_t beta2, dbl_t eps)
-        : Op("moment_update", var->shape_get(), {var, m, v})
+        : Op("adam_update", var->shape_get(), {var, m, v})
         , var_(var)
         , t_(tensor_alloc(1))
         , lr_(learning_rate)
