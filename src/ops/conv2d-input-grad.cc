@@ -37,7 +37,7 @@ namespace ops
 
         auto out_node = rt::Node::op_conv2d_input_grad(cy.out_data, ckernel.out_data,
                                             m_strides, out_data, y_size,
-                                            kernel_size,
+                                            kernel_size, m_input_size,
                                             {cy.out_node, ckernel.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);

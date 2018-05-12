@@ -108,9 +108,9 @@ namespace ops
         return res;
     }
 
-    Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size)
+    Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size)
     {
-        auto res = new Conv2DKernelGrad(y, input, strides, kernel_size);
+        auto res = new Conv2DKernelGrad(y, input, strides, kernel_size, padded_size);
         graph_.add(res);
         return res;
     }

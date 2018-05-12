@@ -10,7 +10,8 @@ namespace cpu
 
         void kernel_conv2d(rt::Node* node)
         {
-            conv2d(node->in1, node->in2, node->out1, node->intconst, node->sizes1, node->sizes2);
+            conv2d(node->in1, node->in2, node->out1, node->intconst,
+                   node->int_cons1, node->int_cons2, node->sizes1, node->sizes2);
         }
 
         void kernel_conv2d_bias_add(rt::Node* node)
@@ -20,12 +21,12 @@ namespace cpu
 
         void kernel_conv2d_input_grad(rt::Node* node)
         {
-            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
+            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
         }
 
         void kernel_conv2d_kernel_grad(rt::Node* node)
         {
-            conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1);
+            conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
         }
 
         void kernel_mat_mat_mul(rt::Node* node)
