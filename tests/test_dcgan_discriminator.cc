@@ -27,6 +27,7 @@ int main(int argc, char** argv)
     auto x_train = reinterpret_cast<dbl_t*>(celeba.arr()[0].data);
     std::size_t len = celeba.arr()[0].dims[0];
     dbl_t* y_train = tensor_alloc(len);
+    std::fill_n(y_train, len, 1);
 
     auto weights = tocha::Tensors::load(argv[2]);
     CopyInitializer w0(reinterpret_cast<dbl_t*>(weights.arr()[0].data));
