@@ -7,7 +7,7 @@
 namespace ops
 {
 
-    Conv2DKernelGrad::Conv2DKernelGrad(Op* y, Op* input, const int strides[], const int kernel_size[])
+    Conv2DKernelGrad::Conv2DKernelGrad(Op* y, Op* input, const int strides[], const int kernel_size[], const int padded_size[])
         : Op("conv2d_kernel_grad",
             Shape({kernel_size[0], kernel_size[1],
                    kernel_size[2],kernel_size[3]}),
@@ -18,7 +18,9 @@ namespace ops
         m_kernel_size[1] = kernel_size[1];
         m_kernel_size[2] = kernel_size[2];
         m_kernel_size[3] = kernel_size[3];
-    }
+        m_padded_size[0] = padded_size[0];
+        m_padded_size[1] = padded_size[1];
+   }
 
     void Conv2DKernelGrad::compile()
     {
@@ -37,7 +39,7 @@ namespace ops
 
         auto out_node = rt::Node::op_conv2d_kernel_grad(cy.out_data, cinput.out_data,
                                             m_strides, out_data, y_size,
-                                            input_size,
+                                            input_size, m_padded_size,
                                             {cy.out_node, cinput.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);

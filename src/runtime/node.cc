@@ -108,7 +108,8 @@ namespace rt
     }
 
     Node* Node::op_conv2d(const dbl_t* input, const dbl_t* kernel,
-                          const int strides[], dbl_t* output,
+                          const int strides[], int pad_top, int pad_left,
+                          dbl_t* output,
                           const int input_size[], const int kernel_size[],
                           const std::vector<Node*>& preds)
     {
@@ -117,6 +118,8 @@ namespace rt
         res->in2 = kernel;
         res->intconst[0] = strides[0];
         res->intconst[1] = strides[1];
+        res->int_cons1 = pad_top;
+        res->int_cons2 = pad_left;
         res->out1 = output;
         res->sizes1[0] = input_size[0];
         res->sizes1[1] = input_size[1];
@@ -142,9 +145,10 @@ namespace rt
         res->sizes1[3] = input_size[3];
         return res;
     }
-    
+
     Node* Node::op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
                                      dbl_t* output, const int y_size[], const int kernel_size[],
+                                     const int input_size[],
                                      const std::vector<Node*>& preds)
     {
         auto res = new Node(OP_CONV2D_INPUT_GRAD, preds);
@@ -153,6 +157,8 @@ namespace rt
         res->out1 = output;
         res->intconst[0] = strides[0];
         res->intconst[1] = strides[1];
+        res->intconst2[0] = input_size[1];
+        res->intconst2[1] = input_size[2];
         res->sizes1[0] = y_size[0];
         res->sizes1[1] = y_size[1];
         res->sizes1[2] = y_size[2];
@@ -163,9 +169,10 @@ namespace rt
         res->sizes2[3] = kernel_size[3];
         return res;
     }
-                                          
+
     Node* Node::op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
                                 dbl_t* output, const int y_size[], const int input_size[],
+                                const int padded_size[],
                                 const std::vector<Node*>& preds)
     {
         auto res = new Node(OP_CONV2D_KERNEL_GRAD, preds);
@@ -174,6 +181,8 @@ namespace rt
         res->out1 = output;
         res->intconst[0] = strides[0];
         res->intconst[1] = strides[1];
+        res->intconst2[0] = padded_size[0];
+        res->intconst2[1] = padded_size[1];
         res->sizes1[0] = y_size[0];
         res->sizes1[1] = y_size[1];
         res->sizes1[2] = y_size[2];
