@@ -44,7 +44,8 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_reshape test_dcgan_discriminator test_argmax)
+
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax)
 
 
 set(TEST_SRC
@@ -109,6 +110,14 @@ set(TEST_CONV2D_BIAS_ADD_SRC
 )
 add_executable(test_conv2d_bias_add EXCLUDE_FROM_ALL ${TEST_CONV2D_BIAS_ADD_SRC})
 target_link_libraries(test_conv2d_bias_add cnpy)
+
+set(TEST_CONV2D_GRAD_SRC
+  ${SRC}
+  tests/test_conv2d_grad.cc
+)
+add_executable(test_conv2d_grad EXCLUDE_FROM_ALL ${TEST_CONV2D_GRAD_SRC})
+target_link_libraries(test_conv2d_grad cnpy)
+
 
 set(TEST_VECT_RELU_SRC
   ${SRC}

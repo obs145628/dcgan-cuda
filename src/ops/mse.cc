@@ -46,5 +46,4 @@ namespace ops
         auto& builder = OpsBuilder::instance();
         return builder.mse_grad(preds()[0] , preds()[1]);
     }
-    
 }

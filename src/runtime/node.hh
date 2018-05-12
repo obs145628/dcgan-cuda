@@ -39,9 +39,11 @@ namespace rt
         static constexpr int OP_UPDATE = 21;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY = 22;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY_GRAD = 23;
-        static constexpr int OP_ARGMAX_ACC = 24;
+        static constexpr int OP_CONV2D_INPUT_GRAD = 24;
+        static constexpr int OP_CONV2D_KERNEL_GRAD = 25;
+        static constexpr int OP_ARGMAX_ACC = 26;
 
-        static const char* OP_NAMES[25];
+        static const char* OP_NAMES[27];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -51,6 +53,14 @@ namespace rt
 
         static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
                                         const int input_size[], const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                          dbl_t* output, const int y_size[], const int kernel_size[],
+                                          const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                          dbl_t* output, const int y_size[], const int input_size[],
+                                          const std::vector<Node*>& preds);
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
