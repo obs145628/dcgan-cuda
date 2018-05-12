@@ -2,6 +2,7 @@
 
 namespace ops
 {
+    class AdamUpdate;
     class ArgmaxAccuracy;
     class Conv2D;
     class Conv2DBiasAdd;

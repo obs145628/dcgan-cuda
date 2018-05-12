@@ -1,4 +1,5 @@
 set(SRC
+  adam-update.cc
   argmax-accuracy.cc
   conv2d.cc
   conv2d-bias-add.cc

@@ -3,6 +3,7 @@
 
 
 #include "graph.hh"
+#include "adam-update.hh"
 #include "argmax-accuracy.hh"
 #include "input.hh"
 #include "log-softmax.hh"
@@ -46,6 +47,20 @@ namespace ops
     OpsBuilder::OpsBuilder()
         : graph_(Graph::instance())
     {}
+
+    AdamUpdate* OpsBuilder::adam_update(Variable* var, Op* m, Op* v,
+                                        dbl_t learning_rate,
+                                        dbl_t beta1, dbl_t beta2, dbl_t eps)
+    {
+        if (var->shape_get() != m->shape_get())
+            throw std::runtime_error {"var and m must have the same shape"};
+        if (var->shape_get() != v->shape_get())
+            throw std::runtime_error {"var and v must have the same shape"};
+
+        auto res = new AdamUpdate(var, m, v, learning_rate, beta1, beta2, eps);
+        graph_.add(res);
+        return res;
+    }
 
     ArgmaxAccuracy* OpsBuilder::argmax_accuracy(Op* y, Op* y_hat)
     {

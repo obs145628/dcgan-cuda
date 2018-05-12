@@ -19,6 +19,9 @@ namespace ops
         OpsBuilder& operator=(const OpsBuilder&) = delete;
         OpsBuilder& operator=(OpsBuilder&&) = delete;
 
+        AdamUpdate* adam_update(Variable* var, Op* m, Op* v,
+                                dbl_t learning_rate,
+                                dbl_t beta1, dbl_t beta2, dbl_t eps);
         ArgmaxAccuracy* argmax_accuracy(Op* y, Op* y_hat);
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
