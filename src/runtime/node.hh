@@ -42,8 +42,10 @@ namespace rt
         static constexpr int OP_CONV2D_INPUT_GRAD = 24;
         static constexpr int OP_CONV2D_KERNEL_GRAD = 25;
         static constexpr int OP_ARGMAX_ACC = 26;
+        static constexpr int OP_MOMENT_UPDATE = 27;
+        static constexpr int OP_MOMENT_UPDATE2 = 28;
 
-        static const char* OP_NAMES[27];
+        static const char* OP_NAMES[29];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -151,6 +153,14 @@ namespace rt
         static Node* op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
                                    std::size_t rows, std::size_t cols,
                                    const std::vector<Node*>& preds);
+
+        static Node* op_moment_update(dbl_t* var, const dbl_t* dt,
+                                      dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                      const std::vector<Node*>& preds);
+
+        static Node* op_moment_update2(dbl_t* var, const dbl_t* dt,
+                                       dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                       const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

@@ -30,6 +30,8 @@ namespace ops
         MatMulAdd* mat_mul_add(Op* x, Op* w, Op* b);
         MatRvectAdd* mat_rvect_add(Op* left, Op* right);
         MatSum* mat_sum(Op* arg, std::size_t axis);
+        MomentUpdate* moment_update(Variable* var, Op* dt,
+                                    dbl_t coeff1, dbl_t coeff2, bool sq_update);
         MSE* mse(Op* y, Op* y_hat);
         MSEGrad* mse_grad(Op* y, Op* y_hat);
         ReluGrad* relu_grad(Op* z, Op* dout);

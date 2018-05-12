@@ -11,6 +11,7 @@ set(SRC
   mat-mul-add.cc
   mat-rvect-add.cc
   mat-sum.cc
+  moment-update.cc
   mse.cc
   mse-grad.cc
   op.cc

@@ -148,6 +148,16 @@ namespace cpu
             *(node->out1) = argmax_acc(node->in1, node->in2, node->len1, node->len2); 
         }
 
+        void kernel_moment_update(rt::Node* node)
+        {
+            moment_update(node->in1, node->out1, node->cons1, node->cons2, node->len1);
+        }
+
+        void kernel_moment_update2(rt::Node* node)
+        {
+            moment_update2(node->in1, node->out1, node->cons1, node->cons2, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -177,6 +187,8 @@ namespace cpu
         kernel_sigmoid_cross_entropy_grad,
         kernel_conv2d_input_grad,
         kernel_conv2d_kernel_grad,
-        kernel_argmax_acc
+        kernel_argmax_acc,
+        kernel_moment_update,
+        kernel_moment_update2
     };
 }

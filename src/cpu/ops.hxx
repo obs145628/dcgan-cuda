@@ -685,4 +685,19 @@ namespace cpu
         memcpy(out, dLdW, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
     }
 
+
+    inline void moment_update(const dbl_t* dv, dbl_t* out,
+                              dbl_t a, dbl_t b, std::size_t len)
+    {
+        for (std::size_t i = 0; i < len; ++i)
+            out[i] = a * out[i] + b * dv[i];
+    }
+
+    inline void moment_update2(const dbl_t* dv, dbl_t* out,
+                               dbl_t a, dbl_t b, std::size_t len)
+    {
+        for (std::size_t i = 0; i < len; ++i)
+            out[i] = a * out[i] + b * dv[i] * dv[i] * dv[i];
+    }
+
 }

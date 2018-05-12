@@ -10,6 +10,7 @@
 #include "mat-mul-add.hh"
 #include "mat-rvect-add.hh"
 #include "mat-sum.hh"
+#include "moment-update.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
 #include "relu-grad.hh"
@@ -169,6 +170,17 @@ namespace ops
             throw std::runtime_error {"axis must be 0 or 1"};
 
         auto res = new MatSum(arg, axis);
+        graph_.add(res);
+        return res;
+    }
+
+    MomentUpdate* OpsBuilder::moment_update(Variable* var, Op* dt,
+                                            dbl_t coeff1, dbl_t coeff2, bool sq_update)
+    {
+        if (var->shape_get() != dt->shape_get())
+            throw std::runtime_error {"var and dt must have the same shape"};
+
+        auto res = new MomentUpdate(var, dt, coeff1, coeff2, sq_update);
         graph_.add(res);
         return res;
     }
