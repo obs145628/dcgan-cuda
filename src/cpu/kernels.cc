@@ -174,6 +174,11 @@ namespace cpu
             adam_update(node->in1, node->in2, node->out1, lrt, eps, node->len1);
         }
 
+        void kernel_leaky_relu_grad(rt::Node* node)
+        {
+            leaky_relu_grad(node->in1, node->in2, node->out1, node->cons1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -206,6 +211,7 @@ namespace cpu
         kernel_argmax_acc,
         kernel_moment_update,
         kernel_moment_update2,
-        kernel_adam_update
+        kernel_adam_update,
+        kernel_leaky_relu_grad,
     };
 }

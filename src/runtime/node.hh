@@ -45,8 +45,9 @@ namespace rt
         static constexpr int OP_MOMENT_UPDATE = 27;
         static constexpr int OP_MOMENT_UPDATE2 = 28;
         static constexpr int OP_ADAM_UPDATE = 29;
+        static constexpr int OP_LEAKY_RELU_GRAD = 30;
 
-        static const char* OP_NAMES[30];
+        static const char* OP_NAMES[31];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -170,6 +171,10 @@ namespace rt
                                     dbl_t lr, dbl_t beta1, dbl_t beta2, dbl_t eps,
                                     std::size_t len,
                                     const std::vector<Node*>& preds);
+
+         static Node* op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                         dbl_t alpha, std::size_t len,
+                                         const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

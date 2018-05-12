@@ -7,6 +7,7 @@ set(SRC
   conv2d-kernel-grad.cc
   graph.cc
   input.cc
+  leaky-relu-grad.cc
   log-softmax.cc
   mat-mat-mul.cc
   mat-mul-add.cc

@@ -11,6 +11,7 @@ namespace ops
     class CompiledOp;
     class Graph;
     class Input;
+    class LeakyReluGrad;
     class LogSoftmax;
     class MatMatMul;
     class MatMulAdd;
