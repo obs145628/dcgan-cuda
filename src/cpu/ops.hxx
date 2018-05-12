@@ -700,20 +700,18 @@ namespace cpu
             out[i] = a * out[i] + b * dv[i] * dv[i];
     }
 
-    /**
-     * Perform an adam update
-     * out = out - lrt * m / (sqrt(v) + eps)
-     * out - vector (n)
-     * m - vector (n)
-     * v - vector (n)
-     * lrt - scalar
-     * eps - scalar
-     */
     inline void adam_update(const dbl_t* m, const dbl_t* v, dbl_t* out,
                             dbl_t lrt, dbl_t eps, std::size_t n)
     {
         for (std::size_t i = 0; i < n; ++i)
             out[i] = out[i] - lrt * m[i] / (std::sqrt(v[i]) + eps);
+    }
+
+    inline void leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                dbl_t alpha, std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];            
     }
 
 }

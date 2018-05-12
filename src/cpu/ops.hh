@@ -518,6 +518,25 @@ namespace cpu
      */
     void moment_update2(const dbl_t* dv, dbl_t* out,
                         dbl_t a, dbl_t b, std::size_t len);
+
+
+    /**
+     * Compute the gradient of the leaky_relu operation
+     * z - vector (n)
+     * dout - vector(n)
+     * out - vector(n)
+     *
+     * let:
+     * relu_out = relu(z)
+     * dout = nabla(E) / nabla(leaku_relu_out)
+     * out = nabla(E) / nabla(Z)
+     * leaky_relu'(z) = 1 if z > 0, alpha otherwhise
+     *
+     * out = leaky_relu'(z) * dout
+     *
+     */
+    void leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                         dbl_t alpha, std::size_t n);
 }
 
 #include "ops.hxx"

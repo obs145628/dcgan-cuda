@@ -11,6 +11,7 @@ namespace ops
         VectReluLeaky(Op* arg, const dbl_t alpha);
 
         virtual void compile() override;
+        virtual Op* child_grad(std::size_t index, Op* dout) override;
 
     private:
         const dbl_t alpha;

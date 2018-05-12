@@ -6,6 +6,7 @@
 #include "adam-update.hh"
 #include "argmax-accuracy.hh"
 #include "input.hh"
+#include "leaky-relu-grad.hh"
 #include "log-softmax.hh"
 #include "mat-mat-mul.hh"
 #include "mat-mul-add.hh"
@@ -117,6 +118,16 @@ namespace ops
     Input* OpsBuilder::input(const Shape& shape)
     {
         auto res = new Input(shape);
+        graph_.add(res);
+        return res;
+    }
+
+    LeakyReluGrad* OpsBuilder::leaky_relu_grad(Op* z, Op* dout, dbl_t alpha)
+    {
+        if (z->shape_get() != dout->shape_get())
+            throw std::runtime_error {"LeakyReluGrad: z and dout must have the same shape"};
+
+        auto res = new LeakyReluGrad(z, dout, alpha);
         graph_.add(res);
         return res;
     }

@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[30] =
+    const char* Node::OP_NAMES[31] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -37,7 +37,8 @@ namespace rt
         "argmax_acc",
         "moment_update",
         "moment_update2",
-        "adam_update"
+        "adam_update",
+        "leaky_relu_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -449,6 +450,19 @@ namespace rt
         res->cons2 = beta1;
         res->cons3 = beta2;
         res->cons4 = eps;
+        return res;
+    }
+
+    Node* Node::op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                   dbl_t alpha, std::size_t len,
+                                   const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_LEAKY_RELU_GRAD, preds);
+        res->in1 = z;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
+        res->cons1 = alpha;
         return res;
     }
 
