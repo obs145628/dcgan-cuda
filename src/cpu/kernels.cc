@@ -216,7 +216,7 @@ namespace cpu
         kernel_update,
         kernel_sigmoid_cross_entropy,
         kernel_sigmoid_cross_entropy_grad,
-        kernel_tanh_grad
+        kernel_tanh_grad,
         kernel_conv2d_input_grad,
         kernel_conv2d_kernel_grad,
         kernel_argmax_acc,

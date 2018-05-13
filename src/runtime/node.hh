@@ -49,7 +49,7 @@ namespace rt
         static constexpr int OP_CONV2D_BIAS_ADD_GRAD = 31;
         static constexpr int OP_TANH_GRAD = 32;
 
-        static const char* OP_NAMES[32];
+        static const char* OP_NAMES[33];
 
         static Node* nop(const std::vector<Node*>& preds);
 
