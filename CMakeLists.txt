@@ -197,7 +197,7 @@ set(TEST_RESHAPE_SRC
   ${SRC}
   tests/test_reshape.cc
 )
-add_executable(test_reshape ${TEST_RESHAPE_SRC})
+add_executable(test_reshape EXCLUDE_FROM_ALL ${TEST_RESHAPE_SRC})
 target_link_libraries(test_reshape cnpy pthread)
 
 set(TEST_MSE_GRAD_SRC
