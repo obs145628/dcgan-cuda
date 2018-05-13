@@ -522,6 +522,8 @@ namespace cpu
                             const int* X0_size, dbl_t* out, const int* padded_size);
 
 
+    void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
+                          dbl_t* out, const int* input_size, const int* kernel_size);
     /**
      * Perform moment update
      * out = a * out + b * dv

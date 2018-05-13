@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[33] =
+    const char* Node::OP_NAMES[34] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -41,7 +41,8 @@ namespace rt
         "adam_update",
         "leaky_relu_grad",
         "conv2d_add_bias_grad",
-        "tanh_grad"
+        "tanh_grad",
+        "conv2d_transpose"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -210,6 +211,32 @@ namespace rt
         res->sizes2[2] = input_size[2];
         res->sizes2[3] = input_size[3];
         return res;
+    }
+
+    Node* Node::op_conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int out_size[],
+                                    const int strides[], dbl_t* output, const int input_size[],
+                                    const int kernel_size[], const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE, preds);
+        res->in1 = input;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->sizes1[0] = out_size[0];
+        res->sizes1[1] = out_size[1];
+        res->sizes1[2] = out_size[2];
+        res->sizes1[3] = out_size[3];
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
+        res->sizes3[0] = kernel_size[0];
+        res->sizes3[1] = kernel_size[1];
+        res->sizes3[2] = kernel_size[2];
+        res->sizes3[3] = kernel_size[3];
+        return res;
+
     }
 
     Node* Node::op_softmax(const dbl_t* args, dbl_t* output,

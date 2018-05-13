@@ -798,6 +798,51 @@ namespace cpu
         delete[] padded_img_tab;
     }
 
+    inline void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
+                                 dbl_t* out, const int* input_size, const int* kernel_size)
+    {
+        const int striddedWidth = (input_size[2] - 1) * (stride - 1) + input_size[2];
+        const int striddedHeight = (input_size[1] - 1) * (stride - 1) + input_size[1];
+        const int pad_h = out_size[1] - (striddedHeight - kernel_size[0] + 1);
+        const int pad_w = out_size[2] - (striddedWidth - kernel_size[1] + 1);
+        const int outHeight = striddedHeight + pad_h;
+        const int outWidth = striddedWidth + pad_w;
+        dbl_t* padded = (dbl_t*)calloc(input_size[0] * outHeight
+                                         * outWidth * input_size[3],
+                                         sizeof(dbl_t));
+        const int pad_bottom = pad_h / 2;
+        const int pad_top = pad_h - pad_bottom;
+        const int pad_right = pad_w / 2;
+        const int pad_left = pad_w - pad_right;
+
+        const int padded_size[6] =
+        {
+            input_size[0], outHeight, outWidth, input_size[3],
+            pad_top, pad_left
+        };
+
+        IdentityAccessor* ia1 = new IdentityAccessor(input_size);
+        padd_full_conv(input, padded, stride, padded_size, ia1);
+
+        const int stepLenH = (padded_size[1] - kernel_size[0]) + 1;
+        const int stepLenW = (padded_size[2] - kernel_size[1]) + 1;
+        dbl_t* out_conv = (dbl_t*)calloc(padded_size[0] * stepLenH
+                                         * stepLenW * kernel_size[3], sizeof(dbl_t));
+        const int strides[2] = {1, 1};
+        IdentityAccessor* ia2 = new IdentityAccessor(padded_size);
+        IdentityAccessor* ia3 = new IdentityAccessor(kernel_size);
+        conv2d(padded, kernel, out_conv, strides, 0, 0, ia2, ia3, 1);
+
+        memcpy(out, out_conv, out_size[0] * out_size[1] * out_size[2] * out_size[3] * sizeof(dbl_t));
+
+        delete ia1;
+        delete ia2;
+        delete ia3;
+        free(padded);
+        free(out_conv);
+    }
+
+
 
     inline void moment_update(const dbl_t* dv, dbl_t* out,
                               dbl_t a, dbl_t b, std::size_t len)
@@ -824,7 +869,7 @@ namespace cpu
                                 dbl_t alpha, std::size_t n)
     {
         for (std::size_t i = 0; i < n; ++i)
-            out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];            
+            out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];
     }
 
 }

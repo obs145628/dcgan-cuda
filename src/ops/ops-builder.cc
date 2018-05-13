@@ -32,6 +32,7 @@
 #include "conv2d-input-grad.hh"
 #include "conv2d-kernel-grad.hh"
 #include "conv2d-bias-add-grad.hh"
+#include "conv2d-transpose.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -122,6 +123,13 @@ namespace ops
     Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size)
     {
         auto res = new Conv2DKernelGrad(y, input, strides, kernel_size, padded_size);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DTranspose* OpsBuilder::conv2d_transpose(Op* input, Op* kernel, const int* out_size, const int* strides)
+    {
+        auto res = new Conv2DTranspose(input, kernel, out_size, strides);
         graph_.add(res);
         return res;
     }

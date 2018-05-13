@@ -34,6 +34,11 @@ namespace cpu
             conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
         }
 
+        void kernel_conv2d_transpose(rt::Node* node)
+        {
+            conv2d_transpose(node->in1, node->in2, node->sizes1, node->intconst[0], node->out1, node->sizes2, node->sizes3);
+        }
+
         void kernel_mat_mat_mul(rt::Node* node)
         {
             mm_mul(node->in1, node->in2, node->out1,
@@ -216,7 +221,6 @@ namespace cpu
         kernel_update,
         kernel_sigmoid_cross_entropy,
         kernel_sigmoid_cross_entropy_grad,
-        kernel_tanh_grad,
         kernel_conv2d_input_grad,
         kernel_conv2d_kernel_grad,
         kernel_argmax_acc,
@@ -224,6 +228,8 @@ namespace cpu
         kernel_moment_update2,
         kernel_adam_update,
         kernel_leaky_relu_grad,
-        kernel_conv2d_bias_add_grad
+        kernel_conv2d_bias_add_grad,
+        kernel_tanh_grad,
+        kernel_conv2d_transpose
     };
 }

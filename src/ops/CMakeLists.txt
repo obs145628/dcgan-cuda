@@ -6,6 +6,7 @@ set(SRC
   conv2d-input-grad.cc
   conv2d-kernel-grad.cc
   conv2d-bias-add-grad.cc
+  conv2d-transpose.cc
   graph.cc
   input.cc
   leaky-relu-grad.cc

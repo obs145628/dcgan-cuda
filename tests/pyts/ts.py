@@ -62,6 +62,7 @@ test_basic('ops', 'softmax_cross_entropy',
 test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
 test_basic('ops', 'conv2d_padding', 'ref_conv2d_padding.py', 'test_conv2d_padding')
 test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')
+test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
 test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
 test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
 test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
