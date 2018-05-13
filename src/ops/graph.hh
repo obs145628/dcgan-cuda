@@ -9,6 +9,7 @@
 #include "../runtime/graph.hh"
 #include "../utils/dot-graph.hh"
 #include "../cpu/fwd.hh"
+#include "../gpu/runner.hh"
 
 namespace ops
 {

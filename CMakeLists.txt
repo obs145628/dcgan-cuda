@@ -13,6 +13,7 @@ include_directories(ext/tocha/include)
 add_subdirectory(src/api)
 add_subdirectory(src/cpu)
 add_subdirectory(src/datasets)
+add_subdirectory(src/gpu)
 add_subdirectory(src/memory)
 add_subdirectory(src/ops)
 add_subdirectory(src/runtime)
@@ -22,6 +23,7 @@ set(SRC
   $<TARGET_OBJECTS:api_obj>
   $<TARGET_OBJECTS:cpu_obj>
   $<TARGET_OBJECTS:datasets_obj>
+  $<TARGET_OBJECTS:gpu_obj>
   $<TARGET_OBJECTS:memory_obj>
   $<TARGET_OBJECTS:ops_obj>
   $<TARGET_OBJECTS:runtime_obj>
