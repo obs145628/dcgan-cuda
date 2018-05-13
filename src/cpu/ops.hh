@@ -458,6 +458,51 @@ namespace cpu
       int _outCh;
     };
 
+    class TransposeKerAccessor : public FilterAccessor
+    {
+    public:
+        TransposeKerAccessor(const int* size)
+              : FilterAccessor(size)
+            {
+              _new_size[0] = size[0];
+              _new_size[1] = size[1];
+              _new_size[2] = size[3];
+              _new_size[3] = size[2];
+            }
+      int access(int ind0, int ind1, int ind2, int ind3) override
+      {
+          int new_ind = ind0 * _stot0 + ind1 * _stot1 + ind3 * _size[3]
+                        + ind2;
+          return new_ind;
+      }
+    };
+
+    class YtoKerTransposeAccessor : public FilterAccessor
+    {
+    public:
+        YtoKerTransposeAccessor(const int* size, int outCh, int nbImage)
+              : FilterAccessor(size)
+              , _nbImage(nbImage)
+              , _outCh(outCh)
+            {
+              _new_size[0] = size[1];
+              _new_size[1] = size[2];
+              _new_size[2] = size[3];
+              _new_size[3] = 1;
+            }
+      int access(int ind0, int ind1, int ind2, int) override
+      {
+          int new_ind = _nbImage * _stot0 + ind0 * _stot1 + ind1 * _size[3]
+                        + ind2;
+          return new_ind;
+      }
+    private:
+      int _nbImage;
+      int _outCh;
+    };
+
+
+
     /**
      * Add padding around and in between an input
      * given a specific stride and kernel size.
@@ -524,6 +569,14 @@ namespace cpu
 
     void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
                           dbl_t* out, const int* input_size, const int* kernel_size);
+
+    void conv2d_transpose_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
+                                     const int* W1_size, dbl_t* out, const int* input_size);
+
+    void conv2d_transpose_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size,
+                                      const int* X0_size, dbl_t* out);
+
+
     /**
      * Perform moment update
      * out = a * out + b * dv

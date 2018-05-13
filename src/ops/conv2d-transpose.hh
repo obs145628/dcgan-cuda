@@ -16,5 +16,7 @@ namespace ops
     private:
         const int* m_out_size;
         const int* m_strides;
+        const ops::Shape m_input_shape;
+        const ops::Shape m_kernel_shape;
     };
 }

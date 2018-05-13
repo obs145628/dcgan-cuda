@@ -3,6 +3,8 @@
 #include "../runtime/node.hh"
 #include "../memory/alloc.hh"
 #include "ops-builder.hh"
+#include "conv2d-transpose-input-grad.hh"
+#include "conv2d-transpose-kernel-grad.hh"
 #include <cassert>
 #include <stdexcept>
 #include <cmath>
@@ -18,6 +20,8 @@ namespace ops
              )
         , m_out_size(out_size)
         , m_strides(strides)
+        , m_input_shape(input->shape_get())
+        , m_kernel_shape(kernel->shape_get())
     {}
 
     void Conv2DTranspose::compile()
@@ -49,7 +53,7 @@ namespace ops
         if (dout == nullptr)
             throw std::runtime_error {"conv2d_transpose must not be the final node of the gradient"};
 
-        /*auto& builder = OpsBuilder::instance();
+        auto& builder = OpsBuilder::instance();
 
         int input_size[4] = { m_input_shape[0], m_input_shape[1],
                               m_input_shape[2], m_input_shape[3]};
@@ -57,9 +61,8 @@ namespace ops
         int kernel_size[4] = { m_kernel_shape[0], m_kernel_shape[1],
                                m_kernel_shape[2], m_kernel_shape[3]};
         if (index == 0)
-          return builder.conv2d_input_grad(dout , preds()[1], m_strides, input_size);
+          return builder.conv2d_transpose_input_grad(dout, preds()[1], m_strides, input_size);
         else
-          return builder.conv2d_kernel_grad(dout, preds()[0], m_strides, kernel_size, m_padded_size);*/
-        return dout;
+          return builder.conv2d_transpose_kernel_grad(dout, preds()[0], m_strides, kernel_size);
     }
 }

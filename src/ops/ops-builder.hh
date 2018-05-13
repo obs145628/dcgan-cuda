@@ -29,6 +29,8 @@ namespace ops
         Conv2DInputGrad* conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size);
         Conv2DKernelGrad* conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size);
         Conv2DTranspose* conv2d_transpose(Op* input, Op* kernel, const int* out_size, const int* strides);
+        Conv2DTransposeInputGrad* conv2d_transpose_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size);
+        Conv2DTransposeKernelGrad* conv2d_transpose_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size);
         Input* input(const Shape& shape);
         LeakyReluGrad* leaky_relu_grad(Op* z, Op* dout, dbl_t alpha);
         LogSoftmax* log_softmax(Op* arg);

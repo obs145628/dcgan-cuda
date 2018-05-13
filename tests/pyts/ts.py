@@ -91,6 +91,7 @@ test_basic('ops_grad', 'sigmoid_cross_entropy_grad', 'ref_sigmoid_cross_entropy_
 test_basic('ops_grad', 'tanh_grad', 'ref_tanh_grad.py', 'test_tanh_grad')
 test_basic('ops_grad', 'conv2d_grad', 'ref_conv2d_grad.py', 'test_conv2d_grad')
 test_basic('ops_grad', 'conv2d_bias_add_grad', 'ref_conv2d_bias_add_grad.py', 'test_conv2d_bias_add_grad')
+test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 'test_conv2d_transpose_grad')
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')

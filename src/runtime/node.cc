@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[34] =
+    const char* Node::OP_NAMES[36] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -42,7 +42,9 @@ namespace rt
         "leaky_relu_grad",
         "conv2d_add_bias_grad",
         "tanh_grad",
-        "conv2d_transpose"
+        "conv2d_transpose",
+        "conv2d_transpose_input_grad",
+        "conv2d_transpose_kernel_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -237,6 +239,51 @@ namespace rt
         res->sizes3[3] = kernel_size[3];
         return res;
 
+    }
+
+    Node* Node::op_conv2d_transpose_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                     dbl_t* output, const int y_size[], const int kernel_size[],
+                                     const int input_size[],
+                                     const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE_INPUT_GRAD, preds);
+        res->in1 = y;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->intconst2[0] = input_size[1];
+        res->intconst2[1] = input_size[2];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = kernel_size[0];
+        res->sizes2[1] = kernel_size[1];
+        res->sizes2[2] = kernel_size[2];
+        res->sizes2[3] = kernel_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                dbl_t* output, const int y_size[], const int input_size[],
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE_KERNEL_GRAD, preds);
+        res->in1 = y;
+        res->in2 = input;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
+        return res;
     }
 
     Node* Node::op_softmax(const dbl_t* args, dbl_t* output,

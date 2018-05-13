@@ -33,6 +33,8 @@
 #include "conv2d-kernel-grad.hh"
 #include "conv2d-bias-add-grad.hh"
 #include "conv2d-transpose.hh"
+#include "conv2d-transpose-input-grad.hh"
+#include "conv2d-transpose-kernel-grad.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -133,6 +135,21 @@ namespace ops
         graph_.add(res);
         return res;
     }
+
+    Conv2DTransposeInputGrad* OpsBuilder::conv2d_transpose_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size)
+    {
+        auto res = new Conv2DTransposeInputGrad(y, kernel, strides, input_size);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DTransposeKernelGrad* OpsBuilder::conv2d_transpose_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size)
+    {
+        auto res = new Conv2DTransposeKernelGrad(y, input, strides, kernel_size);
+        graph_.add(res);
+        return res;
+    }
+
 
     Input* OpsBuilder::input(const Shape& shape)
     {

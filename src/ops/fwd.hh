@@ -10,6 +10,8 @@ namespace ops
     class Conv2DKernelGrad;
     class Conv2DBiasAddGrad;
     class Conv2DTranspose;
+    class Conv2DTransposeInputGrad;
+    class Conv2DTransposeKernelGrad;
     class CompiledOp;
     class Graph;
     class Input;
