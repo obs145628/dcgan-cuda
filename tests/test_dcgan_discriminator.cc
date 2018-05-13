@@ -78,7 +78,6 @@ int main(int argc, char** argv)
     DenseLayerData tmp_l4;
     ops::Op* l4 = builder.reshape(l3, ops::Shape({10, 4 * 4 * 512}));
     l4 = dense_layer(l4, 4 * 4 * 512, 1, nullptr, &w4, &b4, &tmp_l4);
-
     auto logits = l4;
     auto loss = builder.sigmoid_cross_entropy(y, logits);
 
@@ -94,6 +93,7 @@ int main(int argc, char** argv)
     auto db4 = graph.gradient(loss, tmp_l4.b);
 
     tocha::Tensors out;
+
     out.add(tocha::Tensor::f32(10, 16, 16, 128));
     dbl_t* l1_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
@@ -111,6 +111,7 @@ int main(int argc, char** argv)
     out.add(tocha::Tensor::f32(64));
     dbl_t* db0_out = reinterpret_cast<dbl_t*>(out.arr()[5].data);
     out.add(tocha::Tensor::f32(5, 5, 64, 128));
+
     dbl_t* dw1_out = reinterpret_cast<dbl_t*>(out.arr()[6].data);
     out.add(tocha::Tensor::f32(128));
     dbl_t* db1_out = reinterpret_cast<dbl_t*>(out.arr()[7].data);
@@ -133,7 +134,6 @@ int main(int argc, char** argv)
 	      {l1_out, l3_out, logits_out, loss_out,
                       dw0_out, db0_out, dw1_out, db1_out, dw2_out, db2_out,
                       dw3_out, db3_out, dw4_out, db4_out});
-
 
     out.save(argv[3]);
     tensor_free(y_train);

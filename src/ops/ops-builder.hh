@@ -25,6 +25,7 @@ namespace ops
         ArgmaxAccuracy* argmax_accuracy(Op* y, Op* y_hat);
         Conv2D* conv2d(Op* input, Op* kernel, const int* strides);
         Conv2DBiasAdd* conv2d_bias_add(Op* z, Op* bias);
+        Conv2DBiasAddGrad* conv2d_bias_add_grad(Op* z);
         Conv2DInputGrad* conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size);
         Conv2DKernelGrad* conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size);
         Input* input(const Shape& shape);
@@ -46,6 +47,7 @@ namespace ops
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
         SoftmaxCrossEntropyGrad* softmax_cross_entropy_grad(Op* y, Op* logits);
+        TanhGrad* tanh_grad(Op* tanh_out, Op* dout);
         Update* update(Variable* var, Op* dt, Op* coeff);
         Variable* variable(const Shape& shape, bool trainable = false);
         VectSigmoid* vect_sigmoid(Op* arg);

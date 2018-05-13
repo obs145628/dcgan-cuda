@@ -46,8 +46,10 @@ namespace rt
         static constexpr int OP_MOMENT_UPDATE2 = 28;
         static constexpr int OP_ADAM_UPDATE = 29;
         static constexpr int OP_LEAKY_RELU_GRAD = 30;
+        static constexpr int OP_CONV2D_BIAS_ADD_GRAD = 31;
+        static constexpr int OP_TANH_GRAD = 32;
 
-        static const char* OP_NAMES[31];
+        static const char* OP_NAMES[33];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -58,6 +60,10 @@ namespace rt
 
         static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
                                         const int input_size[], const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_bias_add_grad(const dbl_t* z, const int size[],
+                                             dbl_t* output,
+                                             const std::vector<Node*>& preds);
 
         static Node* op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
                                           dbl_t* output, const int y_size[], const int kernel_size[],
@@ -154,6 +160,10 @@ namespace rt
         static Node* op_sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits, dbl_t* out,
                                                    std::size_t len,
                                                    const std::vector<Node*>& preds);
+
+        static Node* op_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                                     std::size_t len,
+                                     const std::vector<Node*>& preds);
 
         static Node* op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
                                    std::size_t rows, std::size_t cols,

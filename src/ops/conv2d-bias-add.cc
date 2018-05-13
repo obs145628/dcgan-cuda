@@ -1,8 +1,12 @@
 #include "conv2d-bias-add.hh"
+#include "conv2d-bias-add-grad.hh"
 #include "graph.hh"
 #include "../runtime/graph.hh"
 #include "../runtime/node.hh"
 #include "../memory/alloc.hh"
+#include "ops-builder.hh"
+#include <cassert>
+#include <stdexcept>
 
 namespace ops
 {
@@ -32,5 +36,19 @@ namespace ops
                                                     {cz.out_node, cbias.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
+    }
+
+    Op* Conv2DBiasAdd::child_grad(std::size_t index, Op* dout)
+    {
+        assert(index < 2);
+        if (dout == nullptr)
+            throw std::runtime_error {"conv2d_bias_add must not be the final node of the gradient"};
+
+        auto& builder = OpsBuilder::instance();
+
+        if (index == 0)
+            return dout;
+        else
+            return builder.conv2d_bias_add_grad(dout);
     }
 }

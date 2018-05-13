@@ -11,5 +11,7 @@ namespace ops
         Conv2DBiasAdd(Op* z, Op* bias);
 
         virtual void compile() override;
+
+        virtual Op* child_grad(std::size_t index, Op* dout) override;
     };
 }

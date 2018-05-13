@@ -5,6 +5,7 @@ set(SRC
   conv2d-bias-add.cc
   conv2d-input-grad.cc
   conv2d-kernel-grad.cc
+  conv2d-bias-add-grad.cc
   graph.cc
   input.cc
   leaky-relu-grad.cc
@@ -28,6 +29,7 @@ set(SRC
   softmax.cc
   softmax-cross-entropy.cc
   softmax-cross-entropy-grad.cc
+  tanh-grad.cc
   update.cc
   variable.cc
   vect-sigmoid.cc

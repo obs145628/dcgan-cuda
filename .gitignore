@@ -134,3 +134,7 @@ _build/
 __pycache__/
 /models/
 celebA/
+
+### Visual Code ###
+.vscode/
+

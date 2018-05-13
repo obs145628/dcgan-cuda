@@ -8,6 +8,7 @@ namespace ops
     class Conv2DBiasAdd;
     class Conv2DInputGrad;
     class Conv2DKernelGrad;
+    class Conv2DBiasAddGrad;
     class CompiledOp;
     class Graph;
     class Input;
@@ -31,6 +32,7 @@ namespace ops
     class Softmax;
     class SoftmaxCrossEntropy;
     class SoftmaxCrossEntropyGrad;
+    class TanhGrad;
     class Update;
     class Variable;
     class VectSigmoid;
