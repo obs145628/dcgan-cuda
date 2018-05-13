@@ -149,6 +149,11 @@ namespace cpu
             sigmoid_cross_entropy_grad(node->in1, node->in2, node->out1, node->len1);
         }
 
+        void kernel_tanh_grad(rt::Node* node)
+        {
+            tanh_grad(node->in1, node->in2, node->out1, node->len1);
+        }
+
         void kernel_argmax_acc(rt::Node* node)
         {
             *(node->out1) = argmax_acc(node->in1, node->in2, node->len1, node->len2); 
@@ -211,6 +216,7 @@ namespace cpu
         kernel_update,
         kernel_sigmoid_cross_entropy,
         kernel_sigmoid_cross_entropy_grad,
+        kernel_tanh_grad,
         kernel_conv2d_input_grad,
         kernel_conv2d_kernel_grad,
         kernel_argmax_acc,

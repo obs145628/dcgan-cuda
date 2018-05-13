@@ -47,6 +47,7 @@ namespace ops
         Softmax* softmax(Op* arg);
         SoftmaxCrossEntropy* softmax_cross_entropy(Op* y, Op* logits);
         SoftmaxCrossEntropyGrad* softmax_cross_entropy_grad(Op* y, Op* logits);
+        TanhGrad* tanh_grad(Op* tanh_out, Op* dout);
         Update* update(Variable* var, Op* dt, Op* coeff);
         Variable* variable(const Shape& shape, bool trainable = false);
         VectSigmoid* vect_sigmoid(Op* arg);

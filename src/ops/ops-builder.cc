@@ -23,6 +23,7 @@
 #include "softmax.hh"
 #include "softmax-cross-entropy.hh"
 #include "softmax-cross-entropy-grad.hh"
+#include "tanh-grad.hh"
 #include "update.hh"
 #include "variable.hh"
 #include "vect-sigmoid.hh"
@@ -353,6 +354,16 @@ namespace ops
             throw std::runtime_error {"y and logits must have the same shape"};
         
         auto res = new SoftmaxCrossEntropyGrad(y, logits);
+        graph_.add(res);
+        return res;
+    }
+
+    TanhGrad* OpsBuilder::tanh_grad(Op* tanh_out, Op* dout)
+    {
+        if (tanh_out->shape_get() != dout->shape_get())
+            throw std::runtime_error {"TanhGrad: tanh_out and dout must have the same shape"};
+
+        auto res = new TanhGrad(tanh_out, dout);
         graph_.add(res);
         return res;
     }

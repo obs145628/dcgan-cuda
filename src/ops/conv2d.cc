@@ -7,7 +7,7 @@
 #include "ops-builder.hh"
 #include <cassert>
 #include <stdexcept>
-#include <math.h>
+#include <cmath>
 
 namespace ops
 {

@@ -562,6 +562,24 @@ namespace cpu
      */
     void leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
                          dbl_t alpha, std::size_t n);
+  
+    /**
+       * Compute the gradient of the tanh operation
+       * tanh_out - vector (n)
+       * dout - vector(n)
+       * out - vector(n)
+       *
+       * let:
+       * tanh_out = tanh(z)
+       * dout = nabla(E) / nabla(tanh_out)
+       * out = nabla(E) / nabla(Z)
+       * tanh'(z) = 1 - tanh(z)^2
+       *
+       * out = tanh'(z) * dout
+       *     = (1 - tanh(z)^2) * dout
+       */
+      void tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                        std::size_t n);
 }
 
 #include "ops.hxx"

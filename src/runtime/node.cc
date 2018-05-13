@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[32] =
+    const char* Node::OP_NAMES[33] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -31,6 +31,7 @@ namespace rt
         "conv2d_bias_add",
         "update",
         "sigmoid_cross_entropy",
+        "sigmoid_cross_entropy_grad"
         "sigmoid_cross_entropy_grad",
         "conv2d_input_grad",
         "conv2d_kernel_grad",
@@ -39,7 +40,8 @@ namespace rt
         "moment_update2",
         "adam_update",
         "leaky_relu_grad",
-        "conv2d_add_bias_grad"
+        "conv2d_add_bias_grad",
+        "tanh_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -420,6 +422,18 @@ namespace rt
         return res;
     }
 
+    Node* Node::op_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                                std::size_t len,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_TANH_GRAD, preds);
+        res->in1 = tanh_out;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+  
     Node* Node::op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
                               std::size_t rows, std::size_t cols,
                               const std::vector<Node*>& preds)
