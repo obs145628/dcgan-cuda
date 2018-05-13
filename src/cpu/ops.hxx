@@ -205,8 +205,8 @@ namespace cpu
         const int pad_left = pad_width / 2;
         if (valid)
         {
-            stepLenH = (inputH + pad_height - kernelH) + 1;
-            stepLenW = (inputW + pad_width - kernelW) + 1;
+            stepLenH = (inputH + pad_height - kernelH) / strides[0] + 1;
+            stepLenW = (inputW + pad_width - kernelW) / strides[1] + 1;
         }
         else
         {
@@ -827,17 +827,18 @@ namespace cpu
         const int stepLenH = (padded_size[1] - kernel_size[0]) + 1;
         const int stepLenW = (padded_size[2] - kernel_size[1]) + 1;
         dbl_t* out_conv = (dbl_t*)calloc(padded_size[0] * stepLenH
-                                         * stepLenW * kernel_size[3], sizeof(dbl_t));
+                                         * stepLenW * kernel_size[2], sizeof(dbl_t));
         const int strides[2] = {1, 1};
         IdentityAccessor* ia2 = new IdentityAccessor(padded_size);
-        IdentityAccessor* ia3 = new IdentityAccessor(kernel_size);
-        conv2d(padded, kernel, out_conv, strides, 0, 0, ia2, ia3, 1);
+        //IdentityAccessor* ia3 = new IdentityAccessor(kernel_size);
+        TransposeKerAccessor* tka = new TransposeKerAccessor(kernel_size);
+        conv2d(padded, kernel, out_conv, strides, 0, 0, ia2, tka, 1);
 
         memcpy(out, out_conv, out_size[0] * out_size[1] * out_size[2] * out_size[3] * sizeof(dbl_t));
 
         delete ia1;
         delete ia2;
-        delete ia3;
+        delete tka;
         free(padded);
         free(out_conv);
     }
@@ -859,7 +860,7 @@ namespace cpu
     inline void conv2d_transpose_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
                                              dbl_t* out)
     {
-        const int nbChan = X0_size[3];
+        const int nbChan = dX1_size[3];
         const int nbImg = X0_size[0];
         dbl_t* dLdW = nullptr;
         int add_size[4] = {0,0,0,0};
@@ -894,20 +895,21 @@ namespace cpu
 
                 dbl_t* out_conv = (dbl_t*)calloc(ch->size_get(0) * stepLenH
                                                   * stepLenW
-                                                  * padded_size[2],
+                                                  * padded_size[3],
                                                   sizeof(dbl_t));
                 const int strides[2] = {1, 1};
 
-                TransposeKerAccessor* tka = new TransposeKerAccessor(padded_size);
-                conv2d(dX1, padded, out_conv, strides, 0, 0, ch, tka, 1);
+                //TransposeKerAccessor* tka = new TransposeKerAccessor(padded_size);
+                IdentityAccessor* ia = new IdentityAccessor(padded_size);
+                conv2d(dX1, padded, out_conv, strides, 0, 0, ch, ia, 1);
 
                 add_size[0] = ch->size_get(0);
                 add_size[1] = stepLenH;
                 add_size[2] = stepLenW;
-                add_size[3] = padded_size[2];
+                add_size[3] = padded_size[3];
 
                 delete ch;
-                delete tka;
+                delete ia;
                 delete yk;
                 free(padded);
                 if (dLdWImg == nullptr)

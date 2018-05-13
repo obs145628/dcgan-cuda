@@ -487,13 +487,13 @@ namespace cpu
             {
               _new_size[0] = size[1];
               _new_size[1] = size[2];
-              _new_size[2] = size[3];
-              _new_size[3] = 1;
+              _new_size[2] = 1;
+              _new_size[3] = size[3];
             }
-      int access(int ind0, int ind1, int ind2, int) override
+      int access(int ind0, int ind1, int, int ind3) override
       {
           int new_ind = _nbImage * _stot0 + ind0 * _stot1 + ind1 * _size[3]
-                        + ind2;
+                        + ind3;
           return new_ind;
       }
     private:

@@ -56,7 +56,7 @@ input = np.array([[
 w = np.array([
     [
         [
-            [1, -1, 0], 
+            [1, -1, 0],
             [1, 1, 0]
         ],
         [
@@ -231,7 +231,7 @@ sess = tf.Session()
 sess.run(init)
 
 y_hat_node = tf.nn.conv2d_transpose(input_node, w_node, [2, 8, 8, 2], [1, 2, 2, 1], "VALID")
-
+y_hat_tf = sess.run(y_hat_node)
 mse_node = tf.losses.mean_squared_error(labels=y_node, predictions=y_hat_node)
 mse_val = sess.run(mse_node)
 
@@ -243,3 +243,4 @@ dy_hat_tf = sess.run(dy_hat_node)
 tensors_saver.add(dx_tf.astype(np.float32))
 tensors_saver.add(dw_tf.astype(np.float32))
 tensors_saver.add(dy_hat_tf.astype(np.float32))
+tensors_saver.add(y_hat_tf.astype(np.float32))
