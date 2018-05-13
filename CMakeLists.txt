@@ -123,7 +123,7 @@ set(TEST_CONV2D_BIAS_ADD_GRAD_SRC
   tests/test_conv2d_bias_add_grad.cc
 )
 add_executable(test_conv2d_bias_add_grad EXCLUDE_FROM_ALL ${TEST_CONV2D_BIAS_ADD_GRAD_SRC})
-target_link_libraries(test_conv2d_bias_add_grad cnpy)
+target_link_libraries(test_conv2d_bias_add_grad cnpy pthread)
 
 
 set(TEST_CONV2D_GRAD_SRC
@@ -294,7 +294,7 @@ set(TEST_TANH_GRAD_SRC
   tests/test_tanh_grad.cc
 )
 add_executable(test_tanh_grad EXCLUDE_FROM_ALL ${TEST_TANH_GRAD_SRC})
-target_link_libraries(test_tanh_grad cnpy)
+target_link_libraries(test_tanh_grad cnpy pthread)
 
 set(TEST_TRAIN_MNIST_SGD_SRC
   ${SRC}
