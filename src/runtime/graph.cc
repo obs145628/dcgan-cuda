@@ -179,6 +179,7 @@ namespace rt
             for (std::size_t i = 0; i < node->preds.size(); ++i)
             {
                 auto it = std::find(vals.begin(), vals.end(), node->preds[i]);
+                //assert(it != vals.end());
                 auto pos = std::distance(vals.begin(), it);
                 os << pos;
                 if (i + 1 != node->preds.size())
@@ -195,8 +196,20 @@ namespace rt
     {
         std::vector<Node*> res;
         for (auto n : nodes)
+        {
             if (n->type != Node::OP_NOP)
+            {
                 res.push_back(n);
+            }
+            else
+            {
+                /*
+                auto it = std::find(n->succs.begin(), n->succs.end(), n);
+                if (it != n->succs.end())
+                    n->succs.erase(it);
+                */
+            }
+        }
         return res;
     }
 

@@ -2,6 +2,7 @@
 #include "op.hh"
 #include <cassert>
 #include "../cpu/runner.hh"
+#include "../cpu/thread-pool-runner.hh"
 #include "../memory/copy.hh"
 #include "input.hh"
 #include "variable.hh"
@@ -18,10 +19,12 @@ namespace ops
     Graph::Graph()
         : full_rt_graph_()
         , debug_(false)
+        , pool_(new cpu::ThreadPoolRunner(8))
     {}
 
     Graph::~Graph()
     {
+        delete pool_;
         for (auto x : ops_)
             delete x;
     }
@@ -135,7 +138,8 @@ namespace ops
         }
 
         //run computations
-        cpu::run_sequential(rt_tasks);
+        //cpu::run_sequential(rt_tasks);
+        pool_->run(rt_tasks);
 
         //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)

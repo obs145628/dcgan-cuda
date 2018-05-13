@@ -3,12 +3,12 @@
 
 #include "../src/utils/dot-graph.hh"
 
+#include "../src/cpu/thread-pool-runner.hh"
+
 int main()
 {
 
-    utils::DotGraph g;
-    g.add_edge("t1", "t2");
-    g.add_edge("t1", "t3");
-    g.add_edge("t2", "t3");
-    g.write_file("out.dot");
+    cpu::ThreadPoolRunner pool(4);
+    (void) pool;
+
 }
