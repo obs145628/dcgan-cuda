@@ -5,6 +5,7 @@ set(SRC
   conv2d-bias-add.cc
   conv2d-input-grad.cc
   conv2d-kernel-grad.cc
+  conv2d-bias-add-grad.cc
   graph.cc
   input.cc
   leaky-relu-grad.cc
