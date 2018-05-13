@@ -502,8 +502,22 @@ namespace cpu
      */
     dbl_t* tensor_concat_axis0(dbl_t* t1, dbl_t* t2, const int* size_t1, const int* size_t2);
 
+    struct padded_filter
+    {
+        dbl_t* data;
+        int size[6];
+        YFilterAccessor* acc;
+    };
     void conv2d_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
                            const int* W1_size, dbl_t* out, const int* input_size);
+
+    struct padded_img
+    {
+        dbl_t* data;
+        int img;
+        int size[4];
+        YtoKerAccessor* acc;
+    };
     void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size,
                             const int* X0_size, dbl_t* out, const int* padded_size);
 

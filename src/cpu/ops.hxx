@@ -217,13 +217,18 @@ namespace cpu
         }
 
         for (std::size_t b = 0; b < nbImage; ++b)
+        {
             for (std::size_t i = 0; i < stepLenH; ++i)
+            {
                 for (std::size_t j = 0; j < stepLenW; ++j)
+                {
                     for (std::size_t k = 0; k < nbFilter; ++k)
                     {
                         dbl_t val = 0;
                         for (std::size_t q = 0; q < nbChan; ++q)
+                        {
                             for (std::size_t di = 0; di < kernelH; ++di)
+                            {
                                 for (std::size_t dj = 0; dj < kernelW; ++dj)
                                 {
                                   int hIndex = strides[0] * i + di - pad_top;
@@ -237,11 +242,16 @@ namespace cpu
                                     val += input[inputInd] * kernel[kernelInd];
                                   }
                                 }
+                            }
+                        }
                         std::size_t oimgIndex = b * stepLenH * stepLenW * nbFilter;
                         std::size_t ohIndex = i * stepLenW * nbFilter;
                         std::size_t owIndex = j * nbFilter;
                         out[oimgIndex + ohIndex + owIndex + k] = val;
                     }
+                }
+            }
+        }
     }
 
     inline void conv2d(const dbl_t* input, const dbl_t* kernel, dbl_t* out,
@@ -465,21 +475,18 @@ namespace cpu
           const int sOutTot0 = out_size[1] * out_size[2] * out_size[3];
           const int sOutTot1 = out_size[2] * out_size[3];
           for (int img = 0; img < out_size[0]; ++img)
-              for (int hIndex = 0; hIndex < out_size[1]; ++hIndex)
-                  for (int wIndex = 0; wIndex < out_size[2]; ++wIndex)
+              for (int hIndex = out_size[4]; hIndex < out_size[1]; hIndex += stride)
+                  for (int wIndex = out_size[5]; wIndex < out_size[2]; wIndex += stride)
                       for (int chan = 0; chan < out_size[3]; ++chan)
                       {
-                          if ((wIndex - out_size[5]) % stride == 0 && (hIndex - out_size[4]) % stride == 0)
+                          int prevHIndex = hIndex - out_size[4] - ((hIndex - out_size[4]) / stride * (stride - 1));
+                          int prevWIndex = wIndex - out_size[5] - ((wIndex - out_size[5]) / stride * (stride - 1));
+                          if (prevHIndex >= 0 && prevHIndex < faI->size_get(1)
+                              && prevWIndex >= 0 && prevWIndex < faI->size_get(2))
                           {
-                            int prevHIndex = hIndex - out_size[4] - ((hIndex - out_size[4]) / stride * (stride - 1));
-                            int prevWIndex = wIndex - out_size[5] - ((wIndex - out_size[5]) / stride * (stride - 1));
-                            if (prevHIndex >= 0 && prevHIndex < faI->size_get(1)
-                                && prevWIndex >= 0 && prevWIndex < faI->size_get(2))
-                            {
-                                int inputInd = faI->access(img, prevHIndex, prevWIndex, chan);
-                                out[img * sOutTot0 + hIndex * sOutTot1
-                                    + wIndex * out_size[3] + chan] = input[inputInd];
-                            }
+                              int inputInd = faI->access(img, prevHIndex, prevWIndex, chan);
+                              out[img * sOutTot0 + hIndex * sOutTot1
+                                  + wIndex * out_size[3] + chan] = input[inputInd];
                           }
                       }
     }
@@ -490,19 +497,16 @@ namespace cpu
         const int sOutTot0 = out_size[1] * out_size[2] * out_size[3];
         const int sOutTot1 = out_size[2] * out_size[3];
 
-        for (int hIndex = 0; hIndex < out_size[0]; ++hIndex)
-            for (int wIndex = 0; wIndex < out_size[1]; ++wIndex)
+        for (int hIndex = 0; hIndex < out_size[0]; hIndex += stride)
+            for (int wIndex = 0; wIndex < out_size[1]; wIndex += stride)
                 for (int inCh = 0; inCh < out_size[2]; ++inCh)
                     for (int oCh = 0; oCh < out_size[3]; ++oCh)
                     {
-                      if (wIndex % stride == 0 && hIndex % stride == 0)
-                      {
-                          int prevHIndex = hIndex - (hIndex / stride * (stride - 1));
-                          int prevWIndex = wIndex - (wIndex / stride * (stride - 1));
-                          int kernelInd = fa->access(prevHIndex, prevWIndex, inCh, oCh);
-                          out[hIndex * sOutTot0 + wIndex * sOutTot1
-                              + inCh * out_size[3] + oCh] = kernel[kernelInd];
-                      }
+                        int prevHIndex = hIndex - (hIndex / stride * (stride - 1));
+                        int prevWIndex = wIndex - (wIndex / stride * (stride - 1));
+                        int kernelInd = fa->access(prevHIndex, prevWIndex, inCh, oCh);
+                        out[hIndex * sOutTot0 + wIndex * sOutTot1
+                            + inCh * out_size[3] + oCh] = kernel[kernelInd];
                     }
     }
 
@@ -592,52 +596,67 @@ namespace cpu
       dbl_t* dLdX = nullptr;
       int add_size[4] = {0,0,0,0};
       int concat_size[4] = {0,0,0,0};
+
+      auto padded_filter_tab = new padded_filter[nbFilter];
+
+      for (int filter = 0; filter < nbFilter; ++filter)
+      {
+          YFilterAccessor* yf = new YFilterAccessor(dX1_size, filter);
+
+          const int striddedWidth = (yf->size_get(2) - 1) * (stride - 1) + yf->size_get(2);
+          const int striddedHeight = (yf->size_get(1) - 1) * (stride - 1) + yf->size_get(1);
+          const int pad_h = input_size[0] - (striddedHeight - W1_size[0] + 1);
+          const int pad_w = input_size[1] - (striddedWidth - W1_size[1] + 1);
+          const int outHeight = striddedHeight + pad_h;
+          const int outWidth = striddedWidth + pad_w;
+          dbl_t* padded = (dbl_t*)calloc(yf->size_get(0) * outHeight
+                                           * outWidth * yf->size_get(3),
+                                           sizeof(dbl_t));
+          const int pad_bottom = pad_h / 2;
+          const int pad_top = pad_h - pad_bottom;
+          const int pad_right = pad_w / 2;
+          const int pad_left = pad_w - pad_right;
+
+          const int padded_size[6] =
+          {
+              yf->size_get(0), outHeight, outWidth, yf->size_get(3),
+              pad_top, pad_left
+          };
+
+          padd_full_conv(dX1, padded, stride, padded_size, yf);
+          padded_filter_tab[filter].data = padded;
+          padded_filter_tab[filter].size[0] = padded_size[0];
+          padded_filter_tab[filter].size[1] = padded_size[1];
+          padded_filter_tab[filter].size[2] = padded_size[2];
+          padded_filter_tab[filter].size[3] = padded_size[3];
+          padded_filter_tab[filter].size[4] = padded_size[4];
+          padded_filter_tab[filter].size[5] = padded_size[5];
+          padded_filter_tab[filter].acc = yf;
+      }
+
       for (int chan = 0; chan < nbChan; ++chan)
       {
           dbl_t* dLdXFilter = nullptr;
           for (int filter = 0; filter < nbFilter; ++filter)
           {
               WFilterRot180Accessor* wf = new WFilterRot180Accessor(W1_size, filter, chan);
-              YFilterAccessor* yf = new YFilterAccessor(dX1_size, filter);
 
-              const int striddedWidth = (yf->size_get(2) - 1) * (stride - 1) + yf->size_get(2);
-              const int striddedHeight = (yf->size_get(1) - 1) * (stride - 1) + yf->size_get(1);
-              const int pad_h = input_size[0] - (striddedHeight - wf->size_get(0) + 1);
-              const int pad_w = input_size[1] - (striddedWidth - wf->size_get(1) + 1);
-              const int outHeight = striddedHeight + pad_h;
-              const int outWidth = striddedWidth + pad_w;
-              dbl_t* padded = (dbl_t*)calloc(yf->size_get(0) * outHeight
-                                              * outWidth * yf->size_get(3),
-                                              sizeof(dbl_t));
-              const int pad_bottom = pad_h / 2;
-              const int pad_top = pad_h - pad_bottom;
-              const int pad_right = pad_w / 2;
-              const int pad_left = pad_w - pad_right;
+              auto padded_filter_cur = padded_filter_tab[filter];
 
-              const int padded_size[6] =
-              {
-                  yf->size_get(0), outHeight, outWidth, yf->size_get(3),
-                  pad_top, pad_left
-              };
-
-              padd_full_conv(dX1, padded, stride, padded_size, yf);
-
-              const int stepLenH = (outHeight - wf->size_get(0)) + 1;
-              const int stepLenW = (outWidth - wf->size_get(1)) + 1;
-              dbl_t* out_conv = (dbl_t*)calloc(padded_size[0] * stepLenH
+              const int stepLenH = (padded_filter_cur.size[1] - wf->size_get(0)) + 1;
+              const int stepLenW = (padded_filter_cur.size[2] - wf->size_get(1)) + 1;
+              dbl_t* out_conv = (dbl_t*)calloc(padded_filter_cur.size[0] * stepLenH
                                                 * stepLenW * wf->size_get(3), sizeof(dbl_t));
               const int strides[2] = {1, 1};
-              IdentityAccessor* ia = new IdentityAccessor(padded_size);
-              conv2d(padded, W1, out_conv, strides, 0, 0, ia, wf, 1);
+              IdentityAccessor* ia = new IdentityAccessor(padded_filter_cur.size);
+              conv2d(padded_filter_cur.data, W1, out_conv, strides, 0, 0, ia, wf, 1);
 
-              add_size[0] = padded_size[0];
+              add_size[0] = padded_filter_cur.size[0];
               add_size[1] = stepLenH;
               add_size[2] = stepLenW;
               add_size[3] = wf->size_get(3);
 
-              free(padded);
               delete wf;
-              delete yf;
               delete ia;
               if (dLdXFilter == nullptr)
                   dLdXFilter = out_conv;
@@ -662,6 +681,13 @@ namespace cpu
           }
       }
       memcpy(out, dLdX, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
+      free(dLdX);
+      for (int filter = 0; filter < nbFilter; ++filter)
+      {
+          free(padded_filter_tab[filter].data);
+          delete padded_filter_tab[filter].acc;
+      }
+      delete[] padded_filter_tab;
     }
 
     inline void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
@@ -673,45 +699,64 @@ namespace cpu
         dbl_t* dLdW = nullptr;
         int add_size[4] = {0,0,0,0};
         int concat_size[4] = {0,0,0,0};
+
+        auto padded_img_tab = new padded_img[nbImg];
+
+        for (int img = 0; img < nbImg; ++img)
+        {
+            YtoKerAccessor* yk = new YtoKerAccessor(dX1_size, nbFilterTotal, img);
+
+            const int striddedWidth = (yk->size_get(1) - 1) * (stride - 1) + yk->size_get(1);
+            const int striddedHeight = (yk->size_get(0) - 1) * (stride - 1) + yk->size_get(0);
+            dbl_t* padded = (dbl_t*)calloc(striddedHeight * striddedWidth
+                                           * yk->size_get(2) * yk->size_get(3)
+                                           , sizeof(dbl_t));
+            const int padded_size[4] =
+            {
+                striddedHeight, striddedWidth, yk->size_get(2), yk->size_get(3)
+            };
+
+            padd_ker(dX1, padded, stride, padded_size, yk);
+            padded_img_tab[img].img = img;
+            padded_img_tab[img].data = padded;
+            padded_img_tab[img].size[0] = striddedHeight;
+            padded_img_tab[img].size[1] = striddedWidth;
+            padded_img_tab[img].size[2] = padded_size[2];
+            padded_img_tab[img].size[3] = padded_size[3];
+            padded_img_tab[img].acc = yk;
+        }
+
+
         for (int chan = 0; chan < nbChan; ++chan)
         {
             dbl_t* dLdWImg = nullptr;
             for (int img = 0; img < nbImg; ++img)
             {
                 ChFilterAccessor* ch = new ChFilterAccessor(X0_size, img, chan, 0, 0);
-                YtoKerAccessor* yk = new YtoKerAccessor(dX1_size, nbFilterTotal, img);
 
-                const int striddedWidth = (yk->size_get(1) - 1) * (stride - 1) + yk->size_get(1);
-                const int striddedHeight = (yk->size_get(0) - 1) * (stride - 1) + yk->size_get(0);
-                dbl_t* padded = (dbl_t*)calloc(striddedHeight * striddedWidth
-                                                * yk->size_get(2) * yk->size_get(3)
-                                                , sizeof(dbl_t));
-                const int padded_size[4] =
-                {
-                    striddedHeight, striddedWidth, yk->size_get(2), yk->size_get(3)
-                };
+                auto padded_img_cur = padded_img_tab[img];
 
-                padd_ker(dX1, padded, stride, padded_size, yk);
-
-                const int stepLenH = (ch->size_get(1) + padded_size_input[0] - padded_size[0]) + 1;
-                const int stepLenW = (ch->size_get(2) + padded_size_input[1] - padded_size[1]) + 1;
+                const int stepLenH = (ch->size_get(1) + padded_size_input[0]
+                                      - padded_img_cur.size[0]) + 1;
+                const int stepLenW = (ch->size_get(2) + padded_size_input[1]
+                                      - padded_img_cur.size[1]) + 1;
 
                 dbl_t* out_conv = (dbl_t*)calloc(ch->size_get(0) * stepLenH
-                                                  * stepLenW * padded_size[3], sizeof(dbl_t));
+                                                  * stepLenW
+                                                  * padded_img_cur.size[3],
+                                                  sizeof(dbl_t));
                 const int strides[2] = {1, 1};
 
-                IdentityAccessor* ia = new IdentityAccessor(padded_size);
-                conv2d(X0, padded, out_conv, strides, padded_size_input[0],
+                IdentityAccessor* ia = new IdentityAccessor(padded_img_cur.size);
+                conv2d(X0, padded_img_cur.data, out_conv, strides, padded_size_input[0],
                        padded_size_input[1], ch, ia, 1);
 
                 add_size[0] = ch->size_get(0);
                 add_size[1] = stepLenH;
                 add_size[2] = stepLenW;
-                add_size[3] = padded_size[3];
+                add_size[3] = padded_img_cur.size[3];
 
-                free(padded);
                 delete ch;
-                delete yk;
                 delete ia;
                 if (dLdWImg == nullptr)
                     dLdWImg = out_conv;
@@ -738,6 +783,12 @@ namespace cpu
         dLdW = formatDw(dLdW, concat_size);
         memcpy(out, dLdW, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
         free(dLdW);
+        for (int img = 0; img < nbImg; ++img)
+        {
+            free(padded_img_tab[img].data);
+            delete padded_img_tab[img].acc;
+        }
+        delete[] padded_img_tab;
     }
 
 
