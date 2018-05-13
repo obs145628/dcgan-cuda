@@ -14,10 +14,21 @@ TEST_DIR = os.path.join(ROOT_DIR, 'tests/')
 SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
+TS_CPU = True
+TS_MCPU = False
+TS_GPU = False
+
 builder = json_ts_builder.JsonTsBuilder()
 
-def test_datset_weights(cat, sub, ref_script, bin_file, dataset):
+def test_datset_weights(cat, sub, ref_script, bin_file, dataset, mode = None):
 
+    if mode is None:
+        if TS_CPU: test_datset_weights(cat, sub, ref_script, bin_file, dataset, 'CPU')
+        if TS_MCPU: test_datset_weights(cat, sub, ref_script, bin_file, dataset, 'MCPU')
+        if TS_GPU: test_datset_weights(cat, sub, ref_script, bin_file, dataset, 'GPU')
+        return
+
+    cat =  mode.lower() + '_' + cat
     tname = cat + '_' + sub
 
     builder.add_test(cat, sub,
@@ -32,10 +43,20 @@ def test_datset_weights(cat, sub, ref_script, bin_file, dataset):
                     os.path.join(TEST_BUILD_DIR, tname + '_out_ref.npz'),
                     os.path.join(TEST_BUILD_DIR, tname + '_out_test.tbin'),
                 ],
+                env={
+                    'RT_MODE': mode
+                },
                 code = 0)
 
-def test_basic(cat, sub, ref_script, bin_file):
+def test_basic(cat, sub, ref_script, bin_file, mode = None):
 
+    if mode is None:
+        if TS_CPU: test_basic(cat, sub, ref_script, bin_file, 'CPU')
+        if TS_MCPU: test_basic(cat, sub, ref_script, bin_file, 'MCPU')
+        if TS_GPU: test_basic(cat, sub, ref_script, bin_file, 'GPU')
+        return
+    
+    cat =  mode.lower() + '_' + cat
     tname = cat + '_' + sub
 
     builder.add_test(cat, sub,
@@ -46,8 +67,11 @@ def test_basic(cat, sub, ref_script, bin_file):
                     os.path.join(TEST_DIR, ref_script),
                     os.path.join(BUILD_DIR, bin_file),
                     os.path.join(TEST_BUILD_DIR, tname + '_out_ref.npz'),
-                    os.path.join(TEST_BUILD_DIR, tname + '_out_test.tbin'),
+                    os.path.join(TEST_BUILD_DIR, tname + '_out_test.tbin'), 
                 ],
+                env={
+                    'RT_MODE': mode
+                },
                 code = 0)
 
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')

@@ -1,5 +1,6 @@
 set(SRC
   node.cc
+  nodes-list.cc
   graph.cc
 )
 

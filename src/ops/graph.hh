@@ -8,6 +8,8 @@
 #include "../memory/types.hh"
 #include "../runtime/graph.hh"
 #include "../utils/dot-graph.hh"
+#include "../cpu/fwd.hh"
+#include "../gpu/runner.hh"
 
 namespace ops
 {
@@ -118,6 +120,8 @@ namespace ops
 
         std::map<std::pair<Op*, Op*>, Op*> grads_;
         bool debug_;
+
+        cpu::ThreadPoolRunner* pool_;
 
         void remove_compiled_rec_(Op* op);
 
