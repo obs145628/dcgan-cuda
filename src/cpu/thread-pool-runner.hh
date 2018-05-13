@@ -16,7 +16,7 @@ namespace cpu
         ThreadPoolRunner(std::size_t nthreads);
         ~ThreadPoolRunner();
 
-        void run(std::vector<rt::Node*>& tasks);
+        void run(rt::NodesList& tasks);
         
     private:
         std::vector<std::thread> ths_;

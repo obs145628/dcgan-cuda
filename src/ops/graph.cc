@@ -6,6 +6,7 @@
 #include "../memory/copy.hh"
 #include "input.hh"
 #include "variable.hh"
+#include "../runtime/nodes-list.hh"
 
 namespace ops
 {
@@ -114,7 +115,8 @@ namespace ops
         }
 
         //Get list of taks
-        std::vector<rt::Node*> rt_tasks = full_rt_graph_.topological_sort(rt_ops);
+        rt::NodesList rt_list(full_rt_graph_.topological_sort(rt_ops));
+        
 
         //set inut values
         for (auto x : inputs)
@@ -130,7 +132,7 @@ namespace ops
         //debug display
         if (debug_)
         {
-            rt::Graph::print_nodes(std::cout, rt_tasks);
+            std::cout << rt_list;
             auto dot = to_dot_graph();
             dot.write_file("./graph.dot");
             auto rt_dot = full_rt_graph_.to_dot_graph();
@@ -139,7 +141,7 @@ namespace ops
 
         //run computations
         //cpu::run_sequential(rt_tasks);
-        pool_->run(rt_tasks);
+        pool_->run(rt_list);
 
         //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)

@@ -24,11 +24,8 @@ namespace cpu
         //exec_graph pass to false when all tasks have an asigned thread,
         //but graph_completed is set to true when all those are finished
 
-        const std::vector<rt::Node*>* tasks_;
+        const rt::NodesList* tasks_;
         std::atomic<std::size_t> next_task_;
-
-        //map from node to indexes in tasks vector
-        std::map<rt::Node*, std::size_t> indexes_;
 
         //1 is finished, 0 if not
         std::vector<int> tasks_status_;

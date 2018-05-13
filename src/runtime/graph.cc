@@ -123,93 +123,6 @@ namespace rt
             throw std::runtime_error {"Topological sort failed"};
 
 
-        return clear_nops(res);
-    }
-
-
-    namespace
-    {
-
-        std::string tensor_name(const dbl_t* ptr,
-                                std::map<const dbl_t*, std::string>& map)
-        {
-            auto it = map.find(ptr);
-            if (it != map.end())
-                return it->second;
-
-            auto name = "t" + std::to_string(map.size());
-            map[ptr] = name;
-            return name;
-        }
-        
-    }
-
-    void Graph::print_nodes(std::ostream& os,
-                            const std::vector<Node*>& vals)
-    {
-
-        std::map<const dbl_t*, std::string> tmap;
-
-        for (std::size_t i = 0; i < vals.size(); ++i)
-        {
-            auto node = vals[i];
-            
-            os << i << ": ";
-            os << Node::OP_NAMES[node->type];
-
-            os << " (" << tensor_name(node->out1, tmap);
-            if (node->out2)
-                os << ", " << tensor_name(node->out2, tmap);
-
-            os << ") <= (" << tensor_name(node->in1, tmap);
-            if (node->in2)
-                os << ", " << tensor_name(node->in2, tmap) ;
-            if (node->in3)
-                os << ", " << tensor_name(node->in3, tmap);
-            os << ") ";
-
-            os << "{" << node->len1;
-            if (node->len2)
-                os << ", " << node->len2;
-            if (node->len3)
-                os << ", " << node->len3;
-            os << "} ";
-            
-            os << "[";
-            for (std::size_t i = 0; i < node->preds.size(); ++i)
-            {
-                auto it = std::find(vals.begin(), vals.end(), node->preds[i]);
-                //assert(it != vals.end());
-                auto pos = std::distance(vals.begin(), it);
-                os << pos;
-                if (i + 1 != node->preds.size())
-                    os << ", ";
-            }
-            os << "]";
-
-            os << std::endl;
-        }
-        
-    }
-
-    std::vector<Node*> Graph::clear_nops(const std::vector<Node*>& nodes)
-    {
-        std::vector<Node*> res;
-        for (auto n : nodes)
-        {
-            if (n->type != Node::OP_NOP)
-            {
-                res.push_back(n);
-            }
-            else
-            {
-                /*
-                auto it = std::find(n->succs.begin(), n->succs.end(), n);
-                if (it != n->succs.end())
-                    n->succs.erase(it);
-                */
-            }
-        }
         return res;
     }
 
@@ -220,14 +133,13 @@ namespace rt
         std::string op_name(const Node* node,
                             std::map<const Node*, std::string>& names)
         {
-            if (node->type == Node::OP_NOP)
-                return "nop";
-            
             auto it = names.find(node);
             if (it != names.end())
                 return it->second;
 
-            std::string res = Node::OP_NAMES[node->type] + std::string(":") + std::to_string(names.size());
+            std::string res = node->type == Node::OP_NOP ? "nop"
+                : Node::OP_NAMES[node->type];
+            res += ":" + std::to_string(names.size());
             names[node] = res;
             return res;
         }
