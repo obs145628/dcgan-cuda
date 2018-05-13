@@ -57,12 +57,35 @@ sess.run(init)
 
 
 
-l3_tf, logits_tf, loss_tf = sess.run([l3, logits, loss], feed_dict={X: imgs})
+l1_tf, l3_tf, logits_tf, loss_tf = sess.run([l1, l3, logits, loss], feed_dict={X: imgs})
 
+tensors_saver.add(l1_tf)
 tensors_saver.add(l3_tf)
 tensors_saver.add(logits_tf)
 tensors_saver.add(loss_tf)
 
+
+dw0 = tf.gradients(loss, w0)[0]
+db0 = tf.gradients(loss, b0)[0]
+dw1 = tf.gradients(loss, w1)[0]
+db1 = tf.gradients(loss, b1)[0]
+dw2 = tf.gradients(loss, w2)[0]
+db2 = tf.gradients(loss, b2)[0]
+dw3 = tf.gradients(loss, w3)[0]
+db3 = tf.gradients(loss, b3)[0]
+dw4 = tf.gradients(loss, w4)[0]
+db4 = tf.gradients(loss, b4)[0]
+
+tensors_saver.add(sess.run(dw0, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(db0, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(dw1, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(db1, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(dw2, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(db2, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(dw3, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(db3, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(dw4, feed_dict={X:imgs}))
+tensors_saver.add(sess.run(db4, feed_dict={X:imgs}))
 
 new_weights.add(sess.run(w0))
 new_weights.add(sess.run(b0))
@@ -82,3 +105,14 @@ print(l1.get_shape())
 print(l2.get_shape())
 print(l3.get_shape())
 print(l4.get_shape())
+
+print(w0.get_shape())
+print(b0.get_shape())
+print(w1.get_shape())
+print(b1.get_shape())
+print(w2.get_shape())
+print(b2.get_shape())
+print(w3.get_shape())
+print(b3.get_shape())
+print(w4.get_shape())
+print(b4.get_shape())

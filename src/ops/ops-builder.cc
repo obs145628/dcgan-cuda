@@ -1,13 +1,18 @@
 #include "ops-builder.hh"
 #include <stdexcept>
 
+
 #include "graph.hh"
+#include "adam-update.hh"
+#include "argmax-accuracy.hh"
 #include "input.hh"
+#include "leaky-relu-grad.hh"
 #include "log-softmax.hh"
 #include "mat-mat-mul.hh"
 #include "mat-mul-add.hh"
 #include "mat-rvect-add.hh"
 #include "mat-sum.hh"
+#include "moment-update.hh"
 #include "mse.hh"
 #include "mse-grad.hh"
 #include "relu-grad.hh"
@@ -24,6 +29,9 @@
 #include "vect-sigmoid.hh"
 #include "conv2d.hh"
 #include "conv2d-bias-add.hh"
+#include "conv2d-input-grad.hh"
+#include "conv2d-kernel-grad.hh"
+#include "conv2d-bias-add-grad.hh"
 #include "vect-relu.hh"
 #include "vect-relu-leaky.hh"
 #include "vect-tanh.hh"
@@ -42,6 +50,34 @@ namespace ops
     OpsBuilder::OpsBuilder()
         : graph_(Graph::instance())
     {}
+
+    AdamUpdate* OpsBuilder::adam_update(Variable* var, Op* m, Op* v,
+                                        dbl_t learning_rate,
+                                        dbl_t beta1, dbl_t beta2, dbl_t eps)
+    {
+        if (var->shape_get() != m->shape_get())
+            throw std::runtime_error {"var and m must have the same shape"};
+        if (var->shape_get() != v->shape_get())
+            throw std::runtime_error {"var and v must have the same shape"};
+
+        auto res = new AdamUpdate(var, m, v, learning_rate, beta1, beta2, eps);
+        graph_.add(res);
+        return res;
+    }
+
+    ArgmaxAccuracy* OpsBuilder::argmax_accuracy(Op* y, Op* y_hat)
+    {
+        if (y->shape_get().ndims() != 2)
+            throw std::runtime_error {"y must be a matrix"};
+        if (y_hat->shape_get().ndims() != 2)
+            throw std::runtime_error {"y_hat must be a matrix"};
+        if (y->shape_get() != y_hat->shape_get())
+            throw std::runtime_error {"y and y_hat must have the same shape"};
+
+        auto res = new ArgmaxAccuracy(y, y_hat);
+        graph_.add(res);
+        return res;
+    }
 
     Conv2D* OpsBuilder::conv2d(Op* input, Op* kernel, const int* strides)
     {
@@ -67,9 +103,42 @@ namespace ops
         return res;
     }
 
+    Conv2DBiasAddGrad* OpsBuilder::conv2d_bias_add_grad(Op* z)
+    {
+        if (z->shape_get().ndims() != 4)
+            throw std::runtime_error {"Conv2DBiasAddGrad:z must be a 4D tensor"};
+        auto res = new Conv2DBiasAddGrad(z);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DInputGrad* OpsBuilder::conv2d_input_grad(Op* y, Op* kernel, const int* strides, const int* input_size)
+    {
+        auto res = new Conv2DInputGrad(y, kernel, strides, input_size);
+        graph_.add(res);
+        return res;
+    }
+
+    Conv2DKernelGrad* OpsBuilder::conv2d_kernel_grad(Op* y, Op* input, const int* strides, const int* kernel_size, const int* padded_size)
+    {
+        auto res = new Conv2DKernelGrad(y, input, strides, kernel_size, padded_size);
+        graph_.add(res);
+        return res;
+    }
+
     Input* OpsBuilder::input(const Shape& shape)
     {
         auto res = new Input(shape);
+        graph_.add(res);
+        return res;
+    }
+
+    LeakyReluGrad* OpsBuilder::leaky_relu_grad(Op* z, Op* dout, dbl_t alpha)
+    {
+        if (z->shape_get() != dout->shape_get())
+            throw std::runtime_error {"LeakyReluGrad: z and dout must have the same shape"};
+
+        auto res = new LeakyReluGrad(z, dout, alpha);
         graph_.add(res);
         return res;
     }
@@ -138,6 +207,17 @@ namespace ops
             throw std::runtime_error {"axis must be 0 or 1"};
 
         auto res = new MatSum(arg, axis);
+        graph_.add(res);
+        return res;
+    }
+
+    MomentUpdate* OpsBuilder::moment_update(Variable* var, Op* dt,
+                                            dbl_t coeff1, dbl_t coeff2, bool sq_update)
+    {
+        if (var->shape_get() != dt->shape_get())
+            throw std::runtime_error {"var and dt must have the same shape"};
+
+        auto res = new MomentUpdate(var, dt, coeff1, coeff2, sq_update);
         graph_.add(res);
         return res;
     }

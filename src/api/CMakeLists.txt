@@ -1,5 +1,6 @@
 set(SRC
   activ.cc
+  adam-optimizer.cc
   copy-initializer.cc
   cost.cc
   layers.cc

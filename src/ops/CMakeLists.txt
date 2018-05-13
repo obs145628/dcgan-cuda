@@ -1,13 +1,20 @@
 set(SRC
+  adam-update.cc
+  argmax-accuracy.cc
   conv2d.cc
   conv2d-bias-add.cc
+  conv2d-input-grad.cc
+  conv2d-kernel-grad.cc
+  conv2d-bias-add-grad.cc
   graph.cc
   input.cc
+  leaky-relu-grad.cc
   log-softmax.cc
   mat-mat-mul.cc
   mat-mul-add.cc
   mat-rvect-add.cc
   mat-sum.cc
+  moment-update.cc
   mse.cc
   mse-grad.cc
   op.cc

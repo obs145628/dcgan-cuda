@@ -10,12 +10,28 @@ namespace cpu
 
         void kernel_conv2d(rt::Node* node)
         {
-            conv2d(node->in1, node->in2, node->out1, node->intconst, node->sizes1, node->sizes2);
+            conv2d(node->in1, node->in2, node->out1, node->intconst,
+                   node->int_cons1, node->int_cons2, node->sizes1, node->sizes2);
         }
 
         void kernel_conv2d_bias_add(rt::Node* node)
         {
             conv2d_bias_add(node->in1, node->in2, node->out1, node->sizes1);
+        }
+
+        void kernel_conv2d_bias_add_grad(rt::Node* node)
+        {
+            conv2d_bias_add_grad(node->in1, node->sizes1, node->out1);
+        }
+
+        void kernel_conv2d_input_grad(rt::Node* node)
+        {
+            conv2d_input_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
+        }
+
+        void kernel_conv2d_kernel_grad(rt::Node* node)
+        {
+            conv2d_kernel_grad(node->in1, node->in2, node->intconst[0], node->sizes1, node->sizes2, node->out1, node->intconst2);
         }
 
         void kernel_mat_mat_mul(rt::Node* node)
@@ -138,6 +154,41 @@ namespace cpu
             tanh_grad(node->in1, node->in2, node->out1, node->len1);
         }
 
+        void kernel_argmax_acc(rt::Node* node)
+        {
+            *(node->out1) = argmax_acc(node->in1, node->in2, node->len1, node->len2); 
+        }
+
+        void kernel_moment_update(rt::Node* node)
+        {
+            moment_update(node->in1, node->out1, node->cons1, node->cons2, node->len1);
+        }
+
+        void kernel_moment_update2(rt::Node* node)
+        {
+            moment_update2(node->in1, node->out1, node->cons1, node->cons2, node->len1);
+        }
+
+        void kernel_adam_update(rt::Node* node)
+        {
+            dbl_t* t = node->out2;
+            dbl_t lr = node->cons1;
+            dbl_t beta1 = node->cons2;
+            dbl_t beta2 = node->cons3;
+            dbl_t eps = node->cons4;
+            ++*t;
+
+            dbl_t lrt = lr * std::sqrt(1 - std::pow(beta2, *t))
+                / (1 - std::pow(beta1, *t));
+
+            adam_update(node->in1, node->in2, node->out1, lrt, eps, node->len1);
+        }
+
+        void kernel_leaky_relu_grad(rt::Node* node)
+        {
+            leaky_relu_grad(node->in1, node->in2, node->out1, node->cons1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[64] = {
@@ -166,5 +217,13 @@ namespace cpu
         kernel_sigmoid_cross_entropy,
         kernel_sigmoid_cross_entropy_grad,
         kernel_tanh_grad
+        kernel_conv2d_input_grad,
+        kernel_conv2d_kernel_grad,
+        kernel_argmax_acc,
+        kernel_moment_update,
+        kernel_moment_update2,
+        kernel_adam_update,
+        kernel_leaky_relu_grad,
+        kernel_conv2d_bias_add_grad
     };
 }

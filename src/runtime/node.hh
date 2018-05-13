@@ -39,18 +39,41 @@ namespace rt
         static constexpr int OP_UPDATE = 21;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY = 22;
         static constexpr int OP_SIGMOID_CROSS_ENTROPY_GRAD = 23;
-        static constexpr int OP_TANH_GRAD = 24;
+        static constexpr int OP_CONV2D_INPUT_GRAD = 24;
+        static constexpr int OP_CONV2D_KERNEL_GRAD = 25;
+        static constexpr int OP_ARGMAX_ACC = 26;
+        static constexpr int OP_MOMENT_UPDATE = 27;
+        static constexpr int OP_MOMENT_UPDATE2 = 28;
+        static constexpr int OP_ADAM_UPDATE = 29;
+        static constexpr int OP_LEAKY_RELU_GRAD = 30;
+        static constexpr int OP_CONV2D_BIAS_ADD_GRAD = 31;
+        static constexpr int OP_TANH_GRAD = 32;
 
-        static const char* OP_NAMES[24];
+        static const char* OP_NAMES[32];
 
         static Node* nop(const std::vector<Node*>& preds);
 
         static Node* op_conv2d(const dbl_t* input, const dbl_t* kernel, const int strides[],
-                               dbl_t* output, const int input_size[], const int kernel_size[],
+                               int pad_top, int pad_left, dbl_t* output,
+                               const int input_size[], const int kernel_size[],
                                const std::vector<Node*>& preds);
 
         static Node* op_conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* output,
                                         const int input_size[], const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_bias_add_grad(const dbl_t* z, const int size[],
+                                             dbl_t* output,
+                                             const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                          dbl_t* output, const int y_size[], const int kernel_size[],
+                                          const int input_size[],
+                                          const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                          dbl_t* output, const int y_size[], const int input_size[],
+                                          const int padded_size[],
+                                          const std::vector<Node*>& preds);
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -142,6 +165,27 @@ namespace rt
                                      std::size_t len,
                                      const std::vector<Node*>& preds);
 
+        static Node* op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                                   std::size_t rows, std::size_t cols,
+                                   const std::vector<Node*>& preds);
+
+        static Node* op_moment_update(dbl_t* var, const dbl_t* dt,
+                                      dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                      const std::vector<Node*>& preds);
+
+        static Node* op_moment_update2(dbl_t* var, const dbl_t* dt,
+                                       dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                       const std::vector<Node*>& preds);
+
+        static Node* op_adam_update(dbl_t* var, dbl_t* t, const dbl_t* m, const dbl_t* v,
+                                    dbl_t lr, dbl_t beta1, dbl_t beta2, dbl_t eps,
+                                    std::size_t len,
+                                    const std::vector<Node*>& preds);
+
+         static Node* op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                         dbl_t alpha, std::size_t len,
+                                         const std::vector<Node*>& preds);
+
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;
         Node& operator=(const Node&) = delete;
@@ -157,12 +201,16 @@ namespace rt
         dbl_t cons1;
         dbl_t cons2;
         dbl_t cons3;
+        dbl_t cons4;
         std::size_t len1;
         std::size_t len2;
         std::size_t len3;
         int intconst[2];
+        int intconst2[2];
         int sizes1[4];
         int sizes2[4];
+        int int_cons1;
+        int int_cons2;
         dbl_t alpha_leaky;
     };
 
