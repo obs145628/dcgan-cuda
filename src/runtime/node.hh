@@ -48,8 +48,11 @@ namespace rt
         static constexpr int OP_LEAKY_RELU_GRAD = 30;
         static constexpr int OP_CONV2D_BIAS_ADD_GRAD = 31;
         static constexpr int OP_TANH_GRAD = 32;
+        static constexpr int OP_CONV2D_TRANSPOSE = 33;
+        static constexpr int OP_CONV2D_TRANSPOSE_INPUT_GRAD = 34;
+        static constexpr int OP_CONV2D_TRANSPOSE_KERNEL_GRAD = 35;
 
-        static const char* OP_NAMES[33];
+        static const char* OP_NAMES[36];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -74,6 +77,21 @@ namespace rt
                                           dbl_t* output, const int y_size[], const int input_size[],
                                           const int padded_size[],
                                           const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int out_size[],
+                                         const int strides[], dbl_t* output,
+                                         const int input_size[], const int kernel_size[],
+                                         const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_transpose_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                          dbl_t* output, const int y_size[], const int kernel_size[],
+                                          const int input_size[],
+                                          const std::vector<Node*>& preds);
+
+        static Node* op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                          dbl_t* output, const int y_size[], const int input_size[],
+                                          const std::vector<Node*>& preds);
+
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
                                     std::size_t rowsl, std::size_t colsl, std::size_t colsr,
@@ -209,6 +227,7 @@ namespace rt
         int intconst2[2];
         int sizes1[4];
         int sizes2[4];
+        int sizes3[4];
         int int_cons1;
         int int_cons2;
         dbl_t alpha_leaky;

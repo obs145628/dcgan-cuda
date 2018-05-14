@@ -205,8 +205,8 @@ namespace cpu
         const int pad_left = pad_width / 2;
         if (valid)
         {
-            stepLenH = (inputH + pad_height - kernelH) + 1;
-            stepLenW = (inputW + pad_width - kernelW) + 1;
+            stepLenH = (inputH + pad_height - kernelH) / strides[0] + 1;
+            stepLenW = (inputW + pad_width - kernelW) / strides[1] + 1;
         }
         else
         {
@@ -798,6 +798,109 @@ namespace cpu
         delete[] padded_img_tab;
     }
 
+    inline void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
+                                 dbl_t* out, const int* input_size, const int* kernel_size)
+    {
+        int out_size_grad[2] = {out_size[1], out_size[2]};
+        conv2d_input_grad(input, kernel, stride, input_size, kernel_size, out, out_size_grad);
+    }
+
+    inline void conv2d_transpose_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
+                                            const int* W1_size, dbl_t* out, const int* input_size)
+    {
+      IdentityAccessor* ia1 = new IdentityAccessor(dX1_size);
+      IdentityAccessor* ia2 = new IdentityAccessor(W1_size);
+
+      (void)input_size;
+      const int strides[2] = {stride, stride};
+      conv2d(dX1, W1, out, strides, 0, 0, ia1, ia2, 1);
+
+      delete ia1;
+      delete ia2;
+    }
+
+    inline void conv2d_transpose_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
+                                             dbl_t* out)
+    {
+        const int nbChan = dX1_size[3];
+        const int nbImg = X0_size[0];
+        dbl_t* dLdW = nullptr;
+        int add_size[4] = {0,0,0,0};
+        int concat_size[4] = {0,0,0,0};
+
+
+        for (int chan = 0; chan < nbChan; ++chan)
+        {
+            dbl_t* dLdWImg = nullptr;
+            for (int img = 0; img < nbImg; ++img)
+            {
+
+                ChFilterAccessor* ch = new ChFilterAccessor(dX1_size, img, chan, 0, 0);
+                YtoKerTransposeAccessor* yk = new YtoKerTransposeAccessor(X0_size, chan, img);
+
+                const int striddedWidth = (yk->size_get(1) - 1) * (stride - 1) + yk->size_get(1);
+                const int striddedHeight = (yk->size_get(0) - 1) * (stride - 1) + yk->size_get(0);
+                dbl_t* padded = (dbl_t*)calloc(striddedHeight * striddedWidth
+                                           * yk->size_get(2) * yk->size_get(3)
+                                           , sizeof(dbl_t));
+                const int padded_size[4] =
+                {
+                    striddedHeight, striddedWidth, yk->size_get(2), yk->size_get(3)
+                };
+
+                padd_ker(X0, padded, stride, padded_size, yk);
+
+                const int stepLenH = (ch->size_get(1)
+                                      - padded_size[0]) + 1;
+                const int stepLenW = (ch->size_get(2)
+                                      - padded_size[1]) + 1;
+
+                dbl_t* out_conv = (dbl_t*)calloc(ch->size_get(0) * stepLenH
+                                                  * stepLenW
+                                                  * padded_size[3],
+                                                  sizeof(dbl_t));
+                const int strides[2] = {1, 1};
+
+                //TransposeKerAccessor* tka = new TransposeKerAccessor(padded_size);
+                IdentityAccessor* ia = new IdentityAccessor(padded_size);
+                conv2d(dX1, padded, out_conv, strides, 0, 0, ch, ia, 1);
+
+                add_size[0] = ch->size_get(0);
+                add_size[1] = stepLenH;
+                add_size[2] = stepLenW;
+                add_size[3] = padded_size[3];
+
+                delete ch;
+                delete ia;
+                delete yk;
+                free(padded);
+                if (dLdWImg == nullptr)
+                    dLdWImg = out_conv;
+                else
+                {
+                    tensor_add(dLdWImg, out_conv, add_size);
+                    free(out_conv);
+                }
+            }
+            if (dLdW == nullptr)
+            {
+                dLdW = dLdWImg;
+                concat_size[0] = add_size[0];
+                concat_size[1] = add_size[1];
+                concat_size[2] = add_size[2];
+                concat_size[3] = add_size[3];
+            }
+            else
+            {
+              dLdW = tensor_concat_axis0(dLdW, dLdWImg, concat_size, add_size);
+              concat_size[0] += add_size[0];
+            }
+        }
+        dLdW = formatDw(dLdW, concat_size);
+        memcpy(out, dLdW, concat_size[0] * concat_size[1] * concat_size[2] * concat_size[3] * sizeof(dbl_t));
+        free(dLdW);
+    }
+
 
     inline void moment_update(const dbl_t* dv, dbl_t* out,
                               dbl_t a, dbl_t b, std::size_t len)
@@ -824,7 +927,7 @@ namespace cpu
                                 dbl_t alpha, std::size_t n)
     {
         for (std::size_t i = 0; i < n; ++i)
-            out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];            
+            out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];
     }
 
 }
