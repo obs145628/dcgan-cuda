@@ -1,5 +1,6 @@
 #include "tensor4.hh"
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <stdexcept>
 
@@ -75,6 +76,10 @@ float& Tensor4::operator()(std::size_t i1, std::size_t i2,
 const float& Tensor4::operator()(std::size_t i1, std::size_t i2,
                                  std::size_t i3, std::size_t i4) const
 {
+    assert(i1 < d1);
+    assert(i2 < d2);
+    assert(i3 < d3);
+    assert(i4 < d4);
     return data[
         i1 * d2 * d3 * d4 + i2 * d3 * d4 + i3 * d4 + i4
         ];
@@ -103,5 +108,13 @@ Tensor4 Tensor4::pad0(std::size_t ph, std::size_t pw) const
                 for (std::size_t i4 = 0; i4 < d4; ++i4)
                     res(i1, i2 + ph, i3 + pw, i4) = (*this)(i1, i2, i3, i4);
 
+    return res;
+}
+
+Tensor4 Tensor4::reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4)
+{
+    Tensor4 res(nd1, nd2, nd3, nd4);
+    assert(res.size == size);
+    std::copy(data, data + size, res.data);
     return res;
 }

@@ -1,5 +1,6 @@
 #include "conv.hh"
 
+#include <cassert>
 #include <iostream>
 
 float compute_val(const Tensor4& input, const Tensor4& filter,

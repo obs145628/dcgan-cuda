@@ -30,6 +30,12 @@ struct Tensor4
      */
     Tensor4 pad0(std::size_t ph, std::size_t pw) const;
 
+    /**
+     * Create a new tensor, with a new shape
+     * the new size must be equal to the old one
+     */
+    Tensor4 reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4);
+
     const std::size_t d1;
     const std::size_t d2;
     const std::size_t d3;
