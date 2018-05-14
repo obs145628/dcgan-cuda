@@ -6,5 +6,8 @@ namespace cpu
 {
 
     using kernel_f = void (*)(rt::Node*);
-    
+
+
+    struct RuntimeInfos;
+    class ThreadPoolRunner;
 }

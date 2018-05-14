@@ -46,18 +46,6 @@ namespace rt
          */
         std::vector<Node*> topological_sort(const std::vector<Node*>& vals);
 
-
-        /**
-         * print all nodes into an assembly instructions list style
-         */
-        static void print_nodes(std::ostream& os,
-                                const std::vector<Node*>& vals);
-
-        /**
-         * Returns a new vector of nodes without nop
-         */
-        static std::vector<Node*> clear_nops(const std::vector<Node*>& nodes);
-
         /**
          * Transform the graph into dot-graph
          * for debugging purposes only

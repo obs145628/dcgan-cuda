@@ -2,9 +2,12 @@
 #include "op.hh"
 #include <cassert>
 #include "../cpu/runner.hh"
+#include "../cpu/thread-pool-runner.hh"
 #include "../memory/copy.hh"
+#include "../memory/mode.hh"
 #include "input.hh"
 #include "variable.hh"
+#include "../runtime/nodes-list.hh"
 
 namespace ops
 {
@@ -18,10 +21,15 @@ namespace ops
     Graph::Graph()
         : full_rt_graph_()
         , debug_(false)
-    {}
+        , pool_(nullptr)
+    {
+        if (program_mode() == ProgramMode::MULTITHREAD)
+            pool_ = new cpu::ThreadPoolRunner(4);
+    }
 
     Graph::~Graph()
     {
+        delete pool_;
         for (auto x : ops_)
             delete x;
     }
@@ -111,7 +119,8 @@ namespace ops
         }
 
         //Get list of taks
-        std::vector<rt::Node*> rt_tasks = full_rt_graph_.topological_sort(rt_ops);
+        rt::NodesList rt_list(full_rt_graph_.topological_sort(rt_ops));
+        
 
         //set inut values
         for (auto x : inputs)
@@ -127,7 +136,15 @@ namespace ops
         //debug display
         if (debug_)
         {
-            rt::Graph::print_nodes(std::cout, rt_tasks);
+            std::cout << rt_list;
+
+            if (program_mode() == ProgramMode::MONOTHREAD)
+                std::cout << "run program in monothread\n";
+            else if (program_mode() == ProgramMode::MULTITHREAD)
+                std::cout << "run program in multithread\n";
+            else if (program_mode() == ProgramMode::GPU)
+                std::cout << "run program in gpu\n";
+            
             auto dot = to_dot_graph();
             dot.write_file("./graph.dot");
             auto rt_dot = full_rt_graph_.to_dot_graph();
@@ -135,7 +152,13 @@ namespace ops
         }
 
         //run computations
-        cpu::run_sequential(rt_tasks);
+        if (program_mode() == ProgramMode::MONOTHREAD)
+            cpu::run_sequential(rt_list);
+        else if (program_mode() == ProgramMode::MULTITHREAD)
+            pool_->run(rt_list);
+        else if (program_mode() == ProgramMode::GPU)
+            gpu::run(rt_list);
+            
 
         //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)
