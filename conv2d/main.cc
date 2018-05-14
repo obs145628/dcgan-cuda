@@ -15,13 +15,14 @@ int main()
     const Tensor4& x = input[0];
     const Tensor4& k = input[1];
     const Tensor4& dy = input[2];
+    (void) dy;
 
     
-    Tensor4 y = conv_c1f1i1s1p0(x, k);
-    Tensor4 dk = conv_dk_c1f1i1s1p0(x, dy);
-    Tensor4 dx = conv_dx_c1f1i1s1p0(k, dy);
+    Tensor4 y = conv_cnf1i1s1p0(x, k);
+    Tensor4 dk = conv_dk_cnf1i1s1p0(x, dy);
+    //Tensor4 dx = conv_dx_c1f1i1s1p0(k, dy);
 
-    std::vector<Tensor4> output {y, dk, dx};
+    std::vector<Tensor4> output {y, dk};
     std::cout << "== output:\n";
     for (auto& t : output)
         t.dump_shape();

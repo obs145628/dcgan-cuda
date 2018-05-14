@@ -1,4 +1,5 @@
 #include "conv_simplified.hh"
+#include "conv.hh"
 
 namespace
 {
@@ -57,4 +58,43 @@ Tensor4 conv_dx_c1f1i1s1p0(Tensor4 k, Tensor4 dy)
     Tensor4 pdy = dy.pad0(k.d1 - 1, k.d2 - 1);
     Tensor4 k180 = rot180(k);
     return conv_c1f1i1s1p0(pdy, k180);
+}
+
+
+
+
+
+
+Tensor4 conv_cnf1i1s1p0(Tensor4 x, Tensor4 k)
+{
+    std::size_t hx = x.d2;
+    std::size_t wx = x.d3;
+    std::size_t hk = k.d1;
+    std::size_t wk = k.d2;
+    std::size_t hy = hx - hk + 1;
+    std::size_t wy = wx - wk + 1;
+    std::size_t c = x.d4;
+    Tensor4 y(1, hy, wy, 1);
+
+    for (std::size_t i = 0; i < hy; ++i)
+        for (std::size_t j = 0; j < wy; ++j)
+        {
+            float s = 0;
+            for (std::size_t c1 = 0; c1 < c; ++c1)
+                for (std::size_t ik = 0; ik < hk; ++ik)
+                    for (std::size_t jk = 0; jk < wk; ++jk)
+                        s += x(0, i + ik, j + jk, c1) * k(ik, jk, c1, 0);
+            y(0, i, j, 0) = s;
+        }
+
+    return y;
+}
+
+Tensor4 conv_dk_cnf1i1s1p0(Tensor4 x, Tensor4 dy)
+{
+    Tensor4 xtr = x.transpose(3, 1, 2, 0);
+    Tensor4 f_dy = dy.reshape(dy.d2, dy.d3, 1, 1);
+    Tensor4 o_dk = conv_no_pad(xtr, f_dy, 1, 1);
+    o_dk.dump_shape();
+    return o_dk.transpose(1, 2, 0, 3);
 }

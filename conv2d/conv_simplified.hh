@@ -33,3 +33,31 @@ Tensor4 conv_dk_c1f1i1s1p0(Tensor4 x, Tensor4 dy);
  * no padding
  */
 Tensor4 conv_dx_c1f1i1s1p0(Tensor4 k, Tensor4 dy);
+
+
+
+
+
+
+
+/**
+ * Convolution
+ * multi channels
+ * 1 filter
+ * 1 image
+ * no stride
+ * no padding
+ */
+Tensor4 conv_cnf1i1s1p0(Tensor4 x, Tensor4 k);
+
+
+/**
+ * Convolution
+ * Compute dE/dk, knowing dE/dy (y output of conv)
+ * multi-channels
+ * 1 filter
+ * 1 image
+ * no stride
+ * no padding
+ */
+Tensor4 conv_dk_cnf1i1s1p0(Tensor4 x, Tensor4 dy);

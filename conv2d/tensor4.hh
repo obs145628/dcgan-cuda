@@ -34,7 +34,12 @@ struct Tensor4
      * Create a new tensor, with a new shape
      * the new size must be equal to the old one
      */
-    Tensor4 reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4);
+    Tensor4 reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4) const;
+
+    /**
+     * Create a new tensor, with its dimensions transposed
+     */
+    Tensor4 transpose(std::size_t t1, std::size_t t2, std::size_t t3, std::size_t t4) const;
 
     const std::size_t d1;
     const std::size_t d2;

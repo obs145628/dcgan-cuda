@@ -1,5 +1,6 @@
 #include "tensor4.hh"
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <stdexcept>
@@ -68,6 +69,10 @@ Tensor4::Tensor4(Tensor4&& t)
 float& Tensor4::operator()(std::size_t i1, std::size_t i2,
                            std::size_t i3, std::size_t i4)
 {
+    assert(i1 < d1);
+    assert(i2 < d2);
+    assert(i3 < d3);
+    assert(i4 < d4);
     return data[
         i1 * d2 * d3 * d4 + i2 * d3 * d4 + i3 * d4 + i4
         ];
@@ -111,10 +116,38 @@ Tensor4 Tensor4::pad0(std::size_t ph, std::size_t pw) const
     return res;
 }
 
-Tensor4 Tensor4::reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4)
+Tensor4 Tensor4::reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4) const
 {
     Tensor4 res(nd1, nd2, nd3, nd4);
     assert(res.size == size);
     std::copy(data, data + size, res.data);
+    return res;
+}
+
+Tensor4 Tensor4::transpose(std::size_t t1, std::size_t t2, std::size_t t3, std::size_t t4) const
+{
+    std::vector<std::size_t> odims{d1, d2, d3, d4};
+    Tensor4 res(odims[t1], odims[t2], odims[t3], odims[t4]);
+
+    std::vector<std::size_t> idx (4);
+    idx[t1] = 0;
+    idx[t2] = 1;
+    idx[t3] = 2;
+    idx[t4] = 3;
+    t1 = idx[0];
+    t2 = idx[1];
+    t3 = idx[2];
+    t4 = idx[3];
+
+    for (std::size_t i1 = 0; i1 < res.d1; ++i1)
+        for (std::size_t i2 = 0; i2 < res.d2; ++i2)
+            for (std::size_t i3 = 0; i3 < res.d3; ++i3)
+                for (std::size_t i4 = 0; i4 < res.d4; ++i4)
+                {
+                    std::array<std::size_t, 4> pos {i1, i2, i3, i4};
+                    const auto& x = (*this)(pos[t1], pos[t2], pos[t3], pos[t4]);
+                    res(i1, i2, i3, i4) = x;
+                }
+
     return res;
 }
