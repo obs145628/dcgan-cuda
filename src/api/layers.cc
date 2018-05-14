@@ -104,6 +104,7 @@ ops::Op* conv2d_layer(ops::Op* input,
 ops::Op* conv2d_transpose_layer(ops::Op* input,
                                 std::size_t nb_filter,
                                 std::size_t* kernel_size,
+                                std::size_t* out_size,
                                 int* strides,
                                 std::size_t* in_size,
                                 activ_f activ,
@@ -128,11 +129,9 @@ ops::Op* conv2d_transpose_layer(ops::Op* input,
     w_init->fill(w->data_begin(), w->data_end());
     b_init->fill(b->data_begin(), b->data_end());
 
-    int out_shape[4];
-
-    out_shape[0] = in_size[0];
-
-    out_shape[3] = nb_filter;
+    const int out_shape[4] = {
+            int(in_size[0]), int(out_size[0]), int(out_size[1]), int(nb_filter)
+    };
 
     ops::Op* out_conv = builder.conv2d_transpose(input, w, out_shape, strides);
     ops::Op* out = builder.conv2d_bias_add(out_conv, b);

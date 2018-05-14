@@ -801,46 +801,8 @@ namespace cpu
     inline void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
                                  dbl_t* out, const int* input_size, const int* kernel_size)
     {
-        const int striddedWidth = (input_size[2] - 1) * (stride - 1) + input_size[2];
-        const int striddedHeight = (input_size[1] - 1) * (stride - 1) + input_size[1];
-        const int pad_h = out_size[1] - (striddedHeight - kernel_size[0] + 1);
-        const int pad_w = out_size[2] - (striddedWidth - kernel_size[1] + 1);
-        const int outHeight = striddedHeight + pad_h;
-        const int outWidth = striddedWidth + pad_w;
-        dbl_t* padded = (dbl_t*)calloc(input_size[0] * outHeight
-                                         * outWidth * input_size[3],
-                                         sizeof(dbl_t));
-        const int pad_bottom = pad_h / 2;
-        const int pad_top = pad_h - pad_bottom;
-        const int pad_right = pad_w / 2;
-        const int pad_left = pad_w - pad_right;
-
-        const int padded_size[6] =
-        {
-            input_size[0], outHeight, outWidth, input_size[3],
-            pad_top, pad_left
-        };
-
-        IdentityAccessor* ia1 = new IdentityAccessor(input_size);
-        padd_full_conv(input, padded, stride, padded_size, ia1);
-
-        const int stepLenH = (padded_size[1] - kernel_size[0]) + 1;
-        const int stepLenW = (padded_size[2] - kernel_size[1]) + 1;
-        dbl_t* out_conv = (dbl_t*)calloc(padded_size[0] * stepLenH
-                                         * stepLenW * kernel_size[2], sizeof(dbl_t));
-        const int strides[2] = {1, 1};
-        IdentityAccessor* ia2 = new IdentityAccessor(padded_size);
-        //IdentityAccessor* ia3 = new IdentityAccessor(kernel_size);
-        TransposeKerAccessor* tka = new TransposeKerAccessor(kernel_size);
-        conv2d(padded, kernel, out_conv, strides, 0, 0, ia2, tka, 1);
-
-        memcpy(out, out_conv, out_size[0] * out_size[1] * out_size[2] * out_size[3] * sizeof(dbl_t));
-
-        delete ia1;
-        delete ia2;
-        delete tka;
-        free(padded);
-        free(out_conv);
+        int out_size_grad[2] = {out_size[1], out_size[2]};
+        conv2d_input_grad(input, kernel, stride, input_size, kernel_size, out, out_size_grad);
     }
 
     inline void conv2d_transpose_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,

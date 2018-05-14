@@ -44,9 +44,13 @@ ops::Op* conv2d_layer(ops::Op* input,
                       Initializer* b_init,
                       Conv2DLayerData* tmp_data);
 
+/**
+ * out_size is a 1D array like this : out_size[2] = {out_height, out_width}
+ */
 ops::Op* conv2d_transpose_layer(ops::Op* input,
                                 std::size_t nb_filter,
                                 std::size_t* kernel_size,
+                                std::size_t* out_size,
                                 int* strides,
                                 std::size_t* in_size,
                                 activ_f activ,
