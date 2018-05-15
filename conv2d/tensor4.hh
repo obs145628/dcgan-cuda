@@ -27,8 +27,16 @@ struct Tensor4
     /**
      * Create a new tensor, padded horizontally and vertically 
      * of ph and pw dims of 0, on both sides
+     * The tensor must be an input (width and height in dim2 and dimd3)
      */
     Tensor4 pad0(std::size_t ph, std::size_t pw) const;
+
+    /**
+     * Create a new tensor, padded of p1, p2, p3 p4 
+     * respectictly top, bottom, left, right
+     * The tensor must be an input (width and height in dim2 and dimd3)
+     */
+    Tensor4 pad0(std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4) const;
 
     /**
      * Create a new tensor, with a new shape
@@ -54,6 +62,12 @@ struct Tensor4
      * The actual tensor is an input (height and width are d2 and d3)
      */
     Tensor4 istride0(std::size_t h, std::size_t w) const;
+
+    /**
+     * Extract only one 2d region
+     * The actual tensor is an input (height and width are d2 and d3)
+     */
+    Tensor4 iregion(std::size_t y, std::size_t x, std::size_t h, std::size_t w) const;
 
     /**
      * Dump a filter in 2 dimensions (height and width are d1 and 2)

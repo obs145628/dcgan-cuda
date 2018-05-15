@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -116,6 +117,20 @@ Tensor4 Tensor4::pad0(std::size_t ph, std::size_t pw) const
     return res;
 }
 
+Tensor4 Tensor4::pad0(std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4) const
+{
+    Tensor4 res(d1, d2 + p1 + p2, d3 + p3 + p4, d4);
+    std::fill(res.data, res.data + res.size, 0);
+
+    for (std::size_t i1 = 0; i1 < d1; ++i1) 
+        for (std::size_t i2 = 0; i2 < d2; ++i2)
+            for (std::size_t i3 = 0; i3 < d3; ++i3)
+                for (std::size_t i4 = 0; i4 < d4; ++i4)
+                    res(i1, i2 + p1, i3 + p3, i4) = (*this)(i1, i2, i3, i4);
+
+    return res;
+}
+
 Tensor4 Tensor4::reshape(std::size_t nd1, std::size_t nd2, std::size_t nd3, std::size_t nd4) const
 {
     Tensor4 res(nd1, nd2, nd3, nd4);
@@ -181,8 +196,21 @@ Tensor4 Tensor4::istride0(std::size_t h, std::size_t w) const
     return res;
 }
 
+Tensor4 Tensor4::iregion(std::size_t y, std::size_t x, std::size_t h, std::size_t w) const
+{
+    Tensor4 res(d1, h, w, d4);
+    for (std::size_t i1 = 0; i1 < d1; ++i1)
+        for (std::size_t i2 = 0; i2 < h; ++i2)
+            for (std::size_t i3 = 0; i3 < w; ++i3)
+                for (std::size_t i4 = 0; i4 < d4; ++i4)
+                    res(i1, i2, i3, i4) = (*this)(i1, y + i2, x + i3, i4);
+    return res;
+}
+
 void Tensor4::fdump_2d() const
 {
+    std::cout << std::fixed << std::setprecision(5);
+    
     for (std::size_t i1 = 0; i1 < d1; ++i1)
     {
         for (std::size_t i2 = 0; i2 < d2; ++i2)

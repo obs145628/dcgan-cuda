@@ -18,10 +18,16 @@ int main()
     (void) k;
     (void) dy;
 
+    std::size_t sh = 2;
+    std::size_t sw = 2;
+    std::size_t p1 = 1;
+    std::size_t p2 = 2;
+    std::size_t p3 = 1;
+    std::size_t p4 = 2;
     
-    Tensor4 y = conv_c1f1i1snp0(x, k, 5, 3);
-    Tensor4 dk = conv_dk_c1f1i1snp0(x, dy, 5, 3);
-    Tensor4 dx = conv_dx_c1f1i1snp0(k, dy, 5, 3);
+    Tensor4 y = conv_c1f1i1snpn(x, k, sh, sw, p1, p2, p3, p4);
+    Tensor4 dk = conv_dk_c1f1i1snpn(x, dy, sh, sw, p1, p2, p3, p4);
+    Tensor4 dx = conv_dx_c1f1i1snpn(k, dy, sh, sw, p1, p2, p3, p4);
 
     std::vector<Tensor4> output {y, dk, dx};
     std::cout << "== output:\n";

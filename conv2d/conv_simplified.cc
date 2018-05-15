@@ -225,3 +225,31 @@ Tensor4 conv_dx_c1f1i1snp0(Tensor4 k, Tensor4 dy, std::size_t sh, std::size_t sw
     Tensor4 k180 = rot180(k);
     return conv_c1f1i1s1p0(pdy, k180);
 }
+
+
+
+
+
+
+
+
+Tensor4 conv_c1f1i1snpn(Tensor4 x, Tensor4 k, std::size_t sh, std::size_t sw,
+                        std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    return conv_c1f1i1snp0(x.pad0(p1, p2, p3, p4), k, sh, sw);
+}
+
+
+Tensor4 conv_dk_c1f1i1snpn(Tensor4 x, Tensor4 dy, std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    return conv_dk_c1f1i1snp0(x.pad0(p1, p2, p3, p4), dy, sh, sw);
+}
+
+Tensor4 conv_dx_c1f1i1snpn(Tensor4 k, Tensor4 dy, std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    
+    Tensor4 dx_full = conv_dx_c1f1i1snp0(k, dy, sh, sw);
+    return dx_full.iregion(p1, p3, dx_full.d2 - p1 - p2, dx_full.d3 - p3 - p4);
+}
