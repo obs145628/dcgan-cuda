@@ -253,3 +253,34 @@ Tensor4 conv_dx_c1f1i1snpn(Tensor4 k, Tensor4 dy, std::size_t sh, std::size_t sw
     Tensor4 dx_full = conv_dx_c1f1i1snp0(k, dy, sh, sw);
     return dx_full.iregion(p1, p3, dx_full.d2 - p1 - p2, dx_full.d3 - p3 - p4);
 }
+
+
+
+
+
+
+Tensor4 conv_cnfni1snpn(Tensor4 x, Tensor4 k, std::size_t sh, std::size_t sw,
+                        std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    return conv_no_pad(x.pad0(p1, p2, p3, p4), k, sh, sw);
+}
+
+Tensor4 conv_dk_cnfni1snpn(Tensor4 x, Tensor4 dy, std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    Tensor4 xtr = x.pad0(p1, p2, p3, p4).transpose(3, 1, 2, 0);
+    Tensor4 f_dy = dy.reshape(dy.d2, dy.d3, 1, dy.d4).fstride0(sh - 1, sw - 1);
+    Tensor4 o_dk = conv_no_pad(xtr, f_dy, 1, 1);
+    return o_dk.transpose(1, 2, 0, 3);
+}
+
+
+
+Tensor4 conv_dx_cnfni1snpn(Tensor4 k, Tensor4 dy, std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    Tensor4 pdy = dy.istride0(sh - 1, sw -1).pad0(k.d1 - 1, k.d2 - 1);
+    Tensor4 k180 = frot180(k).transpose(0, 1, 3, 2);
+    Tensor4 dx_full = conv_no_pad(pdy, k180, 1, 1);
+    return dx_full.iregion(p1, p3, dx_full.d2 - p1 - p2, dx_full.d3 - p3 - p4);
+}
