@@ -39,3 +39,31 @@ Tensor4 conv_pad(const Tensor4& input, const Tensor4& filter,
 {
     return conv_no_pad(input.pad0(ph, pw), filter, sh, sw);
 }
+
+Tensor4 conv2d_sp(const Tensor4& input, const Tensor4& filter,
+                  std::size_t sh, std::size_t sw,
+                  std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    return conv_no_pad(input.pad0(p1, p2, p3, p4), filter, sh, sw);
+}
+
+
+Tensor4 conv2d_sp_dk(const Tensor4& x, const Tensor4& dy,
+                     std::size_t sh, std::size_t sw,
+                     std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    Tensor4 xtr = x.pad0(p1, p2, p3, p4).transpose(3, 1, 2, 0);
+    Tensor4 f_dy = dy.transpose(1, 2, 0, 3).fstride0(sh - 1, sw - 1);
+    Tensor4 o_dk = conv_no_pad(xtr, f_dy, 1, 1);
+    return o_dk.transpose(1, 2, 0, 3);
+}
+
+Tensor4 conv2d_sp_dx(const Tensor4& k, const Tensor4& dy,
+                     std::size_t sh, std::size_t sw,
+                     std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+{
+    Tensor4 pdy = dy.istride0(sh - 1, sw -1).pad0(k.d1 - 1, k.d2 - 1);
+    Tensor4 k180 = k.frot180().transpose(0, 1, 3, 2);
+    Tensor4 dx_full = conv_no_pad(pdy, k180, 1, 1);
+    return dx_full.iregion(p1, p3, dx_full.d2 - p1 - p2, dx_full.d3 - p3 - p4);
+}

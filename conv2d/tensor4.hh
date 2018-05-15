@@ -49,6 +49,13 @@ struct Tensor4
      */
     Tensor4 transpose(std::size_t t1, std::size_t t2, std::size_t t3, std::size_t t4) const;
 
+
+    /**
+     * Create a new tensor, with it's width and height rotated by 180
+     * The actual tensor is a filter (height and width are in dim 1 and 2)
+     */
+    Tensor4 frot180() const;
+
     /**
      * Create a new tensor, with each lines seperated by h lines of 0,
      * and it's columns seperated h w columns of 0

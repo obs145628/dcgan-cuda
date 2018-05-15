@@ -25,9 +25,9 @@ int main()
     std::size_t p3 = 1;
     std::size_t p4 = 2;
     
-    Tensor4 y = conv_cnfni1snpn(x, k, sh, sw, p1, p2, p3, p4);
-    Tensor4 dk = conv_dk_cnfni1snpn(x, dy, sh, sw, p1, p2, p3, p4);
-    Tensor4 dx = conv_dx_cnfni1snpn(k, dy, sh, sw, p1, p2, p3, p4);
+    Tensor4 y = conv2d_sp(x, k, sh, sw, p1, p2, p3, p4);
+    Tensor4 dk = conv2d_sp_dk(x, dy, sh, sw, p1, p2, p3, p4);
+    Tensor4 dx = conv2d_sp_dx(k, dy, sh, sw, p1, p2, p3, p4);
 
     std::vector<Tensor4> output {y, dk, dx};
     std::cout << "== output:\n";
