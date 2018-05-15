@@ -88,3 +88,5 @@ struct Tensor4
     const std::size_t size;
     float* data;   
 };
+
+#include "tensor4.hxx"
