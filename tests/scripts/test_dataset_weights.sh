@@ -10,7 +10,7 @@ REF_OUT="$7"
 MY_OUT="$8"
 
 
-python ${REF_PY} ${WEIGHTS} ${REF_OUT}
+python ${REF_PY} ${WEIGHTS} ${REF_OUT} ${DATASET}
 ${MY_BIN} ${DATASET} ${WEIGHTS} ${MY_OUT}
 ${BUILD_DIR}/bin/tbin-dump ${REF_OUT}
 ${BUILD_DIR}/bin/tbin-dump ${MY_OUT}

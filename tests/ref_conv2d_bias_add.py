@@ -21,24 +21,11 @@ out = np.array(
   [[  7.,  11.],
    [ 12., -11.]]]])
 
-bias = np.array(
-    [[[[ 2.,  -1.],
-   [  2.,  -1.]],
-
-  [[ 2.,  -1.],
-   [  2., -1.]]],
-
-
- [[[ 2.,  -1.],
-   [ 2.,   -1.]],
-
-  [[  2,  -1.],
-   [ 2., -1.]]]]
-)
+bias = np.array([2., -1.])
 
 out_node = tf.Variable(out, dtype=tf.float32)
 bias_node = tf.Variable(bias, dtype=tf.float32)
-res = tf.add(out_node, bias_node)
+res = tf.nn.bias_add(out_node, bias_node)
 sess = tf.Session()
 init = tf.global_variables_initializer()
 sess.run(init)

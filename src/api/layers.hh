@@ -18,6 +18,13 @@ struct Conv2DLayerData
   ops::Op* z;
 };
 
+struct Conv2DTransposeLayerData
+{
+  ops::Op* w;
+  ops::Op* b;
+  ops::Op* z;
+};
+
 
 ops::Op* dense_layer(ops::Op* input,
                      std::size_t in_size,
@@ -30,9 +37,23 @@ ops::Op* dense_layer(ops::Op* input,
 ops::Op* conv2d_layer(ops::Op* input,
                       std::size_t nb_filter,
                       std::size_t* kernel_size,
-                      std::size_t* strides,
+                      int* strides,
                       std::size_t* in_size,
-                      activ_f activ = nullptr,
-                      Initializer* w_init = nullptr,
-                      Initializer* b_init = nullptr,
-                      Conv2DLayerData* tmp_data = nullptr);
+                      activ_f activ,
+                      Initializer* w_init,
+                      Initializer* b_init,
+                      Conv2DLayerData* tmp_data);
+
+/**
+ * out_size is a 1D array like this : out_size[2] = {out_height, out_width}
+ */
+ops::Op* conv2d_transpose_layer(ops::Op* input,
+                                std::size_t nb_filter,
+                                std::size_t* kernel_size,
+                                std::size_t* out_size,
+                                int* strides,
+                                std::size_t* in_size,
+                                activ_f activ,
+                                Initializer* w_init,
+                                Initializer* b_init,
+                                Conv2DTransposeLayerData* tmp_data);

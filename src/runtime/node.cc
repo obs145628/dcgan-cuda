@@ -5,7 +5,8 @@
 namespace rt
 {
 
-    const char* Node::OP_NAMES[24] =
+
+    const char* Node::OP_NAMES[36] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -31,6 +32,19 @@ namespace rt
         "update",
         "sigmoid_cross_entropy",
         "sigmoid_cross_entropy_grad"
+        "sigmoid_cross_entropy_grad",
+        "conv2d_input_grad",
+        "conv2d_kernel_grad",
+        "argmax_acc",
+        "moment_update",
+        "moment_update2",
+        "adam_update",
+        "leaky_relu_grad",
+        "conv2d_add_bias_grad",
+        "tanh_grad",
+        "conv2d_transpose",
+        "conv2d_transpose_input_grad",
+        "conv2d_transpose_kernel_grad"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -101,7 +115,8 @@ namespace rt
     }
 
     Node* Node::op_conv2d(const dbl_t* input, const dbl_t* kernel,
-                          const int strides[], dbl_t* output,
+                          const int strides[], int pad_top, int pad_left,
+                          dbl_t* output,
                           const int input_size[], const int kernel_size[],
                           const std::vector<Node*>& preds)
     {
@@ -110,6 +125,8 @@ namespace rt
         res->in2 = kernel;
         res->intconst[0] = strides[0];
         res->intconst[1] = strides[1];
+        res->int_cons1 = pad_top;
+        res->int_cons2 = pad_left;
         res->out1 = output;
         res->sizes1[0] = input_size[0];
         res->sizes1[1] = input_size[1];
@@ -133,6 +150,139 @@ namespace rt
         res->sizes1[1] = input_size[1];
         res->sizes1[2] = input_size[2];
         res->sizes1[3] = input_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_bias_add_grad(const dbl_t* z, const int size[],
+                                        dbl_t* output,
+                                        const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_BIAS_ADD_GRAD, preds);
+        res->in1 = z;
+        res->sizes1[0] = size[0];
+        res->sizes1[1] = size[1];
+        res->sizes1[2] = size[2];
+        res->sizes1[3] = size[3];
+        res->out1 = output;
+        return res;
+    }
+
+    Node* Node::op_conv2d_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                     dbl_t* output, const int y_size[], const int kernel_size[],
+                                     const int input_size[],
+                                     const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_INPUT_GRAD, preds);
+        res->in1 = y;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->intconst2[0] = input_size[1];
+        res->intconst2[1] = input_size[2];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = kernel_size[0];
+        res->sizes2[1] = kernel_size[1];
+        res->sizes2[2] = kernel_size[2];
+        res->sizes2[3] = kernel_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                dbl_t* output, const int y_size[], const int input_size[],
+                                const int padded_size[],
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_KERNEL_GRAD, preds);
+        res->in1 = y;
+        res->in2 = input;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->intconst2[0] = padded_size[0];
+        res->intconst2[1] = padded_size[1];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int out_size[],
+                                    const int strides[], dbl_t* output, const int input_size[],
+                                    const int kernel_size[], const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE, preds);
+        res->in1 = input;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->sizes1[0] = out_size[0];
+        res->sizes1[1] = out_size[1];
+        res->sizes1[2] = out_size[2];
+        res->sizes1[3] = out_size[3];
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
+        res->sizes3[0] = kernel_size[0];
+        res->sizes3[1] = kernel_size[1];
+        res->sizes3[2] = kernel_size[2];
+        res->sizes3[3] = kernel_size[3];
+        return res;
+
+    }
+
+    Node* Node::op_conv2d_transpose_input_grad(const dbl_t* y, const dbl_t* kernel, const int strides[],
+                                     dbl_t* output, const int y_size[], const int kernel_size[],
+                                     const int input_size[],
+                                     const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE_INPUT_GRAD, preds);
+        res->in1 = y;
+        res->in2 = kernel;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->intconst2[0] = input_size[1];
+        res->intconst2[1] = input_size[2];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = kernel_size[0];
+        res->sizes2[1] = kernel_size[1];
+        res->sizes2[2] = kernel_size[2];
+        res->sizes2[3] = kernel_size[3];
+        return res;
+    }
+
+    Node* Node::op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
+                                dbl_t* output, const int y_size[], const int input_size[],
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_CONV2D_TRANSPOSE_KERNEL_GRAD, preds);
+        res->in1 = y;
+        res->in2 = input;
+        res->out1 = output;
+        res->intconst[0] = strides[0];
+        res->intconst[1] = strides[1];
+        res->sizes1[0] = y_size[0];
+        res->sizes1[1] = y_size[1];
+        res->sizes1[2] = y_size[2];
+        res->sizes1[3] = y_size[3];
+        res->sizes2[0] = input_size[0];
+        res->sizes2[1] = input_size[1];
+        res->sizes2[2] = input_size[2];
+        res->sizes2[3] = input_size[3];
         return res;
     }
 
@@ -343,6 +493,88 @@ namespace rt
         res->in2 = logits;
         res->out1 = out;
         res->len1 = len;
+        return res;
+    }
+
+    Node* Node::op_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
+                                std::size_t len,
+                                const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_TANH_GRAD, preds);
+        res->in1 = tanh_out;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
+        return res;
+    }
+  
+    Node* Node::op_argmax_acc(const dbl_t* y, const dbl_t* y_hat, dbl_t* out,
+                              std::size_t rows, std::size_t cols,
+                              const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_ARGMAX_ACC, preds);
+        res->in1 = y;
+        res->in2 = y_hat;
+        res->out1 = out;
+        res->len1 = rows;
+        res->len2 = cols;
+        return res;
+    }
+
+    Node* Node::op_moment_update(dbl_t* var, const dbl_t* dt,
+                                 dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                 const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MOMENT_UPDATE, preds);
+        res->in1 = dt;
+        res->out1 = var;
+        res->len1 = len;
+        res->cons1 = coeff1;
+        res->cons2 = coeff2;
+        return res;
+    }
+
+    Node* Node::op_moment_update2(dbl_t* var, const dbl_t* dt,
+                                  dbl_t coeff1, dbl_t coeff2, std::size_t len,
+                                  const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_MOMENT_UPDATE2, preds);
+        res->in1 = dt;
+        res->out1 = var;
+        res->len1 = len;
+        res->cons1 = coeff1;
+        res->cons2 = coeff2;
+        return res;
+    }
+
+    Node* Node::op_adam_update(dbl_t* var, dbl_t* t, const dbl_t* m, const dbl_t* v,
+                               dbl_t lr, dbl_t beta1, dbl_t beta2, dbl_t eps,
+                               std::size_t len,
+                               const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_ADAM_UPDATE, preds);
+        res->in1 = m;
+        res->in2 = v;
+        res->out1 = var;
+        res->out2 = t;
+        res->len1 = len;
+        res->cons1 = lr;
+        res->cons2 = beta1;
+        res->cons3 = beta2;
+        res->cons4 = eps;
+        return res;
+    }
+
+    Node* Node::op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
+                                   dbl_t alpha, std::size_t len,
+                                   const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_LEAKY_RELU_GRAD, preds);
+        res->in1 = z;
+        res->in2 = dout;
+        res->out1 = out;
+        res->len1 = len;
+        res->cons1 = alpha;
         return res;
     }
 

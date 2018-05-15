@@ -27,5 +27,4 @@ namespace ops
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
     }
-    
 }

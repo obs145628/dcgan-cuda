@@ -1,17 +1,28 @@
 set(SRC
+  adam-update.cc
+  argmax-accuracy.cc
   conv2d.cc
   conv2d-bias-add.cc
+  conv2d-input-grad.cc
+  conv2d-kernel-grad.cc
+  conv2d-bias-add-grad.cc
+  conv2d-transpose.cc
+  conv2d-transpose-input-grad.cc
+  conv2d-transpose-kernel-grad.cc
   graph.cc
   input.cc
+  leaky-relu-grad.cc
   log-softmax.cc
   mat-mat-mul.cc
   mat-mul-add.cc
   mat-rvect-add.cc
   mat-sum.cc
+  moment-update.cc
   mse.cc
   mse-grad.cc
   op.cc
   ops-builder.cc
+  reshape.cc
   relu-grad.cc
   seq.cc
   shape.cc
@@ -21,6 +32,7 @@ set(SRC
   softmax.cc
   softmax-cross-entropy.cc
   softmax-cross-entropy-grad.cc
+  tanh-grad.cc
   update.cc
   variable.cc
   vect-sigmoid.cc
