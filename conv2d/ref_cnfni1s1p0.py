@@ -3,16 +3,17 @@ import tensorflow as tf
 import tensors_saver
 
 C = 5
-HX = 19
-WX = 16
+F = 7
+HX = 21
+WX = 24
 
-HK = 7
-WK = 9
+HK = 13
+WK = 11
 
 
 X = np.random.randn(1, HX, WX, C)
-K = np.random.randn(HK, WK, C, 1)
-Y = np.random.randn(1, HX - HK + 1, WX - WK + 1, 1)
+K = np.random.randn(HK, WK, C, F)
+Y = np.random.randn(1, HX - HK + 1, WX - WK + 1, F)
 
 x_node = tf.Variable(X, dtype=tf.float32)
 k_node = tf.Variable(K, dtype=tf.float32)

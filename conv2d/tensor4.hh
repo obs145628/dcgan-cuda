@@ -41,6 +41,25 @@ struct Tensor4
      */
     Tensor4 transpose(std::size_t t1, std::size_t t2, std::size_t t3, std::size_t t4) const;
 
+    /**
+     * Create a new tensor, with each lines seperated by h lines of 0,
+     * and it's columns seperated h w columns of 0
+     * The actual tensor is a filter (height and width are in dim 1 and 2)
+     */
+    Tensor4 fstride0(std::size_t h, std::size_t w) const;
+
+    /**
+     * Create a new tensor, with each lines seperated by h lines of 0,
+     * and it's columns seperated h w columns of 0
+     * The actual tensor is an input (height and width are d2 and d3)
+     */
+    Tensor4 istride0(std::size_t h, std::size_t w) const;
+
+    /**
+     * Dump a filter in 2 dimensions (height and width are d1 and 2)
+     */
+    void fdump_2d() const;
+
     const std::size_t d1;
     const std::size_t d2;
     const std::size_t d3;

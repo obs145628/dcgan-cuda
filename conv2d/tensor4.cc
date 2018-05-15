@@ -151,3 +151,44 @@ Tensor4 Tensor4::transpose(std::size_t t1, std::size_t t2, std::size_t t3, std::
 
     return res;
 }
+
+
+Tensor4 Tensor4::fstride0(std::size_t h, std::size_t w) const
+{
+    Tensor4 res(1 + (h + 1) * (d1 - 1), 1 + (w + 1) * (d2 - 1), d3, d4);
+    std::fill(res.data, res.data + res.size, 0);
+
+    for (std::size_t i1 = 0; i1 < d1; ++i1)
+        for (std::size_t i2 = 0; i2 < d2; ++i2)
+            for (std::size_t i3 = 0; i3 < d3; ++i3)
+                for (std::size_t i4 = 0; i4 < d4; ++i4)
+                    res(i1 * (h + 1), i2 * (w + 1), i3, i4) = (*this)(i1, i2, i3, i4);
+
+    return res;
+}
+
+Tensor4 Tensor4::istride0(std::size_t h, std::size_t w) const
+{
+    Tensor4 res(d1, 1 + (h + 1) * (d2 - 1), 1 + (w + 1) * (d3 - 1), d4);
+    std::fill(res.data, res.data + res.size, 0);
+
+    for (std::size_t i1 = 0; i1 < d1; ++i1)
+        for (std::size_t i2 = 0; i2 < d2; ++i2)
+            for (std::size_t i3 = 0; i3 < d3; ++i3)
+                for (std::size_t i4 = 0; i4 < d4; ++i4)
+                    res(i1, i2 * (h + 1), i3 * (w + 1), i4) = (*this)(i1, i2, i3, i4);
+
+    return res;
+}
+
+void Tensor4::fdump_2d() const
+{
+    for (std::size_t i1 = 0; i1 < d1; ++i1)
+    {
+        for (std::size_t i2 = 0; i2 < d2; ++i2)
+        {
+            std::cout << (*this)(i1, i2, 0, 0) << "|";
+        }
+        std::cout << "\n";
+    }
+}
