@@ -6,10 +6,6 @@
 
 struct Tensor4
 {
-
-    static std::vector<Tensor4> load_tensors(const std::string& path);
-    static void save_tensors(const std::string& path, const std::vector<Tensor4>& tensors);
-
     Tensor4(std::size_t d1, std::size_t d2, std::size_t d3, std::size_t d4);
     Tensor4(const Tensor4& t);
     Tensor4(Tensor4&& t);

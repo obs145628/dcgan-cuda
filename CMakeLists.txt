@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 set(PROJECT dcgan-cuda)
 
 #set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17")
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++17 -O3 -DNDEBUG")
+#set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++17 -O3 -DNDEBUG")
 
 
 add_subdirectory(ext/tocha)
@@ -28,6 +28,9 @@ set(SRC
   $<TARGET_OBJECTS:ops_obj>
   $<TARGET_OBJECTS:runtime_obj>
   $<TARGET_OBJECTS:utils_obj>
+
+  conv2d/conv.cc
+  conv2d/tensor4.cc
 )
 
 
@@ -156,14 +159,14 @@ set(TEST_CONV2D_TRANSPOSE_SRC
   tests/test_conv2d_transpose.cc
 )
 add_executable(test_conv2d_transpose EXCLUDE_FROM_ALL ${TEST_CONV2D_TRANSPOSE_SRC})
-target_link_libraries(test_conv2d_transpose cnpy)
+target_link_libraries(test_conv2d_transpose cnpy pthread)
 
 set(TEST_CONV2D_TRANSPOSE_GRAD_SRC
   ${SRC}
   tests/test_conv2d_transpose_grad.cc
 )
 add_executable(test_conv2d_transpose_grad EXCLUDE_FROM_ALL ${TEST_CONV2D_TRANSPOSE_GRAD_SRC})
-target_link_libraries(test_conv2d_transpose_grad cnpy)
+target_link_libraries(test_conv2d_transpose_grad cnpy pthread)
 
 
 set(TEST_VECT_RELU_SRC

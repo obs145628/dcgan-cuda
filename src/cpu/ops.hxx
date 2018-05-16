@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <algorithm>
 
+#include <iostream>
+
+#include "conv2d.hh"
+
 namespace cpu
 {
 
@@ -259,11 +263,35 @@ namespace cpu
                        const int* input_size, const int* kernel_size,
                        int valid = 0)
     {
+
+        /*
+        std::cout << input_size[0] << ", " << input_size[1] << ", " << input_size[2] << ", "
+                  << input_size[3] << "\n";
+
+        std::cout << kernel_size[0] << ", " << kernel_size[1] << ", " << kernel_size[2] << ", "
+                  << kernel_size[3] << "\n";
+
+        std::cout << pad_width << ", " << pad_height << "\n";
+
+        std::cout << strides[0] << ", " << strides[1] << "\n";
+        */
+
+
+        std::size_t pad_top = pad_height / 2;
+        std::size_t pad_left = pad_width / 2;
+        std::size_t pad_bot = pad_height - pad_top;
+        std::size_t pad_right = pad_width - pad_left;
+        (void) valid;
+        conv2d_sp(input, input_size[0], input_size[1], input_size[2], input_size[3],
+                  kernel, kernel_size[0], kernel_size[1], kernel_size[3],
+                  out, strides[0], strides[1], pad_top, pad_bot, pad_left, pad_right);
+        /*
         IdentityAccessor* iaI = new IdentityAccessor(input_size);
         IdentityAccessor* iaK = new IdentityAccessor(kernel_size);
         conv2d(input, kernel, out, strides, pad_height, pad_width, iaI, iaK, valid);
         delete iaI;
         delete iaK;
+        */
     }
 
     inline void conv2d_bias_add(const dbl_t* z, const dbl_t* bias, dbl_t* out,
@@ -597,6 +625,20 @@ namespace cpu
     inline void conv2d_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride, const int* dX1_size,
                                   const int* W1_size, dbl_t* out, const int* input_size)
     {
+
+        std::size_t pad_height = (dX1_size[1] - 1) * stride - input_size[0] + W1_size[0];
+        std::size_t pad_width = (dX1_size[2] - 1) * stride - input_size[1] + W1_size[1];
+        
+        std::size_t pad_top = pad_height / 2;
+        std::size_t pad_left = pad_width / 2;
+        std::size_t pad_bot = pad_height - pad_top;
+        std::size_t pad_right = pad_width - pad_left;
+
+        conv2d_sp_dx(W1, W1_size[0], W1_size[1], W1_size[2], W1_size[3],
+                     dX1, dX1_size[0], dX1_size[1], dX1_size[2], out,
+                     stride, stride, pad_top, pad_bot, pad_left, pad_right);
+        
+        /*
       const int nbChan = W1_size[2];
       const int nbFilter = dX1_size[3];
 
@@ -695,11 +737,26 @@ namespace cpu
           delete padded_filter_tab[filter].acc;
       }
       delete[] padded_filter_tab;
+        */
     }
 
     inline void conv2d_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride, const int* dX1_size, const int* X0_size,
                                    dbl_t* out, const int* padded_size_input)
     {
+
+        std::size_t pad_height = padded_size_input[0];
+        std::size_t pad_width = padded_size_input[1];        
+        std::size_t pad_top = pad_height / 2;
+        std::size_t pad_left = pad_width / 2;
+        std::size_t pad_bot = pad_height - pad_top;
+        std::size_t pad_right = pad_width - pad_left;
+        
+        conv2d_sp_dk(X0, X0_size[0], X0_size[1], X0_size[2], X0_size[3],
+                     dX1, dX1_size[1], dX1_size[2], dX1_size[3], out,
+                     stride, stride, pad_top, pad_bot, pad_left, pad_right);
+
+        /*
+        
         const int nbFilterTotal = dX1_size[3];
         const int nbChan = X0_size[3];
         const int nbImg = X0_size[0];
@@ -796,6 +853,7 @@ namespace cpu
             delete padded_img_tab[img].acc;
         }
         delete[] padded_img_tab;
+        */
     }
 
     inline void conv2d_transpose(const dbl_t* input, const dbl_t* kernel, const int* out_size, const int stride,
