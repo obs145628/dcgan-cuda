@@ -8,6 +8,7 @@
 #include "input.hh"
 #include "variable.hh"
 #include "../runtime/nodes-list.hh"
+#include "../runtime/optimizer.hh"
 
 namespace ops
 {
@@ -117,9 +118,6 @@ namespace ops
             assert(it->second.out_node);
             rt_ops.push_back(it->second.out_node);
         }
-
-        //Get list of taks
-        rt::NodesList rt_list(full_rt_graph_.topological_sort(rt_ops));
         
 
         //set inut values
@@ -136,7 +134,6 @@ namespace ops
         //debug display
         if (debug_)
         {
-            std::cout << rt_list;
 
             if (program_mode() == ProgramMode::MONOTHREAD)
                 std::cout << "run program in monothread\n";
@@ -153,12 +150,35 @@ namespace ops
 
         //run computations
         if (program_mode() == ProgramMode::MONOTHREAD)
+        {
+            rt::NodesList rt_list(full_rt_graph_.topological_sort(rt_ops));
+            if (debug_)
+                std::cout << rt_list;
             cpu::run_sequential(rt_list);
-        else if (program_mode() == ProgramMode::MULTITHREAD)
-            pool_->run(rt_list);
-        else if (program_mode() == ProgramMode::GPU)
-            gpu::run(rt_list);
+        }
             
+        else if (program_mode() == ProgramMode::MULTITHREAD)
+        {
+            std::map<rt::Node*, rt::Node*> opti_map;
+            auto opti_graph = rt::optimize(full_rt_graph_, opti_map);
+            auto opti_ops = rt::convert_nodes(rt_ops, opti_map);
+            
+            rt::NodesList rt_list(opti_graph->topological_sort(opti_ops));
+            if (debug_)
+                std::cout << rt_list;
+            pool_->run(rt_list);
+            //cpu::run_sequential(rt_list);
+            delete opti_graph;
+        }
+
+        else if (program_mode() == ProgramMode::GPU)
+        {
+            rt::NodesList rt_list(full_rt_graph_.topological_sort(rt_ops));
+            if (debug_)
+                std::cout << rt_list;
+            gpu::run(rt_list);
+        }
+
 
         //set output values
         for (std::size_t i = 0; i < outputs.size(); ++i)

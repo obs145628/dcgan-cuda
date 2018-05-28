@@ -578,6 +578,7 @@ namespace rt
         return res;
     }
 
+
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
         , in1(nullptr)

@@ -15,6 +15,14 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
+void linspace(dbl_t first, dbl_t last, std::size_t len, dbl_t* out)
+{
+
+    dbl_t coeff = (last - first) / (len - 1);
+    for (std::size_t i = 0; i < len; ++i)
+        out[i] = first + i * coeff;
+}
+
 int main(int argc, char** argv)
 {
 
@@ -22,32 +30,29 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }    
+    }
 
 
-    dbl_t logits[] = {
-	0.1, 1.2, 4.3,
-	4.1, 0.2, 7.3,
-	0.06, 2.01, 0.23,
-	5.6, 2.3, 1.18
-    };
-
+    constexpr int N = 53147;
+    dbl_t logits[N];
+    linspace(0, 1, N, logits);
+    
 
     auto& builder = ops::OpsBuilder::instance();
     
-    auto x = builder.input(ops::Shape({4, 3}));
-    auto y = builder.softmax(x);
+    auto x = builder.input(ops::Shape({N}));
+    auto y = builder.vect_sigmoid(x);
 
     auto& graph = ops::Graph::instance();
     graph.debug_set(true);
 
 
     tocha::Tensors out;
-    out.add(tocha::Tensor::f32(4, 3));
+    out.add(tocha::Tensor::f32(N));
     dbl_t* y_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
         graph.run({y},
-	      {{x, {logits, ops::Shape({4, 3})}}},
+	      {{x, {logits, ops::Shape({N})}}},
 	      {y_out});
     
     

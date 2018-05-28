@@ -15,7 +15,7 @@ SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
 TS_CPU = True
-TS_MCPU = False
+TS_MCPU = True
 TS_GPU = False
 
 builder = json_ts_builder.JsonTsBuilder()
@@ -88,6 +88,7 @@ test_basic('ops', 'conv2d_padding', 'ref_conv2d_padding.py', 'test_conv2d_paddin
 test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')
 test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
 test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
+test_basic('ops', 'sigmoid_50k', 'ref_sigmoid_50k.py', 'test_sigmoid_50k')
 test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
 test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
 test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
