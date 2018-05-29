@@ -1,6 +1,7 @@
 #include "mode.hh"
 #include <cstdlib>
 #include <cstring>
+#include "../cpu/kernels.hh"
 
 namespace
 {
@@ -12,7 +13,10 @@ namespace
         else if (!strcmp(mode, "CPU"))
             return ProgramMode::MONOTHREAD;
         else if (!strcmp(mode, "MCPU"))
+        {
+            cpu::kernels_init();
             return ProgramMode::MULTITHREAD;
+        }
         else if (!strcmp(mode, "GPU"))
             return ProgramMode::GPU;
         else

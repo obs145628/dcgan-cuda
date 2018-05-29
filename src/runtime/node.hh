@@ -210,6 +210,7 @@ namespace rt
         int type;
         std::vector<Node*> preds;
         std::vector<Node*> succs;
+        bool use_simd;
 
         const dbl_t* in1;
         const dbl_t* in2;

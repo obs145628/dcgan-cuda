@@ -46,7 +46,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad)
+   DEPENDS tbin-dump tbin-diff gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k)
 
 
 set(TEST_SRC
@@ -367,3 +367,10 @@ set(TEST_LEAKY_RELU_GRAD_SRC
 )
 add_executable(test_leaky_relu_grad EXCLUDE_FROM_ALL ${TEST_LEAKY_RELU_GRAD_SRC})
 target_link_libraries(test_leaky_relu_grad cnpy pthread)
+
+set(TEST_SIGMOID_50K_SRC
+  ${SRC}
+  tests/test_sigmoid_50k.cc
+)
+add_executable(test_sigmoid_50k EXCLUDE_FROM_ALL ${TEST_SIGMOID_50K_SRC})
+target_link_libraries(test_sigmoid_50k cnpy pthread)
