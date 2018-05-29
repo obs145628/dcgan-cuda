@@ -581,6 +581,7 @@ namespace rt
 
     Node::Node(int type, std::vector<Node*> preds)
         : type(type)
+        , use_simd(false)
         , in1(nullptr)
         , in2(nullptr)
         , in3(nullptr)

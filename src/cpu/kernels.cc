@@ -1,6 +1,7 @@
 #include "kernels.hh"
 #include "ops.hh"
 #include "../runtime/node.hh"
+#include "simd_kernels.hh"
 
 namespace cpu
 {
@@ -207,7 +208,7 @@ namespace cpu
 
     }
 
-    kernel_f kernels_list[64] = {
+    kernel_f kernels_list[512] = {
         kernel_mat_mat_mul,
         kernel_mat_rvect_add,
         kernel_sigmoid,
@@ -245,4 +246,10 @@ namespace cpu
         kernel_conv2d_transpose_input_grad,
         kernel_conv2d_transpose_kernel_grad
     };
+
+    void kernels_init()
+    {
+        for (std::size_t i = 0; i < 64; ++i)
+            kernels_list[KERNEL_SIMD_OFFSET + i] = simd_kernels_list[i];
+    }
 }

@@ -1,6 +1,7 @@
 set(SRC
   kernels.cc
   runner.cc
+  simd_kernels.cc
   thread-pool-runner.cc
 )
 

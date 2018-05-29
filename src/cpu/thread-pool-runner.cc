@@ -21,6 +21,14 @@ namespace cpu
                     return false;
             return true;
         }
+
+        void exec_kernel(rt::Node* node)
+        {
+            std::size_t id = node->type;
+            if (node->use_simd)
+                id += KERNEL_SIMD_OFFSET;
+            kernels_list[id](node);
+        }
         
 
         void exec_graph(RuntimeInfos* infos)
@@ -37,7 +45,7 @@ namespace cpu
                 //wait for predecessors to finish
                 while (!task_ready(task, infos))
                     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                kernels_list[node->type](node);
+                exec_kernel(node);
                 infos->tasks_status_[task] = 1;
             }
 

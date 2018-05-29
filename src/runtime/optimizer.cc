@@ -16,7 +16,7 @@ namespace rt
         constexpr std::size_t MAX_NODES = 8;
 
         //make sure every size of new ops are multiple of this
-        constexpr std::size_t SIZE_DIVISOR = 4;
+        constexpr std::size_t SIZE_DIVISOR = 8;
 
         void elemwhise_size(std::size_t total, std::size_t& divs, std::size_t& size)
         {
@@ -67,6 +67,8 @@ namespace rt
             {
                 auto res = Node::op_sigmoid(node->in1, node->out1,
                                             node->len1, preds);
+                //res->use_simd = node->len1 % SIZE_DIVISOR == 0;
+                    
                 graph.add(res);
                 return res;
             }
@@ -83,7 +85,10 @@ namespace rt
                                                  m, preds));
 
             for (auto n : div_nodes)
+            {
+                //n->use_simd = true;
                 graph.add(n);
+            }
 
             auto res = Node::nop(div_nodes);
             graph.add(res);
