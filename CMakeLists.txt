@@ -1,9 +1,15 @@
-cmake_minimum_required(VERSION 3.2)
-set(PROJECT dcgan-cuda)
+cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+project(dcgan-cuda LANGUAGES CXX CUDA)
+
+#find_package(CUDA)
+
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 
 #set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17")
+set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++17 -O3 -DNDEBUG")
+
+#set(CMAKE_CXX_FLAGS "-fPIC")
 
 
 add_subdirectory(ext/tocha)

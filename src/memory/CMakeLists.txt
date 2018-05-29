@@ -1,5 +1,5 @@
 set(SRC
-  alloc.cc
+  alloc.cu
   mode.cc
 )
 
