@@ -14,7 +14,7 @@ namespace
             return ProgramMode::MONOTHREAD;
         else if (!strcmp(mode, "MCPU"))
         {
-            cpu::kernels_init();
+            //cpu::kernels_init();
             return ProgramMode::MULTITHREAD;
         }
         else if (!strcmp(mode, "GPU"))

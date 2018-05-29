@@ -35,7 +35,7 @@ def test_datset_weights(cat, sub, ref_script, bin_file, dataset, mode = None):
                 cmd = [
                     os.path.join(SCRIPTS_DIR, 'test_dataset_weights.sh'),
                     TEST_DIR,
-                    BUILD_DIR,
+                    ROOT_DIR,
                     os.path.join(TEST_DIR, ref_script),
                     os.path.join(BUILD_DIR, bin_file),
                     os.path.join(BUILD_DIR, dataset),
@@ -63,7 +63,7 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                 cmd = [
                     os.path.join(SCRIPTS_DIR, 'test_basic.sh'),
                     TEST_DIR,
-                    BUILD_DIR,
+                    ROOT_DIR,
                     os.path.join(TEST_DIR, ref_script),
                     os.path.join(BUILD_DIR, bin_file),
                     os.path.join(TEST_BUILD_DIR, tname + '_out_ref.npz'),

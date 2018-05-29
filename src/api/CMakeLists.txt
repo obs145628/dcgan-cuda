@@ -1,12 +1,12 @@
 set(SRC
-  activ.cc
-  adam-optimizer.cc
-  copy-initializer.cc
-  cost.cc
-  layers.cc
-  normal-initializer.cc
-  sgd-optimizer.cc
-  zero-initializer.cc
+  activ.cu
+  adam-optimizer.cu
+  copy-initializer.cu
+  cost.cu
+  layers.cu
+  normal-initializer.cu
+  sgd-optimizer.cu
+  zero-initializer.cu
 )
 
 add_library(api_obj OBJECT ${SRC})

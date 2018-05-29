@@ -1,5 +1,5 @@
 set(SRC
-  mnist.cc
+  mnist.cu
 )
 
 add_library(datasets_obj OBJECT ${SRC})
