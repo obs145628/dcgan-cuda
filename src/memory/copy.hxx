@@ -1,6 +1,7 @@
 #pragma once
 
 #include "copy.hh"
+#include "mode.hh"
 #include <algorithm>
 
 inline void tensor_fill(dbl_t* begin, dbl_t* end, dbl_t val)
@@ -11,11 +12,19 @@ inline void tensor_fill(dbl_t* begin, dbl_t* end, dbl_t val)
 
 inline void tensor_write(dbl_t* obegin, dbl_t* oend, const dbl_t* ibegin)
 {
-    std::copy(ibegin, ibegin + (oend - obegin), obegin);
+    if (program_mode() == ProgramMode::GPU)
+        cudaMemcpy(obegin, ibegin, (oend - obegin) * sizeof(dbl_t),
+                   cudaMemcpyHostToDevice);
+    else
+        std::copy(ibegin, ibegin + (oend - obegin), obegin);
 }
 
 
 inline void tensor_read(const dbl_t* ibegin, const dbl_t* iend, dbl_t* obegin)
 {
-    std::copy(ibegin, iend, obegin);
+    if (program_mode() == ProgramMode::GPU)
+        cudaMemcpy(obegin, ibegin, (iend - ibegin) * sizeof(dbl_t),
+                   cudaMemcpyDeviceToHost);
+    else
+        std::copy(ibegin, iend, obegin);
 }

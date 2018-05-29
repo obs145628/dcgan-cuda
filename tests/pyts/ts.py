@@ -14,9 +14,9 @@ TEST_DIR = os.path.join(ROOT_DIR, 'tests/')
 SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
-TS_CPU = True
-TS_MCPU = True
-TS_GPU = False
+TS_CPU = False
+TS_MCPU = False
+TS_GPU = True
 
 builder = json_ts_builder.JsonTsBuilder()
 
