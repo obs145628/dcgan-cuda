@@ -80,11 +80,13 @@ test_datset_weights('nn', 'dcgan_discriminator',
                    'ref_dcgan_discriminator.py', 'test_dcgan_discriminator', 'celeba.npz')
 '''
 
-'''
+
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
            'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
+
+'''
 test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
 test_basic('ops', 'conv2d_padding', 'ref_conv2d_padding.py', 'test_conv2d_padding')
 test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')

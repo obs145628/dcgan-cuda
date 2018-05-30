@@ -3,6 +3,7 @@ set(SRC
   matmul.cu
   runner.cu
   sigmoid.cu
+  softmax.cu
   sum.cu
 )
 
