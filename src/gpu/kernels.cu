@@ -23,7 +23,7 @@ namespace gpu
         kernel_sigmoid,
         kernel_mse,
         kernel_softmax,
-        nullptr,//kernel_log_softmax,
+        kernel_log_softmax,
         nullptr,//kernel_softmax_cross_entropy,
         nullptr,//kernel_conv2d,
         nullptr,//kernel_relu,
