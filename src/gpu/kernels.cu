@@ -1,5 +1,7 @@
 #include "kernels.hh"
+#include "matmul.hh"
 #include "sigmoid.hh"
+#include "sum.hh"
 
 namespace gpu
 {
@@ -15,10 +17,10 @@ namespace gpu
      */
 
     kernel_f kernels_list[512] = {
-        nullptr,//kernel_mat_mat_mul,
-        nullptr,//kernel_mat_rvect_add,
+        kernel_mat_mat_mul,
+        kernel_mat_rvect_add,
         kernel_sigmoid,
-        nullptr,//kernel_mse,
+        kernel_mse,
         nullptr,//kernel_softmax,
         nullptr,//kernel_log_softmax,
         nullptr,//kernel_softmax_cross_entropy,

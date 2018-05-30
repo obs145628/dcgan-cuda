@@ -73,12 +73,14 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                     'RT_MODE': mode
                 },
                 code = 0)
-
+'''
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
 test_datset_weights('nn', 'dcgan_discriminator',
                    'ref_dcgan_discriminator.py', 'test_dcgan_discriminator', 'celeba.npz')
+'''
 
+'''
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
@@ -87,11 +89,15 @@ test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
 test_basic('ops', 'conv2d_padding', 'ref_conv2d_padding.py', 'test_conv2d_padding')
 test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')
 test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
+'''
+
 test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
 test_basic('ops', 'sigmoid_50k', 'ref_sigmoid_50k.py', 'test_sigmoid_50k')
 test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
 test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
 test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
+
+'''
 test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
 test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
@@ -120,7 +126,7 @@ test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
-
+'''
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):
