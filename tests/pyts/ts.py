@@ -14,8 +14,8 @@ TEST_DIR = os.path.join(ROOT_DIR, 'tests/')
 SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
-TS_CPU = False
-TS_MCPU = False
+TS_CPU = True
+TS_MCPU = True
 TS_GPU = True
 
 builder = json_ts_builder.JsonTsBuilder()
@@ -79,7 +79,6 @@ test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 
 test_datset_weights('nn', 'dcgan_discriminator',
                    'ref_dcgan_discriminator.py', 'test_dcgan_discriminator', 'celeba.npz')
 
-'''
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
@@ -122,7 +121,6 @@ test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
-'''
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):

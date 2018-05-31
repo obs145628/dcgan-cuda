@@ -35,7 +35,7 @@ int main(int argc, char** argv)
     mnist::load(argv[1], &x_train, &y_train);
 
     auto& graph = ops::Graph::instance();
-    graph.debug_set(true);
+    //graph.debug_set(true);
     auto& builder = ops::OpsBuilder::instance();
     
     auto x = builder.input(ops::Shape({-1, 784}));

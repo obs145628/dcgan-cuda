@@ -6,8 +6,24 @@
 
 inline void tensor_fill(dbl_t* begin, dbl_t* end, dbl_t val)
 {
-    while (begin != end)
-        *begin++ = val;
+
+    dbl_t* tbegin = begin;
+    dbl_t* tend = end;
+
+    if (program_mode() == ProgramMode::GPU)
+    {
+        begin = new dbl_t[tend - tbegin];
+        end = begin + (tend - tbegin);
+    }
+
+    for (auto it = begin; it != end; ++it)
+        *it = val;
+
+    if (program_mode() == ProgramMode::GPU)
+    {
+        tensor_write(tbegin, tend, begin);
+        delete[] begin;
+    }
 }
 
 inline void tensor_write(dbl_t* obegin, dbl_t* oend, const dbl_t* ibegin)
