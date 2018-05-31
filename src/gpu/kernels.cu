@@ -45,7 +45,7 @@ namespace gpu
         nullptr,//kernel_sigmoid_cross_entropy_grad,
         nullptr,//kernel_conv2d_input_grad,
         nullptr,//kernel_conv2d_kernel_grad,
-        nullptr,//kernel_argmax_acc,
+        kernel_argmax_acc,
         nullptr,//kernel_moment_update,
         nullptr,//kernel_moment_update2,
         nullptr,//kernel_adam_update,

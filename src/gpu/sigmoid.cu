@@ -46,20 +46,6 @@ namespace gpu
                 - x * y + log(1 + exp(x));
         }
 
-        inline dbl_t sigmoid_cross_entropy(const dbl_t* y, const dbl_t* x,
-                                           std::size_t n)
-        {
-            dbl_t res = 0;
-            for (std::size_t i = 0; i < n; ++i)
-            {
-                if (x[i] >= 0)
-                    res += x[i] - x[i] * y[i] + std::log(1 + std::exp(-x[i]));
-                else
-                    res += - x[i] * y[i] + std::log(1 + std::exp(x[i]));
-            }
-            return res / n;
-        }
-
         __global__
         void sigmoid_cross_entropy(const dbl_t* y, const dbl_t* x, dbl_t* out,
                                    std::size_t len)

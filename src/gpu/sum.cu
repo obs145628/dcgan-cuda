@@ -107,7 +107,7 @@ namespace gpu
             auto col = blockIdx.x;
             auto row = threadIdx.x;
             std::size_t step = BLOCK_SIZE;
-
+            
             dbl_t init = 0;
             for (std::size_t i = row; i < rows; i += step)
                 init += x[i * cols + col];
@@ -139,6 +139,59 @@ namespace gpu
                 y[col] = partial[0];
         }
 
+        __device__
+        std::size_t argmax(const dbl_t* begin, const dbl_t* end)
+        {
+            const dbl_t* res = begin;
+            for (const dbl_t* it = begin; it != end; ++it)
+                if (*it > *res)
+                    res = it;
+            return res - begin;
+        }
+
+        __global__
+        void argmax_acc(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                        std::size_t rows, std::size_t cols)
+        {
+            __shared__ dbl_t partial[2 * BLOCK_SIZE];
+
+            //load all elements of the array in shared memory
+            auto i = threadIdx.x;
+            std::size_t step = BLOCK_SIZE;
+
+            dbl_t init = 0;
+            for (std::size_t j = i; j < rows; j += step)
+                init += argmax(a + j * cols, a + (j + 1) * cols)  
+                    == argmax(b + j * cols, b + (j + 1) * cols);
+                    
+            partial[i] = init;
+            __syncthreads();
+
+            for (std::size_t s = BLOCK_SIZE / 2; s > 32; s >>= 1)
+            {
+                if (i < s)
+                    partial[i] += partial[i + s];
+
+                __syncthreads();
+            }
+
+            //if not volatile, must use __synctthreads again, why ?
+            volatile dbl_t* vpartial = partial;
+            if (i < 32)
+            {
+                vpartial[i] += vpartial[i + 32];
+                vpartial[i] += vpartial[i + 16];
+                vpartial[i] += vpartial[i + 8];
+                vpartial[i] += vpartial[i + 4];
+                vpartial[i] += vpartial[i + 2];
+                vpartial[i] += vpartial[i + 1];
+            }
+
+
+            if (i == 0)
+                *out = partial[0];
+        }
+
     }
 
     void kernel_mse(rt::Node* node)
@@ -159,6 +212,12 @@ namespace gpu
         std::size_t rows = node->len1;
         std::size_t cols = node->len2;
         mat_sum_cols<<<cols, BLOCK_SIZE>>>(node->in1, node->out1, rows, cols);
+    }
+
+    void kernel_argmax_acc(rt::Node* node)
+    {
+        argmax_acc<<<1, BLOCK_SIZE>>>(node->in1, node->in2, node->out1,
+                                      node->len1, node->len2);
     }
 
 }
