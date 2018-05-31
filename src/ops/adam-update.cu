@@ -17,19 +17,16 @@ namespace ops
                            dbl_t beta1, dbl_t beta2, dbl_t eps)
         : Op("adam_update", var->shape_get(), {var, m, v})
         , var_(var)
-        , t_(tensor_alloc(1))
+        , t_(0)
         , lr_(learning_rate)
         , beta1_(beta1)
         , beta2_(beta2)
         , eps_(eps)
-    {
-        dbl_t t_val = 0;
-        tensor_write(t_, t_ + 1, &t_val);
-    }
+    {}
 
     AdamUpdate::~AdamUpdate()
     {
-        tensor_free(t_);
+
     }
 
     void AdamUpdate::compile()
@@ -45,7 +42,7 @@ namespace ops
         dbl_t* ptr = var_->data_begin();
         
         
-        auto out_node = rt::Node::op_adam_update(ptr, t_, cm.out_data, cv.out_data,
+        auto out_node = rt::Node::op_adam_update(ptr, &t_, cm.out_data, cv.out_data,
                                                  lr_, beta1_, beta2_, eps_,
                                                  len,
                                                  {cm.out_node, cv.out_node});

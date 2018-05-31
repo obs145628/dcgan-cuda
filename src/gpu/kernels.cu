@@ -4,6 +4,7 @@
 #include "softmax.hh"
 #include "relu.hh"
 #include "sum.hh"
+#include "update.hh"
 
 namespace gpu
 {
@@ -40,15 +41,15 @@ namespace gpu
         nullptr,//kernel_softmax_cross_entropy_grad,
         nullptr,//kernel_relu_grad,
         nullptr,//kernel_conv2d_bias_add,
-        nullptr,//kernel_update,
+        kernel_update,
         kernel_sigmoid_cross_entropy,
         nullptr,//kernel_sigmoid_cross_entropy_grad,
         nullptr,//kernel_conv2d_input_grad,
         nullptr,//kernel_conv2d_kernel_grad,
         kernel_argmax_acc,
-        nullptr,//kernel_moment_update,
-        nullptr,//kernel_moment_update2,
-        nullptr,//kernel_adam_update,
+        kernel_moment_update,
+        kernel_moment_update2,
+        kernel_adam_update,
         nullptr,//kernel_leaky_relu_grad,
         nullptr,//kernel_conv2d_bias_add_grad,
         nullptr,//kernel_tanh_grad,

@@ -6,6 +6,7 @@ set(SRC
   sigmoid.cu
   softmax.cu
   sum.cu
+  update.cu
 )
 
 add_library(gpu_obj OBJECT ${SRC})

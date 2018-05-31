@@ -29,7 +29,7 @@ namespace ops
 
     private:
         Variable* var_;
-        dbl_t* t_;
+        dbl_t t_;
         dbl_t lr_;
         dbl_t beta1_;
         dbl_t beta2_;
