@@ -29,7 +29,7 @@ namespace gpu
         nullptr,//kernel_conv2d,
         kernel_relu,
         kernel_relu_leaky,
-        nullptr,//kernel_tanh,
+        kernel_tanh,
         nullptr,//kernel_mse_grad,
         nullptr,//kernel_sigmoid_grad,
         nullptr,//kernel_mat_mul_add,
