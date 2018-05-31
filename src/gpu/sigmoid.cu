@@ -110,6 +110,19 @@ namespace gpu
                 out[i] = (sigmoid(logits[i]) - y[i]) / len;
         }
 
+        __global__
+        void vect_tanh_grad(const dbl_t* tanh_out, const dbl_t* dout,
+                            dbl_t* out, std::size_t len)
+        {
+            std::size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+            std::size_t stride = blockDim.x * gridDim.x;
+
+            for (std::size_t i = index; i < len; i += stride)
+                out[i] = (1 - (tanh_out[i] * tanh_out[i])) * dout[i];
+        }
+
+        
+
     }
         
 
@@ -139,6 +152,16 @@ namespace gpu
         std::size_t nb_blocks = (len + block_size - 1)/ block_size;
 
         vect_tanh<<<nb_blocks, block_size>>>(node->in1, node->out1, len);
+    }
+
+    void kernel_tanh_grad(rt::Node* node)
+    {
+        std::size_t len = node->len1;
+        std::size_t block_size = 256;
+        std::size_t nb_blocks = (len + block_size - 1)/ block_size;
+
+        vect_tanh_grad<<<nb_blocks, block_size>>>(node->in1, node->in2,
+                                                  node->out1, len);
     }
 
     void kernel_sigmoid_cross_entropy(rt::Node* node)
