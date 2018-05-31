@@ -78,8 +78,9 @@ test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data'
 test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
 test_datset_weights('nn', 'dcgan_discriminator',
                    'ref_dcgan_discriminator.py', 'test_dcgan_discriminator', 'celeba.npz')
+'''
 
-
+'''
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
 test_basic('ops', 'softmax_cross_entropy',
@@ -102,26 +103,26 @@ test_basic('ops', 'tmat_mat_mul', 'ref_tmat_mat_mul.py', 'test_tmat_mat_mul')
 test_basic('ops', 'mat_tmat_mul', 'ref_mat_tmat_mul.py', 'test_mat_tmat_mul')
 test_basic('ops', 'mat_sum0', 'ref_mat_sum0.py', 'test_mat_sum0')
 test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
-'''
-
-
 test_basic('ops', 'sigmoid_cross_entropy', 'ref_sigmoid_cross_entropy.py', 'test_sigmoid_cross_entropy')
 test_basic('ops', 'argmax_accuracy', 'ref_argmax.py', 'test_argmax')
 test_basic('ops', 'update', 'ref_update.py', 'test_update')
 test_basic('ops', 'moment_update', 'ref_moment_update.py', 'test_moment_update')
 test_basic('ops', 'moment_update2', 'ref_moment_update2.py', 'test_moment_update2')
 test_basic('ops', 'adam_update', 'ref_adam_update.py', 'test_adam_update')
-
 '''
+
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
 test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
 test_basic('ops_grad', 'softmax_cross_entrop_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
 test_basic('ops_grad', 'sigmoid_cross_entropy_grad', 'ref_sigmoid_cross_entropy_grad.py', 'test_sigmoid_cross_entropy_grad')
 test_basic('ops_grad', 'tanh_grad', 'ref_tanh_grad.py', 'test_tanh_grad')
+
+'''
 test_basic('ops_grad', 'conv2d_grad', 'ref_conv2d_grad.py', 'test_conv2d_grad')
 test_basic('ops_grad', 'conv2d_bias_add_grad', 'ref_conv2d_bias_add_grad.py', 'test_conv2d_bias_add_grad')
 test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 'test_conv2d_transpose_grad')
+
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')

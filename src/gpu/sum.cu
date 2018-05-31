@@ -53,6 +53,17 @@ namespace gpu
                 *out = partial[0] / len;
         }
 
+        __global__
+        void mse_grad(const dbl_t* a, const dbl_t* b, dbl_t* out, std::size_t len)
+        {
+            std::size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+            std::size_t stride = blockDim.x * gridDim.x;
+            dbl_t coeff = dbl_t(2) / len;
+
+            for (std::size_t i = index; i < len; i += stride)
+                out[i] = coeff * (a[i] - b[i]);
+        }
+
 
         __global__
         void mat_sum_rows(const dbl_t* x, dbl_t* y,
@@ -198,6 +209,13 @@ namespace gpu
     {
         std::size_t len = node->len1 * node->len2;
         mse<<<1, BLOCK_SIZE>>>(node->in1, node->in2, node->out1, len);
+    }
+
+    void kernel_mse_grad(rt::Node* node)
+    {
+        std::size_t len = node->len1;
+        std::size_t nb_blocks = (len + BLOCK_SIZE - 1)/ BLOCK_SIZE;
+        mse_grad<<<nb_blocks, BLOCK_SIZE>>>(node->in2, node->in1, node->out1, node->len1);
     }
 
     void kernel_mat_sum_rows(rt::Node* node)
