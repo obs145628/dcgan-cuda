@@ -65,26 +65,9 @@ namespace gpu
                 return;
 
             dbl_t x = 0;
-            for (std::size_t i = 0; i < acols; ++i)
+            for (std::size_t i = 0; i < arows; ++i)
                 x += a[i * acols + row] * b[i * bcols + col];
             out[row * bcols + col] = x;
-        }
-
-        inline void mtm_mul(const dbl_t* a, const dbl_t* b, dbl_t* out,
-                            std::size_t m, std::size_t n, std::size_t p)
-        {
-            for (std::size_t i = 0; i < m; ++i)
-            {
-                const dbl_t* ai = a + i * n;
-                for (std::size_t j = 0; j < p; ++j)
-                {
-                    const dbl_t* bj = b + j * n;
-                    dbl_t x = 0;
-                    for (std::size_t k = 0; k < n; ++k)
-                        x += ai[k] * bj[k];
-                    out[i * p + j] = x;
-                }
-            }
         }
 
         __global__

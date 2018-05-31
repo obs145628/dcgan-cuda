@@ -99,6 +99,17 @@ namespace gpu
                 *out = partial[0] / len;
         }
 
+        __global__
+        void sigmoid_cross_entropy_grad(const dbl_t* y, const dbl_t* logits,
+                                        dbl_t* out, std::size_t len)
+        {
+            std::size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+            std::size_t stride = blockDim.x * gridDim.x;
+
+            for (std::size_t i = index; i < len; i += stride)
+                out[i] = (sigmoid(logits[i]) - y[i]) / len;
+        }
+
     }
         
 
@@ -134,6 +145,16 @@ namespace gpu
     {
         std::size_t len = node->len1;
         sigmoid_cross_entropy<<<1, BLOCK_SIZE>>>(node->in1, node->in2, node->out1, len);
+    }
+
+    void kernel_sigmoid_cross_entropy_grad(rt::Node* node)
+    {
+        std::size_t len = node->len1;
+        std::size_t block_size = 256;
+        std::size_t nb_blocks = (len + block_size - 1)/ block_size;
+
+        sigmoid_cross_entropy_grad<<<nb_blocks, block_size>>>(node->in1, node->in2,
+                                                              node->out1, len);
     }
 
 }

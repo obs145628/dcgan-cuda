@@ -304,6 +304,18 @@ namespace gpu
             if (i == 0)
                 y[0] = - partial[0] / len;
         }
+
+        __global__
+        void softmax_cross_entropy_grad(const dbl_t* y, dbl_t* out,
+                                        std::size_t rows, std::size_t cols)
+        {
+            std::size_t len = rows * cols;
+            std::size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+            std::size_t stride = blockDim.x * gridDim.x;
+
+            for (std::size_t i = index; i < len; i += stride)
+                out[i] = (out[i] - y[i]) / rows;
+        }
     }
 
     void kernel_softmax(rt::Node* node)
@@ -335,6 +347,22 @@ namespace gpu
         softmax_reduce<<<1, BLOCK_SIZE>>>(tmp, out, rows);
         cudaDeviceSynchronize();
         cudaFree(tmp);
+    }
+
+    void kernel_softmax_cross_entropy_grad(rt::Node* node)
+    {
+        const dbl_t* y = node->in1;
+        const dbl_t* logits = node->in2;
+        dbl_t* out = node->out1;
+        std::size_t rows = node->len1;
+        std::size_t cols = node->len2;
+        
+        softmax1<<<rows, BLOCK_SIZE>>>(logits, out, rows, cols);
+        cudaDeviceSynchronize();
+
+        std::size_t len = rows * cols;
+        std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
+        softmax_cross_entropy_grad<<<nb_blocks, BLOCK_SIZE>>>(y, out, rows, cols);
     }
 
 }
