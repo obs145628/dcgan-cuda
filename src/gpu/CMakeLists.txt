@@ -1,6 +1,7 @@
 set(SRC
   kernels.cu
   matmul.cu
+  relu.cu
   runner.cu
   sigmoid.cu
   softmax.cu
