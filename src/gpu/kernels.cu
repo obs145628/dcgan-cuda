@@ -24,7 +24,7 @@ namespace gpu
         kernel_mse,
         kernel_softmax,
         kernel_log_softmax,
-        nullptr,//kernel_softmax_cross_entropy,
+        kernel_softmax_cross_entropy,
         nullptr,//kernel_conv2d,
         nullptr,//kernel_relu,
         nullptr,//kernel_relu_leaky,
