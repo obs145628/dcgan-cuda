@@ -32,7 +32,7 @@ namespace gpu
         kernel_tanh,
         nullptr,//kernel_mse_grad,
         nullptr,//kernel_sigmoid_grad,
-        nullptr,//kernel_mat_mul_add,
+        kernel_mat_mul_add,
         nullptr,//kernel_tmat_mat_mul,
         nullptr,//kernel_mat_tmat_mul,
         nullptr,//kernel_mat_sum_rows,
