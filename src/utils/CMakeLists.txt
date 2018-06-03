@@ -1,4 +1,5 @@
 set(SRC
+  date.cu
   dot-graph.cu
   dot-tree.cu
   xorshift.cu

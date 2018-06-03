@@ -58,6 +58,7 @@ int main(int argc, char** argv)
     y_node = builder.conv2d(y_node, w3_node, strides);
 
     auto& graph = ops::Graph::instance();
+    graph.debug_set(true);
 
 
     tocha::Tensors out;
