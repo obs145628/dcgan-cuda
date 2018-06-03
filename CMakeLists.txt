@@ -9,7 +9,7 @@ set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 #set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
 #set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++17 -O3 -DNDEBUG")
 
-set(CMAKE_CXX_FLAGS "-fPIC")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -O3 -DNDEBUG")
 
 include_directories(ext/tocha/include)
 find_package(ZLIB REQUIRED)
@@ -49,7 +49,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k)
+   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k test_conv_d0 test_conv_d1 test_conv_d2 test_conv_d3 test_conv_s1)
 
 
 set(TEST_SRC
@@ -377,3 +377,39 @@ set(TEST_SIGMOID_50K_SRC
 )
 add_executable(test_sigmoid_50k EXCLUDE_FROM_ALL ${TEST_SIGMOID_50K_SRC})
 target_link_libraries(test_sigmoid_50k ${ZLIB_LIBRARIES} pthread)
+
+
+set(TEST_CONV_D0_SRC
+  ${SRC}
+  tests/test_conv_d0.cu
+)
+add_executable(test_conv_d0 EXCLUDE_FROM_ALL ${TEST_CONV_D0_SRC})
+target_link_libraries(test_conv_d0 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_D1_SRC
+  ${SRC}
+  tests/test_conv_d1.cu
+)
+add_executable(test_conv_d1 EXCLUDE_FROM_ALL ${TEST_CONV_D1_SRC})
+target_link_libraries(test_conv_d1 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_D2_SRC
+  ${SRC}
+  tests/test_conv_d2.cu
+)
+add_executable(test_conv_d2 EXCLUDE_FROM_ALL ${TEST_CONV_D2_SRC})
+target_link_libraries(test_conv_d2 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_D3_SRC
+  ${SRC}
+  tests/test_conv_d3.cu
+)
+add_executable(test_conv_d3 EXCLUDE_FROM_ALL ${TEST_CONV_D3_SRC})
+target_link_libraries(test_conv_d3 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_S1_SRC
+  ${SRC}
+  tests/test_conv_s1.cu
+)
+add_executable(test_conv_s1 EXCLUDE_FROM_ALL ${TEST_CONV_S1_SRC})
+target_link_libraries(test_conv_s1 ${ZLIB_LIBRARIES} pthread)

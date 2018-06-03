@@ -1,4 +1,5 @@
 set(SRC
+  conv2d.cu
   kernels.cu
   matmul.cu
   relu.cu

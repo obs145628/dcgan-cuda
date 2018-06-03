@@ -1,4 +1,5 @@
 #include "kernels.hh"
+#include "conv2d.hh"
 #include "matmul.hh"
 #include "sigmoid.hh"
 #include "softmax.hh"
@@ -27,7 +28,7 @@ namespace gpu
         kernel_softmax,
         kernel_log_softmax,
         kernel_softmax_cross_entropy,
-        nullptr,//kernel_conv2d,
+        kernel_conv2d,
         kernel_relu,
         kernel_relu_leaky,
         kernel_tanh,
