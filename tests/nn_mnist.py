@@ -31,7 +31,7 @@ def main():
   sess = tf.InteractiveSession()
   tf.global_variables_initializer().run()
   # Train
-  for i in range(10000):
+  for i in range(1000):
     batch_xs, batch_ys = mnist.train.next_batch(100)
     loss, _ = sess.run([cross_entropy, train_step], feed_dict={X: batch_xs, y: batch_ys})
 

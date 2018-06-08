@@ -17,7 +17,7 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
-#define BATCH 10
+#define BATCH 64
 
 int main(int argc, char** argv)
 {

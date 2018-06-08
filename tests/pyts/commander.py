@@ -62,6 +62,8 @@ class Commander:
 
         errs = []
 
+        errs.append(('I need error', 1, 2))
+
         for f in _init_hooks_: f(self)
         if not self.run_init:
             init = []

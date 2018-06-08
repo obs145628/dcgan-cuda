@@ -11,31 +11,30 @@
 #include "../src/ops/graph.hh"
 #include "../src/api/layers.hh"
 #include "../src/api/cost.hh"
-#include "../src/utils/xorshift.hh"
 
 #include <tocha/tensor.hh>
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
-#define BATCH 10
+#define BATCH 64
 
 int main(int argc, char** argv)
 {
 
-    if (argc != 2)
+    if (argc < 4)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
     }
     
-    xorshift::seed(234);
 
+    //dbl_t x[BATCH * 64 * 64 * 3];
+    //dbl_t w[5 * 5 * 3 * 64];
+
+    auto weights = tocha::Tensors::load(argv[2]);
+    auto x = reinterpret_cast<dbl_t*>(weights.arr()[0].data);
+    auto w = reinterpret_cast<dbl_t*>(weights.arr()[1].data);
     
-
-    dbl_t x[BATCH * 64 * 64 * 3];
-    dbl_t w[5 * 5 * 3 * 64];
-    xorshift::fill(x, x + BATCH * 64 * 64 * 3);
-    xorshift::fill(w, w + 5 * 5 * 3 * 64);
 
 
     auto& builder = ops::OpsBuilder::instance();
@@ -60,5 +59,5 @@ int main(int argc, char** argv)
               },
 	      {y_out});
 
-    out.save(argv[1]);
+    out.save(argv[3]);
 }

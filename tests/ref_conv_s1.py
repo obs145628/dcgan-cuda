@@ -5,7 +5,7 @@ import time
 import numpy as np
 import tensorflow as tf
 
-BATCH = 10
+BATCH = 64
 
 x = np.random.randn(BATCH, 64, 64, 3).astype(np.float32)
 w0 = np.random.randn(5, 5, 3, 64).astype(np.float32)

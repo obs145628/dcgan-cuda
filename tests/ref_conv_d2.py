@@ -4,15 +4,14 @@ import sys
 import numpy as np
 import tensorflow as tf
 import tensors_saver
-import xorshift
 
-tensors_saver.set_out_path(sys.argv[1])
-xorshift.seed(234)
+WEIGHTS_PATH = sys.argv[1]
+tensors_saver.set_out_path(sys.argv[2])
 
-BATCH = 1
+BATCH = 64
 
-x = xorshift.np_f32((BATCH, 16, 16, 128))
-w = xorshift.np_f32((5, 5, 128, 256))
+x = np.random.randn(BATCH, 16, 16, 128).astype(np.float32)
+w = np.random.randn(5, 5, 128, 256).astype(np.float32)
 
 x_node = tf.Variable(x)
 w_node = tf.Variable(w)
@@ -24,3 +23,8 @@ sess.run(init)
 
 y = sess.run(y_node)
 tensors_saver.add(y)
+
+data = tensors_saver.Saver(WEIGHTS_PATH)
+data.add(x)
+data.add(w)
+data.save()
