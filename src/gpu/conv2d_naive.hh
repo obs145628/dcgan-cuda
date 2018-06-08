@@ -71,7 +71,7 @@ namespace gpu
             std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
             std::cout << "nb blocks = " << nb_blocks << std::endl;
 
-            int ntimes = 50;     
+            int ntimes = 1;     
             for (int i = 0; i < ntimes; ++i)
             conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tx, tk, ty, sh, sw);
 
@@ -80,9 +80,9 @@ namespace gpu
             float time;
             cudaEventElapsedTime(&time, start, stop);
 
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            fos << "time (fwd_naive) = " << time << "ms\n" << std::endl;
+            //time /= ntimes;
+            //std::ofstream fos("time.log", std::ios::app);
+            //fos << "time (fwd_naive) = " << time << "ms\n" << std::endl;
         }
         
     }

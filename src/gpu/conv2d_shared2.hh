@@ -196,13 +196,23 @@ namespace gpu
 
         */
 
+        template <int WarpSize>
+        __inline__ __device__
+        dbl_t warp_reduce_sum(dbl_t val)
+        {
+            for (int offset = WarpSize/2; offset > 0; offset /= 2) 
+                val += __shfl_xor_sync(0xFFFFFFFF, val, offset);
+            return val;
+        }
+
 
         template <class T1, class T2, class T3,
                   std::size_t BlockSize,
                   std::size_t KernelSize,
                   std::size_t StrideSize,
                   std::size_t InputSize,
-                  std::size_t ChanInSize>
+                  std::size_t ChanInSize,
+                  std::size_t ChanOutSize>
         __global__ void conv2d_shared2(const T1 x, const T2 k, const T3 y)
         {
 
@@ -211,10 +221,11 @@ namespace gpu
 
             std::size_t y_row = threadIdx.x / BlockSize;
             std::size_t y_col = threadIdx.x % BlockSize;
-            std::size_t y_cin = threadIdx.y;
+            std::size_t y_cin = threadIdx.y / ChanOutSize;
+            std::size_t y_cout = threadIdx.y % ChanOutSize;
             
             std::size_t y_i1 = blockIdx.x;
-            std::size_t y_i4 = blockIdx.y;
+            std::size_t y_i4 = blockIdx.y * ChanOutSize + y_cout;
             
 
             dbl_t val = 0;
@@ -225,7 +236,7 @@ namespace gpu
             //__shared__ dbl_t tile_k[KernelSize][KernelSize][ChanInSize];
             //__shared__ dbl_t tile_x[InputSize][InputSize][ChanInSize];
 
-            __shared__ dbl_t tile_k[ChanInSize][KernelSize][KernelSize];
+            __shared__ dbl_t tile_k[ChanOutSize][ChanInSize][KernelSize][KernelSize];
             __shared__ dbl_t tile_x[ChanInSize][InputSize][InputSize];
             
             for (std::size_t chan = 0; chan < total_chans; chan += ChanInSize)
@@ -241,7 +252,7 @@ namespace gpu
                         {
                             dbl_t vk = t_get(k, chan + y_cin, y_i4, id_x, id_y);
                             //tile_k[id_x][id_y][y_cin] = vk;
-                            tile_k[y_cin][id_x][id_y] = vk;
+                            tile_k[y_cout][y_cin][id_x][id_y] = vk;
                         }
                     }
 
@@ -268,43 +279,25 @@ namespace gpu
                         //dbl_t vk = tile_k[i1][i2][y_cin];
 
                         dbl_t vx = tile_x[y_cin][y_row*StrideSize + i1][y_col*StrideSize + i2];
-                        dbl_t vk = tile_k[y_cin][i1][i2];
+                        dbl_t vk = tile_k[y_cout][y_cin][i1][i2];
                         
                         val += vx * vk;
+                        
                     }
 
                 __syncthreads();
             }
 
-            
-            //dbl_t* vsum = tile_k[0][0];
-            //vsum[threadIdx.x * ChanInSize + y_cin] = val;
-
-            
-            //tile_x[y_row][y_col][y_cin] = val;
-            //tile_x[y_cin][y_row][y_col] = val;
+            tile_k[y_cout][y_cin][y_row][y_col] = val;
             __syncthreads();
-
-            //sum all elements of vsum into vsum[threadIdx.x * chanInSize]
-            /*
-            volatile float* svsum = vsum;
-            svsum[threadIdx.x * ChanInSize + y_cin] += svsum[threadIdx.x * ChanInSize + y_cin + 16];
-            svsum[threadIdx.x * ChanInSize + y_cin] += svsum[threadIdx.x * ChanInSize + y_cin + 8];
-            svsum[threadIdx.x * ChanInSize + y_cin] += svsum[threadIdx.x * ChanInSize + y_cin + 4];
-            svsum[threadIdx.x * ChanInSize + y_cin] += svsum[threadIdx.x * ChanInSize + y_cin + 2];
-            svsum[threadIdx.x * ChanInSize + y_cin] += svsum[threadIdx.x * ChanInSize + y_cin + 1];
-
-            __syncthreads();
-            */
-
 
 
             if (y_cin == 0)
             {
+
                 dbl_t rval = 0;
                 for (std::size_t i = 0; i < ChanInSize; ++i)
-                    rval += tile_x[i][y_row][y_col];
-                
+                    rval += tile_k[y_cout][i][y_row][y_col];
                 
                 dbl_t* ptr = y(y_i1, y_row, y_col, y_i4);
                 *ptr = rval;
@@ -380,9 +373,10 @@ namespace gpu
                 constexpr std::size_t block_size = 4;
                 constexpr std::size_t input_size = 11;
                 constexpr std::size_t chan_in_size = 32;
+                constexpr std::size_t chan_out_size = 1;
 
-                dim3 blocks_per_grid(ty.d1(), ty.d4());
-                dim3 threads_per_block(block_size * block_size, chan_in_size);
+                dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
+                dim3 threads_per_block(block_size * block_size, chan_in_size * chan_out_size);
 
                 std::size_t n_blocks = blocks_per_grid.x * blocks_per_grid.y;
                 std::size_t n_threads = threads_per_block.x * threads_per_block.y;
@@ -395,7 +389,8 @@ namespace gpu
                                kernel_size,
                                stride_size,
                                input_size,
-                               chan_in_size>
+                               chan_in_size,
+                               chan_out_size>
                     <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
 
                 /*
