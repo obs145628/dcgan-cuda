@@ -2,13 +2,11 @@ from random import shuffle
 import scipy.misc
 import numpy as np
 
-def center_crop(x, crop_h, crop_w=None, resize_w=64):
-    if crop_w is None:
-        crop_w = crop_h
+def center_crop(x, crop_size, resize_w):
     h, w = x.shape[:2]
-    j = int(round((h - crop_h)/2.))
-    i = int(round((w - crop_w)/2.))
-    return scipy.misc.imresize(x[j:j+crop_h, i:i+crop_w],
+    j = int(round((h - crop_size)/2.))
+    i = int(round((w - crop_size)/2.))
+    return scipy.misc.imresize(x[j:j+crop_size, i:i+crop_size],
                                [resize_w, resize_w])
 
 def merge(images, size):
@@ -20,8 +18,8 @@ def merge(images, size):
          img[j*h:j*h+h, i*w:i*w+w, :] = image
      return img
 
-def transform(image, npx=64, resize_w=64):
-    cropped_image = center_crop(image, npx, resize_w=resize_w)
+def transform(image, npx, resize_w):
+    cropped_image = center_crop(image, npx, resize_w)
     return np.array(cropped_image)/127.5 - 1.
 
 def inverse_transform(images):
