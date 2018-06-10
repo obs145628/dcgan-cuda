@@ -81,6 +81,6 @@ int main(int argc, char** argv)
     
 
     out.save(argv[3]);
-    tensor_free(x_train);
-    tensor_free(y_train);
+    delete[] x_train;
+    delete[] y_train;
 }

@@ -16,7 +16,7 @@ ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
 TS_CPU = True
 TS_MCPU = True
-TS_GPU = False
+TS_GPU = True
 
 builder = json_ts_builder.JsonTsBuilder()
 
@@ -35,7 +35,7 @@ def test_datset_weights(cat, sub, ref_script, bin_file, dataset, mode = None):
                 cmd = [
                     os.path.join(SCRIPTS_DIR, 'test_dataset_weights.sh'),
                     TEST_DIR,
-                    BUILD_DIR,
+                    ROOT_DIR,
                     os.path.join(TEST_DIR, ref_script),
                     os.path.join(BUILD_DIR, bin_file),
                     os.path.join(BUILD_DIR, dataset),
@@ -63,7 +63,7 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                 cmd = [
                     os.path.join(SCRIPTS_DIR, 'test_basic.sh'),
                     TEST_DIR,
-                    BUILD_DIR,
+                    ROOT_DIR,
                     os.path.join(TEST_DIR, ref_script),
                     os.path.join(BUILD_DIR, bin_file),
                     os.path.join(TEST_BUILD_DIR, tname + '_out_ref.npz'),
@@ -73,6 +73,7 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                     'RT_MODE': mode
                 },
                 code = 0)
+
 
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
@@ -114,6 +115,7 @@ test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_
 test_basic('ops_grad', 'softmax_cross_entrop_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
 test_basic('ops_grad', 'sigmoid_cross_entropy_grad', 'ref_sigmoid_cross_entropy_grad.py', 'test_sigmoid_cross_entropy_grad')
 test_basic('ops_grad', 'tanh_grad', 'ref_tanh_grad.py', 'test_tanh_grad')
+
 test_basic('ops_grad', 'conv2d_grad', 'ref_conv2d_grad.py', 'test_conv2d_grad')
 test_basic('ops_grad', 'conv2d_bias_add_grad', 'ref_conv2d_bias_add_grad.py', 'test_conv2d_bias_add_grad')
 test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 'test_conv2d_transpose_grad')
@@ -121,6 +123,13 @@ test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
 
+
+'''
+test_datset_weights('discriminator', 'conv_layer0', 'ref_conv_d0.py', 'test_conv_d0', '')
+test_datset_weights('discriminator', 'conv_layer1', 'ref_conv_d1.py', 'test_conv_d1', '')
+test_datset_weights('discriminator', 'conv_layer2', 'ref_conv_d2.py', 'test_conv_d2', '')
+test_datset_weights('discriminator', 'conv_layer3', 'ref_conv_d3.py', 'test_conv_d3', '')
+'''
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):

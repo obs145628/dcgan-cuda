@@ -1,6 +1,7 @@
+
 set(SRC
-  alloc.cc
-  mode.cc
+  alloc.cu
+  mode.cu
 )
 
 add_library(memory_obj OBJECT ${SRC})

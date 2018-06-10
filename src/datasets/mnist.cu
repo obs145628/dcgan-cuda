@@ -2,8 +2,6 @@
 #include <cassert>
 #include <cstdio>
 #include <stdexcept>
-#include "../memory/alloc.hh"
-#include "../memory/copy.hh"
 
 namespace mnist
 {
@@ -22,8 +20,8 @@ namespace mnist
         if (!f)
             throw std::runtime_error("mnist: can't open data file");
 
-        *x = tensor_alloc(NIMGS * IMG_SIZE);
-        *y = tensor_alloc(NIMGS * 10);
+        *x = new dbl_t[NIMGS * IMG_SIZE];
+        *y = new dbl_t[NIMGS * 10];
 
         for (std::size_t i = 0; i < NIMGS; ++i)
         {
@@ -46,7 +44,8 @@ namespace mnist
     void digit_to_vector(std::size_t digit, dbl_t* out)
     {
         assert(digit < 10);
-        tensor_fill(out, out + 10, 0);
+        for (std::size_t i = 0; i < 10; ++i)
+            out[i] = 0;
         out[digit] = 1;
     }
 

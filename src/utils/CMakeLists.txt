@@ -1,6 +1,8 @@
 set(SRC
-  dot-graph.cc
-  dot-tree.cc
+  date.cu
+  dot-graph.cu
+  dot-tree.cu
+  xorshift.cu
 )
 
 add_library(utils_obj OBJECT ${SRC})

@@ -9,6 +9,7 @@
 #include "variable.hh"
 #include "../runtime/nodes-list.hh"
 #include "../runtime/optimizer.hh"
+#include "../utils/date.hh"
 
 namespace ops
 {
@@ -131,6 +132,8 @@ namespace ops
         }
 
 
+        long exec_time = 0;
+        
         //debug display
         if (debug_)
         {
@@ -146,6 +149,8 @@ namespace ops
             dot.write_file("./graph.dot");
             auto rt_dot = full_rt_graph_.to_dot_graph();
             rt_dot.write_file("./rt_graph.dot");
+
+            exec_time = date::now();
         }
 
         //run computations
@@ -193,6 +198,13 @@ namespace ops
             auto shape = it->second.out_shape;
             tensor_read(src_ptr, src_ptr + shape.total(), out_ptr);
         }
+
+        if (debug_)
+        {
+            exec_time = date::now() - exec_time;
+            std::cout << "exec_time: " << exec_time << "ms." << std::endl;
+        }
+        
     }
 
     void Graph::add_compiled(Op* op, const std::vector<rt::Node*> nodes,

@@ -77,6 +77,6 @@ int main(int argc, char** argv)
                   << " (" << (acc_val / batch_size)*100. << "%)" << std::endl;
     }
 
-    tensor_free(x_train);
-    tensor_free(y_train);
+    delete[] x_train;
+    delete[] y_train;
 }
