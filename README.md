@@ -8,19 +8,8 @@ You need to download the celebA dataset.
 It must  be located at ./celebA
 
 ```shell
-git submodule update --init --recursive
-cd ./ext/tocha/
-mkdir _build
+./bootstrap
 cd _build
-cmake ..
-make
-cd ../../../
-python3 -m venv env
-. env/bin/activate
-pip install -r requirements.txt
-mkdir _build
-cd _build
-cmake ..
 make
 ```
 
@@ -41,6 +30,7 @@ Available modes:
 ## Testing
 
 ```shell
+cd _build
 make check
 ```
 
@@ -50,6 +40,7 @@ make check
 Launch the MNIST classifier:
 
 ```shell
+cd _build
 RT_MODE=<mode> ./nn_mnist mnist.data
 ```
 
