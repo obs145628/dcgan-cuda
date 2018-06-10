@@ -133,8 +133,11 @@ _build/
 /env/
 __pycache__/
 /models/
-celebA/
+/celebA/
+/gan_tf/samples/
 
 ### Visual Code ###
 .vscode/
+
+
 
