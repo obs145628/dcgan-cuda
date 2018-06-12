@@ -41,6 +41,12 @@ namespace gpu
         public:
 
             __device__ __host__
+            T ptr() const
+            {
+                return ptr_;
+            }
+
+            __device__ __host__
             std::size_t d1() const
                 {
                     return d1_;
@@ -121,6 +127,12 @@ namespace gpu
              *
              */
             static constexpr bool IsDense = false; //0 on border
+
+            __device__ __host__
+            T ptr()
+            {
+                return ptr_;
+            }
 
             __device__ __host__
             std::size_t d1() const

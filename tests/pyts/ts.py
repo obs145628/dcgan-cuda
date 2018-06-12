@@ -124,12 +124,10 @@ test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
 
 
-'''
-test_datset_weights('discriminator', 'conv_layer0', 'ref_conv_d0.py', 'test_conv_d0', '')
-test_datset_weights('discriminator', 'conv_layer1', 'ref_conv_d1.py', 'test_conv_d1', '')
-test_datset_weights('discriminator', 'conv_layer2', 'ref_conv_d2.py', 'test_conv_d2', '')
-test_datset_weights('discriminator', 'conv_layer3', 'ref_conv_d3.py', 'test_conv_d3', '')
-'''
+#test_datset_weights('discriminator', 'conv_layer0', 'ref_conv_d0.py', 'test_conv_d0', '')
+#test_datset_weights('discriminator', 'conv_layer1', 'ref_conv_d1.py', 'test_conv_d1', '')
+#test_datset_weights('discriminator', 'conv_layer2', 'ref_conv_d2.py', 'test_conv_d2', '')
+#test_datset_weights('discriminator', 'conv_layer3', 'ref_conv_d3.py', 'test_conv_d3', '')
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):

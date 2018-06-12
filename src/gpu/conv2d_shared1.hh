@@ -317,7 +317,7 @@ namespace gpu
             using T3 = decltype(ty);
 
 
-            int ntimes = 1;        
+            int ntimes = 100;        
             for (int i = 0; i < ntimes; ++i)
             conv2d_shared1<T1, T2, T3,
                            block_size,
@@ -330,12 +330,12 @@ namespace gpu
             float time;
             cudaEventElapsedTime(&time, start, stop);
 
-            /*
+            
             time /= ntimes;
             std::ofstream fos("time.log", std::ios::app);
             
             fos << "time (fwd_shared1) = " << time << "ms\n" << std::endl;
-            */
+            
         }
         
     }
