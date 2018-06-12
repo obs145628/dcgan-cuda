@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include "conv2d_traits.hh"
 
 namespace gpu
 {
@@ -8,6 +9,7 @@ namespace gpu
     namespace
     {
 
+        /*
         __global__ void prepare_input(Tensor4<const dbl_t*> in,
                                       Tensor4<dbl_t*> out,
                                       std::size_t pad_top, std::size_t pad_left)
@@ -22,8 +24,8 @@ namespace gpu
             std::size_t i4 = index % in.d4();
 
             const dbl_t* iptr = in(i1, i2, i3, i4);
-            //dbl_t* optr = out(i1, i2 + pad_top, i3 + pad_left, i4);
-            dbl_t* optr = out(i1, i4, i2 + pad_top, i3 + pad_left);
+            dbl_t* optr = out(i1, i2 + pad_top, i3 + pad_left, i4);
+            //dbl_t* optr = out(i1, i4, i2 + pad_top, i3 + pad_left);
             *optr = *iptr;
         }
 
@@ -40,10 +42,11 @@ namespace gpu
             std::size_t i4 = index % in.d4();
 
             const dbl_t* iptr = in(i1, i2, i3, i4);
-            //dbl_t* optr = out(i1, i2, i3, i4);
-            dbl_t* optr = out(i3, i4, i1, i2);
+            //dbl_t* optr = out(i4, i3, i1, i2);
+            dbl_t* optr = out(i4, i1, i2, i3);
             *optr = *iptr;
         }
+        */
 
 
 
@@ -206,13 +209,16 @@ namespace gpu
         }
 
 
+        /**
+         * Best version for now
+         * Warning: broken because i changed order of kernel k
+         *
         template <class T1, class T2, class T3,
                   std::size_t BlockSize,
                   std::size_t KernelSize,
                   std::size_t StrideSize,
                   std::size_t InputSize,
-                  std::size_t ChanInSize,
-                  std::size_t ChanOutSize>
+                  std::size_t ChanInSize>
         __global__ void conv2d_shared2(const T1 x, const T2 k, const T3 y)
         {
 
@@ -221,22 +227,16 @@ namespace gpu
 
             std::size_t y_row = threadIdx.x / BlockSize;
             std::size_t y_col = threadIdx.x % BlockSize;
-            std::size_t y_cin = threadIdx.y / ChanOutSize;
-            std::size_t y_cout = threadIdx.y % ChanOutSize;
+            std::size_t y_cin = threadIdx.y;
             
             std::size_t y_i1 = blockIdx.x;
-            std::size_t y_i4 = blockIdx.y * ChanOutSize + y_cout;
-            
+            std::size_t y_i4 = blockIdx.y;
 
             dbl_t val = 0;
 
             std::size_t total_chans = k.d1();
 
-            //store in shared memory
-            //__shared__ dbl_t tile_k[KernelSize][KernelSize][ChanInSize];
-            //__shared__ dbl_t tile_x[InputSize][InputSize][ChanInSize];
-
-            __shared__ dbl_t tile_k[ChanOutSize][ChanInSize][KernelSize][KernelSize];
+            __shared__ dbl_t tile_k[ChanInSize][KernelSize][KernelSize];
             __shared__ dbl_t tile_x[ChanInSize][InputSize][InputSize];
             
             for (std::size_t chan = 0; chan < total_chans; chan += ChanInSize)
@@ -251,8 +251,7 @@ namespace gpu
                         if (id_x < KernelSize && id_y < KernelSize)
                         {
                             dbl_t vk = t_get(k, chan + y_cin, y_i4, id_x, id_y);
-                            //tile_k[id_x][id_y][y_cin] = vk;
-                            tile_k[y_cout][y_cin][id_x][id_y] = vk;
+                            tile_k[y_cin][id_x][id_y] = vk;
                         }
                     }
 
@@ -265,7 +264,6 @@ namespace gpu
                         if (id_x < InputSize && id_y < InputSize)
                         {
                             dbl_t vx = t_get(x, y_i1, chan + y_cin, id_x, id_y);
-                            //tile_x[id_x][id_y][y_cin] = vx;
                             tile_x[y_cin][id_x][id_y] = vx;
                         }
                     }
@@ -275,12 +273,8 @@ namespace gpu
                 for (std::size_t i1 = 0; i1 < KernelSize; ++i1)
                     for (std::size_t i2 = 0; i2 < KernelSize; ++i2)
                     {
-                        //dbl_t vx = tile_x[y_row*StrideSize + i1][y_col*StrideSize + i2][y_cin];
-                        //dbl_t vk = tile_k[i1][i2][y_cin];
-
                         dbl_t vx = tile_x[y_cin][y_row*StrideSize + i1][y_col*StrideSize + i2];
-                        dbl_t vk = tile_k[y_cout][y_cin][i1][i2];
-                        
+                        dbl_t vk = tile_k[y_cin][i1][i2];   
                         val += vx * vk;
                         
                     }
@@ -288,7 +282,7 @@ namespace gpu
                 __syncthreads();
             }
 
-            tile_k[y_cout][y_cin][y_row][y_col] = val;
+            tile_k[y_cin][y_row][y_col] = val;
             __syncthreads();
 
 
@@ -297,15 +291,194 @@ namespace gpu
 
                 dbl_t rval = 0;
                 for (std::size_t i = 0; i < ChanInSize; ++i)
-                    rval += tile_k[y_cout][i][y_row][y_col];
+                    rval += tile_k[i][y_row][y_col];
                 
                 dbl_t* ptr = y(y_i1, y_row, y_col, y_i4);
                 *ptr = rval;
             }
         
         }
+        */
+
+
+
+
         
 
+        template <class Conv, std::size_t ChanInSize>
+        __global__ void conv2d_shared2(__restrict__ const dbl_t* x_ptr,
+                                       __restrict__ const dbl_t* k_ptr,
+                                       __restrict__ dbl_t* y_ptr)
+        {
+            constexpr std::size_t BlockSize = Conv::y_width;
+            constexpr std::size_t KernelSize = Conv::k_width;
+            constexpr std::size_t StrideSize = Conv::sh;
+            constexpr std::size_t InputSize = Conv::x_width;
+            constexpr std::size_t D3Size = Conv::in_chans;
+            constexpr std::size_t D4Size = Conv::out_chans;
+            constexpr std::size_t PadTop = Conv::TX::pad_top;
+            constexpr std::size_t PadLeft = Conv::TX::pad_left;
+            constexpr std::size_t PadBottom = Conv::TX::pad_bot;
+            constexpr std::size_t PadRight = Conv::TX::pad_right;
+            
+            constexpr std::size_t NbThreads = BlockSize * BlockSize * ChanInSize;
+            constexpr std::size_t TileXSize = ChanInSize * InputSize * InputSize;
+            constexpr std::size_t TileKSize = ChanInSize * KernelSize * KernelSize;
+            constexpr std::size_t TrueInputSize = InputSize - PadTop - PadBottom;
+            constexpr std::size_t NbItersTileK = (KernelSize * KernelSize
+                                                   + BlockSize * BlockSize - 1)
+                / (BlockSize * BlockSize);
+            constexpr std::size_t NbItersTileX = (TrueInputSize + BlockSize - 1) / BlockSize;
+               
+            const std::size_t y_row = threadIdx.y / BlockSize;
+            const std::size_t y_col = threadIdx.y % BlockSize;
+            const std::size_t y_cin = threadIdx.x;
+            const std::size_t y_i1 = blockIdx.x;
+            const std::size_t y_i4 = blockIdx.y;
+            const std::size_t tid = threadIdx.y * ChanInSize + threadIdx.x;
+            
+            
+            dbl_t val = 0;
+
+            __shared__ dbl_t tile_x[InputSize][InputSize][ChanInSize];
+            dbl_t* tile_x_ptr = tile_x[0][0];
+            __shared__ dbl_t tile_k[KernelSize][KernelSize][ChanInSize];
+            dbl_t* tile_k_ptr = tile_k[0][0];
+
+
+            std::size_t ttnn = (TileXSize + NbThreads - 1) / NbThreads; 
+            #pragma unroll
+            for (std::size_t i = 0; i < ttnn; ++i)
+            {
+                std::size_t idx = tid + i * NbThreads;
+                if (i + 1 < ttnn || idx < TileXSize)
+                    tile_x_ptr[idx] = 0;
+            }
+            __syncthreads();
+
+            #pragma unroll
+            for (std::size_t chan = 0; chan < D3Size; chan += ChanInSize)
+            {
+
+                const dbl_t* x_ptr_chan = x_ptr
+                    + (y_i1) * (TrueInputSize * TrueInputSize * D3Size)
+                    + (chan);
+
+                #pragma unroll
+                for (std::size_t i = 0; i < NbItersTileX; ++i)
+                    for (std::size_t j = 0; j < NbItersTileX; ++j)
+                    {
+                        std::size_t id_x = y_row + PadTop + i * BlockSize;
+                        std::size_t id_y = y_col + PadLeft + j * BlockSize;
+                        
+                        if (i + 1 < NbItersTileX ||
+                            (id_x < InputSize - PadBottom
+                             && id_y < InputSize - PadRight))
+                        {
+                            const std::size_t true_id_x = id_x - PadTop;
+                            const std::size_t true_id_y = id_y - PadLeft;
+                            
+                            dbl_t vx = x_ptr_chan[true_id_x * TrueInputSize * D3Size
+                                                  + true_id_y * D3Size + y_cin];
+                            tile_x[id_x][id_y][y_cin] = vx;
+                        }
+                    }
+
+                const dbl_t* k_ptr_chan = k_ptr
+                    + (y_i4) * (1)
+                    + (chan) * (D4Size);
+                
+
+                #pragma unroll
+                for (std::size_t i = 0; i < NbItersTileK; ++i)
+                {
+                    std::size_t idx = i * BlockSize * BlockSize + threadIdx.y;
+                    if (i + 1 < NbItersTileK || idx < KernelSize * KernelSize)
+                    {
+                        dbl_t vk = k_ptr_chan[idx * D3Size * D4Size + y_cin * D4Size];
+                        tile_k_ptr[idx * ChanInSize + y_cin] = vk;
+                    }
+                }
+
+                __syncthreads();
+
+
+                /*
+                if (chan == 0 && tid == 0 && y_i4 == 0 && y_i1 == 0)
+                {
+                    for (std::size_t i = 0; i < 11; ++i)
+                    {
+                        for (std::size_t j = 0; j < 11; ++j)
+                        {
+                            printf("%4.6f ", tile_x[i][j][0]);
+                        }
+                        printf("\n");
+                    }
+                    printf("\n\n");
+                }
+                */
+
+                #pragma unroll
+                for (std::size_t i1 = 0; i1 < KernelSize; ++i1)
+                    #pragma unroll
+                    for (std::size_t i2 = 0; i2 < KernelSize; ++i2)
+                    {
+                        //dbl_t vx = tile_x[y_cin][y_row*StrideSize + i1][y_col*StrideSize + i2];
+                        dbl_t vx = tile_x[y_row*StrideSize + i1][y_col*StrideSize + i2][y_cin];
+
+                        //dbl_t vk = tile_k[y_cin][i1][i2];
+                        dbl_t vk = tile_k[i1][i2][y_cin];
+
+                        val += vx * vk;
+                    }
+
+                __syncthreads();
+            }
+
+            val = warp_reduce_sum<ChanInSize>(val);
+
+            __syncthreads();
+
+            if (y_cin == 0)
+            {
+
+                dbl_t* ptr = y_ptr + y_i1 * BlockSize * BlockSize * D4Size
+                    + y_row * BlockSize * D4Size
+                    + y_col * D4Size + y_i4;
+                *ptr = val;
+            }
+            
+
+        }        
+
+
+
+        template <std::size_t block_size,
+                  std::size_t d3_size,
+                  std::size_t d4_size,
+                  std::size_t chan_in_size>
+        void call_conv2d_fwd(const dbl_t* x, const dbl_t* k, dbl_t* y,
+                             std::size_t nx)
+        {
+            constexpr std::size_t kernel_size = 5;
+            constexpr std::size_t stride_size = 2;
+            constexpr std::size_t input_size = 2 * block_size;
+
+            using type_x = Tensor4IPadTrait<1, input_size, input_size, d3_size,
+                                            1, 1, 2, 2>;
+            using type_k = Tensor4Trait<kernel_size, kernel_size, d3_size, d4_size>;
+            using type_y = Tensor4Trait<1, block_size, block_size, d4_size>;
+
+            using conv_t = ConvTrait<type_x, type_k, type_y,
+                                     stride_size, stride_size>;
+            
+
+            dim3 blocks_per_grid(nx, d4_size);
+            dim3 threads_per_block(chan_in_size, block_size * block_size);
+                
+            conv2d_shared2<conv_t, chan_in_size>
+                <<<blocks_per_grid, threads_per_block>>>(x, k, y);
+        }
          
         void conv2d_fwd_shared2(const dbl_t* x, const dbl_t* k, dbl_t* y,
                                 std::size_t nx, std::size_t hx, std::size_t wx, std::size_t cx,
@@ -314,43 +487,7 @@ namespace gpu
                                 std::size_t hk, std::size_t wk, std::size_t ck,
                                 std::size_t hy, std::size_t wy,
                                 std::size_t sh, std::size_t sw)
-        {
-
-            dbl_t* order_x;
-            std::size_t full_x_len = nx * (hx + pad_top + pad_bot)
-                * (wx + pad_left + pad_right) * cx;
-
-            dbl_t* tmp = new dbl_t[full_x_len];
-            for (std::size_t i = 0; i < full_x_len; ++i)
-                tmp[i] = 0;
-            
-            cudaMalloc(&order_x, full_x_len * sizeof(dbl_t));
-            cudaMemcpy(order_x, tmp, full_x_len * sizeof(dbl_t), cudaMemcpyHostToDevice);
-
-
-            Tensor4<const dbl_t*> old_tx(x, nx, hx, wx, cx);
-            Tensor4<dbl_t*> new_tx(order_x, nx, cx, hx + pad_top + pad_bot,
-                                   wx + pad_left + pad_right);
-
-            std::size_t len = old_tx.size();
-            std::size_t block_size2 = 1024;
-            std::size_t nb_blocks = (len + block_size2 - 1) / block_size2;
-            prepare_input<<<nb_blocks, block_size2>>>(old_tx, new_tx, pad_top, pad_left);
-
-
-            
-            Tensor4<const dbl_t*> old_tk(k, hk, wk, cx, ck);
-            dbl_t* order_k;
-            cudaMalloc(&order_k, old_tk.size() * sizeof(dbl_t));
-            //Tensor4<dbl_t*> new_tk(order_k, hk, wk, cx, ck);
-            Tensor4<dbl_t*> new_tk(order_k, cx, ck, hk, wk);
-            len = old_tk.size();
-            nb_blocks = (len + block_size2 - 1) / block_size2;
-            prepare_kernel<<<nb_blocks, block_size2>>>(old_tk, new_tk);
-
-
-            Tensor4<dbl_t*> ty(y, nx, hy, wy, ck);
-            
+        {   
             cudaEvent_t start;
             cudaEvent_t stop;
             cudaEventCreate(&start);
@@ -358,111 +495,17 @@ namespace gpu
             cudaEventRecord(start, 0);
 
 
-            constexpr std::size_t kernel_size = 5;
-            constexpr std::size_t stride_size = 2;
-
-            using T1 = decltype(new_tx);
-            using T2 = decltype(new_tk);
-            using T3 = decltype(ty);
-
-
-            int ntimes = 5;
+            int ntimes = 1;
             for (int i = 0; i < ntimes; ++i)
             {
-
-                constexpr std::size_t block_size = 4;
-                constexpr std::size_t input_size = 11;
-                constexpr std::size_t chan_in_size = 32;
-                constexpr std::size_t chan_out_size = 1;
-
-                dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
-                dim3 threads_per_block(block_size * block_size, chan_in_size * chan_out_size);
-
-                std::size_t n_blocks = blocks_per_grid.x * blocks_per_grid.y;
-                std::size_t n_threads = threads_per_block.x * threads_per_block.y;
-
-                //std::cout << "n_blocks = " << n_blocks << std::endl;
-                //std::cout << "n_threads = " << n_threads << std::endl;
-                
-                conv2d_shared2<T1, T2, T3,
-                               block_size,
-                               kernel_size,
-                               stride_size,
-                               input_size,
-                               chan_in_size,
-                               chan_out_size>
-                    <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
-
-                /*
                 if (hy == 32)
-                {
-                    constexpr std::size_t block_size = 32;
-                    constexpr std::size_t input_size = 67;
-                    constexpr std::size_t chan_out_size = 1;
-                    dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
-                    dim3 threads_per_block(block_size * block_size, chan_out_size);
-                    
-                    conv2d_shared2<T1, T2, T3,
-                                   block_size,
-                                   kernel_size,
-                                   stride_size,
-                                   input_size,
-                                   chan_out_size>
-                        <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
-                }
-
+                    call_conv2d_fwd<32, 3, 64, 1>(x, k, y, nx);
                 else if (hy == 16)
-                {
-                    constexpr std::size_t block_size = 16;
-                    constexpr std::size_t input_size = 35;
-                    constexpr std::size_t chan_out_size = 1;
-                    dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
-                    dim3 threads_per_block(block_size * block_size, chan_out_size);
-                    
-                    conv2d_shared2<T1, T2, T3,
-                                   block_size,
-                                   kernel_size,
-                                   stride_size,
-                                   input_size,
-                                   chan_out_size>
-                        <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
-                }
-
+                    call_conv2d_fwd<16, 64, 128, 4>(x, k, y, nx);
                 else if (hy == 8)
-                {
-                    constexpr std::size_t block_size = 8;
-                    constexpr std::size_t input_size = 19;
-                    constexpr std::size_t chan_out_size = 1;
-                    dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
-                    dim3 threads_per_block(block_size * block_size, chan_out_size);
-                    
-                    conv2d_shared2<T1, T2, T3,
-                                   block_size,
-                                   kernel_size,
-                                   stride_size,
-                                   input_size,
-                                   chan_out_size>
-                        <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
-                }
-
+                    call_conv2d_fwd<8, 128, 256, 16>(x, k, y, nx);
                 else if (hy == 4)
-                {
-                    constexpr std::size_t block_size = 4;
-                    constexpr std::size_t input_size = 11;
-                    constexpr std::size_t chan_out_size = 64;//8
-                    dim3 blocks_per_grid(ty.d1(), ty.d4() / chan_out_size);
-                    dim3 threads_per_block(block_size * block_size, chan_out_size);
-                    
-                    conv2d_shared2<T1, T2, T3,
-                                   block_size,
-                                   kernel_size,
-                                   stride_size,
-                                   input_size,
-                                   chan_out_size>
-                        <<<blocks_per_grid, threads_per_block>>>(new_tx, new_tk, ty);
-                }
-                */
-
+                    call_conv2d_fwd<4, 256, 512, 32>(x, k, y, nx);
             }
 
             
@@ -471,9 +514,9 @@ namespace gpu
             float time;
             cudaEventElapsedTime(&time, start, stop);
 
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            fos << "time (fwd_shared2) = " << time << "ms\n" << std::endl;
+            //time /= ntimes;
+            //std::ofstream fos("time.log", std::ios::app);
+            //fos << "time (fwd_shared2) = " << time << "ms\n" << std::endl;
         }
         
     }
