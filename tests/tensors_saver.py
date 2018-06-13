@@ -22,6 +22,9 @@ class Saver:
             dobjs[name] = self.objs[i]
         np.savez(self.path, **dobjs)
 
+    def clear(self):
+        self.objs.clear()
+
 _gbl_saver = Saver(environ[ENV_KEY] if ENV_KEY in environ else './debug.npz')
 
 def add(obj):
@@ -32,6 +35,9 @@ def set_out_path(path):
 
 def save():
     _gbl_saver.save()
+
+def clear():
+    _gbl_saver.clear()
 
 def _on_exit():
     if len(_gbl_saver.objs) != 0:
