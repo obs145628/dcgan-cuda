@@ -242,6 +242,7 @@ namespace gpu
                     return d4_;
                 }
 
+            __device__ __host__
             std::size_t size() const
                 {
                     return size_;
