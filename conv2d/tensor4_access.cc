@@ -33,9 +33,10 @@ namespace acc
                     for (std::size_t i3 = 0; i3 < ty.d3(); ++i3)
                         for (std::size_t i4 = 0; i4 < ty.d4(); ++i4)
                         {
-                            float val = compute_val(tx, tk,
-                                                    i1, i2 * sh, i3 * sw, i4);
-                            t_set(ty, i1, i2, i3, i4, val);
+                            float* ptr = ty(i1, i2, i3, i4);
+                            if (ptr)
+                                *ptr = compute_val(tx, tk,
+                                                   i1, i2 * sh, i3 * sw, i4);
                         }
 
         }
@@ -120,18 +121,43 @@ namespace acc
         std::size_t hk = hx + p1 + p2 - sh * (hy - 1);
         std::size_t wk = wx + p3 + p4 - sw * (wy - 1);
 
-        //::Tensor4 sdy(nx, hy, wy, cy);
-        //std::copy(dy, dy + sdy.size, sdy.data);
-        //::Tensor4 sdy2 = sdy.transpose(1, 2, 0, 3).fstride0(sh - 1, sw - 1);
-
         Tensor4DkX<const float*> tx(x, nx, hx, wx, cx, p1, p3, p2, p4);
-
-        //Tensor4<const float*> tdy(sdy2.data, sdy2.d1, sdy2.d2, sdy2.d3, sdy2.d4);
         Tensor4DkDy<const float*> tdy(dy, nx, hy, wy, cy, sh - 1, sw - 1);
-
         Tensor4Tr3124<float*> tdk(dk, hk, wk, cx, cy);
         conv_no_pad(tx, tdy, tdk, 1, 1);
+    }
 
+    ::Tensor4 conv2d_sp_dx(const ::Tensor4& filter, const ::Tensor4& dout,
+                           std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+    {
+        std::size_t hx = sh * (dout.d2 - 1) + filter.d1 - p1 - p2;
+        std::size_t wx = sw * (dout.d3 - 1) + filter.d2 - p3 - p4;
+        
+        ::Tensor4 dinput(dout.d1, hx, wx, filter.d3);
+
+        conv2d_sp_dx(filter.data, dout.data, dinput.data,
+                     filter.d1, filter.d2, filter.d3,
+                     dout.d1, dout.d2, dout.d3, dout.d4,
+                     sh, sw, p1, p2, p3, p4);
+        return dinput;
+    }
+
+    void conv2d_sp_dx(const float* k, const float* dy, float* dx,
+                      std::size_t hk, std::size_t wk, std::size_t ck,
+                      std::size_t ny, std::size_t hy, std::size_t wy, std::size_t cy,
+                      std::size_t sh, std::size_t sw,
+                      std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+    {
+        std::size_t hx = sh * (hy - 1) + hk - p1 - p2;
+        std::size_t wx = sw * (wy - 1) + wk - p3 - p4;
+
+        Tensor4DxDk<const float*> tk(k, hk, wk, ck, cy);
+        Tensor4DxDy<const float*> tdy(dy, ny, hy, wy, cy,
+                                      hk - 1, wk - 1, hk - 1, wk - 1,
+                                      sh - 1, sw - 1);
+        Tensor4Pad<float*> tdx(dx, ny, hx, wx, ck, p1, p3, p2, p4);
+        conv_no_pad(tdy, tk, tdx, 1, 1);
     }
     
 }

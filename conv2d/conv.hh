@@ -74,7 +74,7 @@ Tensor4 conv2d_sp_dk(const Tensor4& input, const Tensor4& dout,
                      std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4);
 
 
-/**
+/*
  * Compute a convolution with padding and strides
  * input (i1, h1, w1, c1) nb input * input height * input width * input channels
  * filter (fh, fw, c1, k) filter height * filter with * input channels * nb filters
