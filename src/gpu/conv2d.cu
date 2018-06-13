@@ -51,9 +51,9 @@ namespace gpu
         */
 
         conv2d_fwd_shared2(
-            //conv2d_fwd_shared1(
-            //conv2d_fwd_naive(
-            //conv2d_fwd_mat(
+        //conv2d_fwd_shared1(
+        //conv2d_fwd_naive(
+        //conv2d_fwd_mat(
             x, k, y,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
