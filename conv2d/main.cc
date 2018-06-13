@@ -63,7 +63,8 @@ int main()
     
     //Tensor4 y = conv2d_sp(x, k, sh, sw, p1, p2, p3, p4);
     Tensor4 y = acc::conv2d_sp(x, k, sh, sw, p1, p2, p3, p4);
-    Tensor4 dk = conv2d_sp_dk(x, dy, sh, sw, p1, p2, p3, p4);
+    //Tensor4 dk = conv2d_sp_dk(x, dy, sh, sw, p1, p2, p3, p4);
+    Tensor4 dk = acc::conv2d_sp_dk(x, dy, sh, sw, p1, p2, p3, p4);
     Tensor4 dx = conv2d_sp_dx(k, dy, sh, sw, p1, p2, p3, p4);
 
     std::vector<Tensor4> output {y, dk, dx};
@@ -72,7 +73,5 @@ int main()
         t.dump_shape();
     std::cout << "==\n\n";
     save_tensors("./out.tbin", output);
-    
-
     
 }

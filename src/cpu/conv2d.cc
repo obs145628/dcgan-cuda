@@ -33,6 +33,7 @@ namespace cpu
                       std::size_t sh, std::size_t sw,
                       std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
     {
+        /*
         Tensor4 tx(nx, hx, wx, cx);
         std::copy(x, x + tx.size, tx.data);
         Tensor4 tdy(nx, hy, wy, ck);
@@ -40,7 +41,8 @@ namespace cpu
 
         Tensor4 tdk = ::conv2d_sp_dk(tx, tdy, sh, sw, p1, p2, p3, p4);
         std::copy(tdk.data, tdk.data + tdk.size, dk);
-        
+        */
+        acc::conv2d_sp_dk(x, dy, dk, nx, hx, wx, cx, hy, wy, ck, sh, sw, p1, p2, p3, p4);
     }
 
     void conv2d_sp_dx(const dbl_t* k, std::size_t hk, std::size_t wk, std::size_t cx, std::size_t ck,

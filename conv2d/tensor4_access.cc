@@ -92,5 +92,46 @@ namespace acc
 
         conv_no_pad(tx, tk, ty, sh, sw);
     }
+
+    ::Tensor4 conv2d_sp_dk(const ::Tensor4& input, const ::Tensor4& dout,
+                           std::size_t sh, std::size_t sw,
+                           std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+    {
+
+        std::size_t hk = input.d2 + p1 + p2 - sh * (dout.d2 - 1);
+        std::size_t wk = input.d3 + p3 + p4 - sw * (dout.d3 - 1);
+
+        ::Tensor4 dfilter(hk, wk, input.d4, dout.d4);
+
+        conv2d_sp_dk(input.data, dout.data, dfilter.data,
+                     input.d1, input.d2, input.d3, input.d4,
+                     dout.d2, dout.d3, dout.d4,
+                     sh, sw, p1, p2, p3, p4);
+
+        return dfilter;
+    }
+
+    void conv2d_sp_dk(const float* x, const float* dy, float* dk,
+                      std::size_t nx, std::size_t hx, std::size_t wx, std::size_t cx,
+                      std::size_t hy, std::size_t wy, std::size_t cy,
+                      std::size_t sh, std::size_t sw,
+                      std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
+    {
+        std::size_t hk = hx + p1 + p2 - sh * (hy - 1);
+        std::size_t wk = wx + p3 + p4 - sw * (wy - 1);
+
+        //::Tensor4 sdy(nx, hy, wy, cy);
+        //std::copy(dy, dy + sdy.size, sdy.data);
+        //::Tensor4 sdy2 = sdy.transpose(1, 2, 0, 3).fstride0(sh - 1, sw - 1);
+
+        Tensor4DkX<const float*> tx(x, nx, hx, wx, cx, p1, p3, p2, p4);
+
+        //Tensor4<const float*> tdy(sdy2.data, sdy2.d1, sdy2.d2, sdy2.d3, sdy2.d4);
+        Tensor4DkDy<const float*> tdy(dy, nx, hy, wy, cy, sh - 1, sw - 1);
+
+        Tensor4Tr3124<float*> tdk(dk, hk, wk, cx, cy);
+        conv_no_pad(tx, tdy, tdk, 1, 1);
+
+    }
     
 }
