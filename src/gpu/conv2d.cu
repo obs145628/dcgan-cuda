@@ -51,9 +51,9 @@ namespace gpu
         */
 
         conv2d_fwd_shared2(
-            //conv2d_fwd_shared1(
-            //conv2d_fwd_naive(
-            //conv2d_fwd_mat(
+        //conv2d_fwd_shared1(
+        //conv2d_fwd_naive(
+        //conv2d_fwd_mat(
             x, k, y,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
@@ -130,6 +130,55 @@ namespace gpu
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
             hk, wk, ck,
+            hy, wy,
+            sh, sw
+            );
+    }
+
+    void kernel_conv2d_kernel_grad(rt::Node* node)
+    {
+
+
+        const dbl_t* x = node->in2;
+        std::size_t nx = node->sizes2[0];
+        std::size_t hx = node->sizes2[1];
+        std::size_t wx = node->sizes2[2];
+        std::size_t cx = node->sizes2[3];
+
+        const dbl_t* dy = node->in1;
+        std::size_t hy = node->sizes1[1];
+        std::size_t wy = node->sizes1[2];
+        std::size_t cy = node->sizes1[3];
+
+        dbl_t* dk = node->out1;
+        std::size_t sh = node->intconst[0];
+        std::size_t sw = node->intconst[1];
+
+        std::size_t pad_height = node->intconst2[0];
+        std::size_t pad_width = node->intconst2[1];        
+        std::size_t pad_top = pad_height / 2;
+        std::size_t pad_left = pad_width / 2;
+        std::size_t pad_bot = pad_height - pad_top;
+        std::size_t pad_right = pad_width - pad_left;
+
+        std::size_t hk = hx + pad_height - sh * (hy - 1);
+        std::size_t wk = wx + pad_width - sw * (wy - 1);
+
+        /*
+        std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << cy << std::endl;
+        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << cy << std::endl;
+        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
+          
+        std::cout << "S: " << sh << ", " << sw << std::endl;
+        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
+                  << std::endl;
+        */
+
+        conv2d_dk_naive(
+            x, dy, dk,
+            nx, hx, wx, cx,
+            pad_top, pad_left, pad_bot, pad_right,
+            hk, wk, cy,
             hy, wy,
             sh, sw
             );
