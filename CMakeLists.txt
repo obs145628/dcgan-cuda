@@ -31,6 +31,7 @@ set(SRC
 
   conv2d/conv.cc
   conv2d/tensor4.cc
+  conv2d/tensor4_access.cc
 )
 
 
@@ -73,6 +74,7 @@ set(CONV_SRC
   conv2d/conv_simplified.cc
   conv2d/main.cc
   conv2d/tensor4.cc
+  conv2d/tensor4_access.cc
 )
 add_executable(conv ${CONV_SRC})
 target_link_libraries(conv cnpy)

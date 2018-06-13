@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "../../conv2d/tensor4.hh"
 #include "../../conv2d/conv.hh"
+#include "../../conv2d/tensor4_access.hh"
 
 namespace cpu
 {
@@ -14,6 +15,7 @@ namespace cpu
                    std::size_t p1, std::size_t p2, std::size_t p3, std::size_t p4)
     {
 
+        /*
         Tensor4 tx(nx, hx, wx, cx);
         std::copy(x, x + tx.size, tx.data);
         Tensor4 tk(hk, wk, cx, ck);
@@ -21,6 +23,8 @@ namespace cpu
 
         Tensor4 ty = ::conv2d_sp(tx, tk, sh, sw, p1, p2, p3, p4);
         std::copy(ty.data, ty.data + ty.size, y);
+        */
+        acc::conv2d_sp(x, k, y, nx, hx, wx, cx, hk, wk, ck, sh, sw, p1, p2, p3, p4);
     }
 
     void conv2d_sp_dk(const dbl_t* x, std::size_t nx, std::size_t hx, std::size_t wx, std::size_t cx,
