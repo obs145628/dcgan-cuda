@@ -73,7 +73,7 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                     'RT_MODE': mode
                 },
                 code = 0)
-
+'''
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
 test_datset_weights('nn', 'dcgan_discriminator',
@@ -121,7 +121,7 @@ test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
-
+'''
 
 '''
 test_datset_weights('discriminator', 'conv_layer0', 'ref_conv_d0.py', 'test_conv_d0', '')
@@ -138,7 +138,14 @@ test_datset_weights('discriminator', 'conv_layer0_dk', 'ref_conv_dk_d0.py', 'tes
 test_datset_weights('discriminator', 'conv_layer1_dk', 'ref_conv_dk_d1.py', 'test_conv_dk_d1', '')
 test_datset_weights('discriminator', 'conv_layer2_dk', 'ref_conv_dk_d2.py', 'test_conv_dk_d2', '')
 test_datset_weights('discriminator', 'conv_layer3_dk', 'ref_conv_dk_d3.py', 'test_conv_dk_d3', '')
+
+test_datset_weights('generator', 'conv_layer0', 'ref_conv_g0.py', 'test_conv_g0', '')
+test_datset_weights('generator', 'conv_layer1', 'ref_conv_g1.py', 'test_conv_g1', '')
+test_datset_weights('generator', 'conv_layer2', 'ref_conv_g2.py', 'test_conv_g2', '')
+test_datset_weights('generator', 'conv_layer3', 'ref_conv_g3.py', 'test_conv_g3', '')
 '''
+
+test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):
