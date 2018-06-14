@@ -145,7 +145,11 @@ test_datset_weights('generator', 'conv_layer2', 'ref_conv_g2.py', 'test_conv_g2'
 test_datset_weights('generator', 'conv_layer3', 'ref_conv_g3.py', 'test_conv_g3', '')
 '''
 
-test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
+test_datset_weights('generator', 'conv_layer0_dx', 'ref_conv_dx_g0.py', 'test_conv_dx_g0', '')
+test_datset_weights('generator', 'conv_layer1_dx', 'ref_conv_dx_g1.py', 'test_conv_dx_g1', '')
+test_datset_weights('generator', 'conv_layer2_dx', 'ref_conv_dx_g2.py', 'test_conv_dx_g2', '')
+test_datset_weights('generator', 'conv_layer3_dx', 'ref_conv_dx_g3.py', 'test_conv_dx_g3', '')
+
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
 if not os.path.isfile(ERRORS_PATH):
