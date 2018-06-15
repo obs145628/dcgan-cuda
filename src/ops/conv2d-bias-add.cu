@@ -31,9 +31,17 @@ namespace ops
         int input_size[4] = { cz.out_shape[0], cz.out_shape[1],
                               cz.out_shape[2], cz.out_shape[3]};
 
+
+        auto out_node = rt::Node::op_mat_rvect_add(cz.out_data, cbias.out_data, out_data,
+                                                   input_size[0] * input_size[1] * input_size[2],
+                                                   input_size[3],
+                                                   {cz.out_node, cbias.out_node});
+        
+        /*
         auto out_node = rt::Node::op_conv2d_bias_add(cz.out_data, cbias.out_data,
                                                      out_data, input_size,
                                                     {cz.out_node, cbias.out_node});
+        */
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);
     }

@@ -376,6 +376,7 @@ namespace rt
             auto res = Node::op_conv2d_transpose_kernel_grad(node->in1, node->in2,
                                                              node->intconst, node->out1,
                                                              node->sizes1, node->sizes2,
+                                                             node->sizes3,
                                                              preds);
             graph.add(res);
             return res;

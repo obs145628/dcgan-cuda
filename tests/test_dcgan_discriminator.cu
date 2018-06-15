@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     auto celeba =tocha::Tensors::load(argv[1]);
     auto x_train = reinterpret_cast<dbl_t*>(celeba.arr()[0].data);
     std::size_t len = celeba.arr()[0].dims[0];
-    dbl_t* y_train = tensor_alloc(len);
+    dbl_t* y_train = new dbl_t[len];
     std::fill_n(y_train, len, 1);
 
     auto weights = tocha::Tensors::load(argv[2]);
@@ -136,5 +136,5 @@ int main(int argc, char** argv)
                       dw3_out, db3_out, dw4_out, db4_out});
 
     out.save(argv[3]);
-    tensor_free(y_train);
+    delete[] y_train;
 }

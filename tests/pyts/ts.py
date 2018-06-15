@@ -14,8 +14,8 @@ TEST_DIR = os.path.join(ROOT_DIR, 'tests/')
 SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
-TS_CPU = False
-TS_MCPU = False
+TS_CPU = True
+TS_MCPU = True
 TS_GPU = True
 
 builder = json_ts_builder.JsonTsBuilder()
@@ -138,6 +138,21 @@ test_datset_weights('discriminator', 'conv_layer0_dk', 'ref_conv_dk_d0.py', 'tes
 test_datset_weights('discriminator', 'conv_layer1_dk', 'ref_conv_dk_d1.py', 'test_conv_dk_d1', '')
 test_datset_weights('discriminator', 'conv_layer2_dk', 'ref_conv_dk_d2.py', 'test_conv_dk_d2', '')
 test_datset_weights('discriminator', 'conv_layer3_dk', 'ref_conv_dk_d3.py', 'test_conv_dk_d3', '')
+
+test_datset_weights('generator', 'conv_layer0', 'ref_conv_g0.py', 'test_conv_g0', '')
+test_datset_weights('generator', 'conv_layer1', 'ref_conv_g1.py', 'test_conv_g1', '')
+test_datset_weights('generator', 'conv_layer2', 'ref_conv_g2.py', 'test_conv_g2', '')
+test_datset_weights('generator', 'conv_layer3', 'ref_conv_g3.py', 'test_conv_g3', '')
+
+test_datset_weights('generator', 'conv_layer0_dx', 'ref_conv_dx_g0.py', 'test_conv_dx_g0', '')
+test_datset_weights('generator', 'conv_layer1_dx', 'ref_conv_dx_g1.py', 'test_conv_dx_g1', '')
+test_datset_weights('generator', 'conv_layer2_dx', 'ref_conv_dx_g2.py', 'test_conv_dx_g2', '')
+test_datset_weights('generator', 'conv_layer3_dx', 'ref_conv_dx_g3.py', 'test_conv_dx_g3', '')
+
+test_datset_weights('generator', 'conv_layer0_dk', 'ref_conv_dk_g0.py', 'test_conv_dk_g0', '')
+test_datset_weights('generator', 'conv_layer1_dk', 'ref_conv_dk_g1.py', 'test_conv_dk_g1', '')
+test_datset_weights('generator', 'conv_layer2_dk', 'ref_conv_dk_g2.py', 'test_conv_dk_g2', '')
+test_datset_weights('generator', 'conv_layer3_dk', 'ref_conv_dk_g3.py', 'test_conv_dk_g3', '')
 '''
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
