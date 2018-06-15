@@ -15,6 +15,7 @@ namespace cpu
                    node->int_cons1, node->int_cons2, node->sizes1, node->sizes2);
         }
 
+        /*
         void kernel_conv2d_bias_add(rt::Node* node)
         {
             conv2d_bias_add(node->in1, node->in2, node->out1, node->sizes1);
@@ -24,6 +25,7 @@ namespace cpu
         {
             conv2d_bias_add_grad(node->in1, node->sizes1, node->out1);
         }
+        */
 
         void kernel_conv2d_input_grad(rt::Node* node)
         {
@@ -229,7 +231,7 @@ namespace cpu
         kernel_mat_sum_cols,
         kernel_softmax_cross_entropy_grad,
         kernel_relu_grad,
-        kernel_conv2d_bias_add,
+        nullptr,//kernel_conv2d_bias_add,
         kernel_update,
         kernel_sigmoid_cross_entropy,
         kernel_sigmoid_cross_entropy_grad,
@@ -240,7 +242,7 @@ namespace cpu
         kernel_moment_update2,
         kernel_adam_update,
         kernel_leaky_relu_grad,
-        kernel_conv2d_bias_add_grad,
+        nullptr,//kernel_conv2d_bias_add_grad,
         kernel_tanh_grad,
         kernel_conv2d_transpose,
         kernel_conv2d_transpose_input_grad,

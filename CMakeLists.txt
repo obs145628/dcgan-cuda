@@ -6,10 +6,9 @@ project(dcgan-cuda LANGUAGES CXX CUDA)
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
 
 #set(CMAKE_CXX_COMPILER "g++")
-#set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++17 -O3 -DNDEBUG")
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
+#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -O3 -DNDEBUG")
 
 include_directories(ext/tocha/include)
 find_package(ZLIB REQUIRED)

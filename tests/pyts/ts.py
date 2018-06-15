@@ -122,6 +122,7 @@ test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
 
+
 '''
 test_datset_weights('discriminator', 'conv_layer0', 'ref_conv_d0.py', 'test_conv_d0', '')
 test_datset_weights('discriminator', 'conv_layer1', 'ref_conv_d1.py', 'test_conv_d1', '')
