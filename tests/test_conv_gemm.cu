@@ -8,7 +8,6 @@ template<int widthA, int widthB, int blockDimX>
 __global__
 void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
 {
-  //printf("BVal = %f", B[0]);
   __shared__ dbl_t A_tile[blockDimX * blockDimX];
   dbl_t cRes[blockDimX] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -16,6 +15,9 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
   const int aEnd = aStart + widthA - 1;
   const int bStart = blockDimX * 4 * blockIdx.x;
   const int bStep = blockDimX * widthB;
+
+  int cIdx = widthB * blockDimX * blockIdx.y + blockDimX * blockIdx.x * 4
+                  + blockDimX * threadIdx.y + threadIdx.x;
 
   for (int aIdx = aStart, bIdx = bStart;
        aIdx <= aEnd;
@@ -43,7 +45,7 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
       if (bPIndex + indexPartial < 4915200)
       {
         const dbl_t bVal = bPartial[indexPartial];
-        //printf("bVal = %d", bVal);
+
         #pragma unroll
         for (int j = 0; j < 16; ++j)
           cRes[j] += A_tile[tileIndex + j] * bVal;
@@ -55,9 +57,7 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
     __syncthreads();
   }
 
-  int cIdx = widthB * blockDimX * blockIdx.y + blockDimX * blockIdx.x * 4
-                  + blockDimX * threadIdx.y + threadIdx.x;
-   #pragma unroll
+  #pragma unroll
   for (int i = 0; i < blockDimX; ++i)
   {
     C[cIdx] = cRes[i];
@@ -144,17 +144,25 @@ void img_transform_cuda(const dbl_t *img, dbl_t *res, const int wSize,
   const int index = blockIdx.x * blockDim.x + threadIdx.x;
   const int batchIdx = index / stot0;
   const int chIdx = (index - batchIdx * stot0) % chSize;
-  const int hIdx = ((index - batchIdx * stot0 - chIdx) / chSize) / wSize;
-  const int wIdx = ((index - batchIdx * stot0 - chIdx) / chSize) % wSize;
+  const int hIdx = (index - batchIdx * stot0 - chIdx) / (wSize * chSize);
+  const int wIdx = (index - batchIdx * stot0 - chIdx - hIdx * (wSize * chSize)) / chSize;
   const int stot1 = P * Q;
   int i = 0;
   const int *patchPtr = &patchIndex[hIdx * wSize * stot1
                          + wIdx * stot1];
   int patch = *patchPtr;
-  if (wIdx > padL && wIdx < (wSize - padR)
-      && hIdx > padTop && hIdx < (hSize - padBot))
+
+  dbl_t val = 0;
+
+  if (wIdx >= padL && wIdx < (wSize - padR)
+      && hIdx >= padTop && hIdx < (hSize - padBot))
   {
-    dbl_t val = img[index];
+
+    const int oldIndex = batchIdx * 64 * 64 * 3 + (hIdx - padTop) * 64 * 3
+            + (wIdx - padL) * 3 + chIdx;
+
+    val = img[oldIndex];
+
     while (i < stot1)
     {
       if (patch != -1)
@@ -175,7 +183,7 @@ __global__
 void transform_res(const dbl_t *resConv, dbl_t *transf)
 {
   int blkIdx = blockIdx.y * 65536 * 4 + blockIdx.x * 16;
-  const int thIdx = threadIdx.y * 16 + threadIdx.x;
+  const int thIdx = threadIdx.y * 65536 + threadIdx.x;
   const int realIdx = blkIdx + thIdx;
   const int nbFIdx = realIdx / 65536;
   const int tmp0 = nbFIdx * 65536;
@@ -234,10 +242,6 @@ void make_conv(char **argv)
 
   cudaDeviceSynchronize();
 
-  /*dbl_t *kerTest = (dbl_t*)malloc(sizeof(dbl_t) * totalKernelSize);
-  cudaMemcpy(kerTest, newKernelCuda, sizeof(dbl_t) * totalKernelSize, cudaMemcpyDeviceToHost);
-  ker_transformed_print(kerTest, nbFilter, heightKer * widthKer * chSize);*/
-
   dbl_t *inputCuda, *newInputCuda;
   cudaMalloc((void**)&inputCuda, sizeof(dbl_t) * realTotalInputSize);
   cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
@@ -251,9 +255,6 @@ void make_conv(char **argv)
   mark_patch<<<dimGridPatch, dimBlockPatch>>>(patchCuda, stride, width, P, Q, widthKer);
 
   cudaDeviceSynchronize();
-  /*int *patchHost = (int*)malloc(sizeof(int) * width * height * P * Q);
-  cudaMemcpy(patchHost, patchCuda, sizeof(int) * width * height * P * Q, cudaMemcpyDeviceToHost);
-  print_patch(patchHost, width, height, P, Q);*/
 
   dbl_t *zeroInit = (dbl_t*)calloc(newInputSize, sizeof(dbl_t));
   cudaMemcpy(newInputCuda, zeroInit, sizeof(dbl_t) * newInputSize, cudaMemcpyHostToDevice);
@@ -266,14 +267,6 @@ void make_conv(char **argv)
                             patchCuda, widthKer, heightKer, P, Q, batchSize,
                             padTop, padBottom, padL, padR);
   cudaDeviceSynchronize();
-
-  dbl_t *imgTest = (dbl_t*)malloc(sizeof(dbl_t) * newInputSize);
-  cudaMemcpy(imgTest, newInputCuda, sizeof(dbl_t) * newInputSize, cudaMemcpyDeviceToHost);
-  img_transformed_print(imgTest, batchSize, chSize, P, Q, widthKer, heightKer);
-
-  dbl_t *Test = (dbl_t*)malloc(sizeof(dbl_t));
-  cudaMemcpy(Test, newInputCuda, sizeof(dbl_t), cudaMemcpyDeviceToHost);
-  printf("Get Val = %f", *Test);
 
   dbl_t *resConvCuda;
   const int resSize = nbFilter * batchSize * P * Q;
