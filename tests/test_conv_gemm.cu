@@ -133,24 +133,20 @@ void img_transformed_print(const dbl_t *img, const int batch, const int chSize,
   std::cout << std::endl;
 }
 
+template<int wSize, int hSize, int chSize, int wkSize, int hkSize, int P, int Q,
+        int batchSize, int padTop, int padBot, int padL, int padR, int stot0, int stot1>
 __global__
-void img_transform_cuda(const dbl_t *img, dbl_t *res, const int wSize,
-                        const int hSize,
-                        const int chSize, const int stot0, const int *patchIndex,
-                        const int wkSize, const int hkSize, const int P,
-                        const int Q, const int batchSize, const int padTop,
-                        const int padBot, const int padL, const int padR)
+void img_transform_cuda(const dbl_t *img, dbl_t *res, const int *patchIndex)
 {
   const int index = blockIdx.x * blockDim.x + threadIdx.x;
   const int batchIdx = index / stot0;
   const int chIdx = (index - batchIdx * stot0) % chSize;
   const int hIdx = (index - batchIdx * stot0 - chIdx) / (wSize * chSize);
   const int wIdx = (index - batchIdx * stot0 - chIdx - hIdx * (wSize * chSize)) / chSize;
-  const int stot1 = P * Q;
   int i = 0;
   const int *patchPtr = &patchIndex[hIdx * wSize * stot1
                          + wIdx * stot1];
-  int patch = *patchPtr;
+  int patch;
 
   dbl_t val = 0;
 
@@ -163,8 +159,10 @@ void img_transform_cuda(const dbl_t *img, dbl_t *res, const int wSize,
 
     val = img[oldIndex];
 
-    while (i < stot1)
+    #pragma unroll
+    for (;i < stot1; i++)
     {
+      patch = *(patchPtr + i);
       if (patch != -1)
       {
         int nindex = chIdx * P * Q * wkSize * hkSize * batchSize
@@ -173,8 +171,49 @@ void img_transform_cuda(const dbl_t *img, dbl_t *res, const int wSize,
                      + i;
         res[nindex] = val;
       }
-      i++;
+    }
+  }
+}
+
+template<int wSize, int hSize, int chSize, int wkSize, int hkSize, int P, int Q,
+        int batchSize, int padTop, int padBot, int padL, int padR, int stot0, int stot1>
+__global__
+void img_transform_cuda2(const dbl_t *img, dbl_t *res, const int *patchIndex)
+{
+  const int index = blockIdx.y * 13467 * 4 + blockIdx.x * 201
+                    + threadIdx.y * 13467 + threadIdx.x;
+  const int batchIdx = index / stot0;
+  const int chIdx = (index - batchIdx * stot0) % chSize;
+  const int hIdx = (index - batchIdx * stot0 - chIdx) / (wSize * chSize);
+  const int wIdx = (index - batchIdx * stot0 - chIdx - hIdx * (wSize * chSize)) / chSize;
+  int i = 0;
+  const int *patchPtr = &patchIndex[hIdx * wSize * stot1
+                         + wIdx * stot1];
+  int patch;
+
+  dbl_t val = 0;
+
+  if (wIdx >= padL && wIdx < (wSize - padR)
+      && hIdx >= padTop && hIdx < (hSize - padBot))
+  {
+
+    const int oldIndex = batchIdx * 64 * 64 * 3 + (hIdx - padTop) * 64 * 3
+            + (wIdx - padL) * 3 + chIdx;
+
+    val = img[oldIndex];
+
+    #pragma unroll
+    for (;i < stot1; i++)
+    {
       patch = *(patchPtr + i);
+      if (patch != -1)
+      {
+        int nindex = chIdx * P * Q * wkSize * hkSize * batchSize
+                     + patch * P * Q * batchSize
+                     + batchIdx * P * Q
+                     + i;
+        res[nindex] = val;
+      }
     }
   }
 }
@@ -223,12 +262,19 @@ void make_conv(char **argv)
   const int Q = (64 + 3 - widthKer) / stride + 1;
   const int newInputSize = chSize * heightKer * widthKer * batchSize * P * Q;
 
+  float milli = 0;
+
   dbl_t *kernelCuda, *newKernelCuda;
 
-  cudaEvent_t start, stop, startConv;
+  cudaEvent_t start, stop, startConv, stopKer, startPatch, stopPatch, startImg, stopImg;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventCreate(&startConv);
+  cudaEventCreate(&startPatch);
+  cudaEventCreate(&startImg);
+  cudaEventCreate(&stopKer);
+  cudaEventCreate(&stopPatch);
+  cudaEventCreate(&stopImg);
 
   cudaEventRecord(start);
   cudaMalloc((void**)&kernelCuda, sizeof(dbl_t) * totalKernelSize);
@@ -239,9 +285,14 @@ void make_conv(char **argv)
   dim3 dimBlock(32);
   ker_transform_cuda<<<dimGrid, dimBlock>>>(kernelCuda, newKernelCuda,
                   heightKer, widthKer, chSize, nbFilter);
+  cudaEventRecord(stopKer);
+  //cudaDeviceSynchronize();
+  cudaEventSynchronize(stopKer);
 
-  cudaDeviceSynchronize();
+  cudaEventElapsedTime(&milli, start, stopKer);
+  std::cout << "Timer Ker: " << milli << " ms" << std::endl;
 
+  cudaEventRecord(startPatch);
   dbl_t *inputCuda, *newInputCuda;
   cudaMalloc((void**)&inputCuda, sizeof(dbl_t) * realTotalInputSize);
   cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
@@ -253,20 +304,33 @@ void make_conv(char **argv)
   dim3 dimGridPatch(P, Q);
   dim3 dimBlockPatch(widthKer, heightKer);
   mark_patch<<<dimGridPatch, dimBlockPatch>>>(patchCuda, stride, width, P, Q, widthKer);
+  cudaEventRecord(stopPatch);
+  //cudaDeviceSynchronize();
+  cudaEventSynchronize(stopPatch);
 
-  cudaDeviceSynchronize();
+  cudaEventElapsedTime(&milli, startPatch, stopPatch);
+  std::cout << "Timer Patch: " << milli << " ms" << std::endl;
 
   dbl_t *zeroInit = (dbl_t*)calloc(newInputSize, sizeof(dbl_t));
   cudaMemcpy(newInputCuda, zeroInit, sizeof(dbl_t) * newInputSize, cudaMemcpyHostToDevice);
 
-  const int stotImg = width * height * chSize;
+  /*const int stotImg = width * height * chSize;
   dim3 dimGridImg(totalInputSize / 32);
   dim3 dimBlockImg(32);
-  img_transform_cuda<<<dimGridImg, dimBlockImg>>>(inputCuda, newInputCuda,
-                            width, height, chSize, stotImg,
-                            patchCuda, widthKer, heightKer, P, Q, batchSize,
-                            padTop, padBottom, padL, padR);
-  cudaDeviceSynchronize();
+  cudaEventRecord(startImg);
+  img_transform_cuda<67, 67, 3, 5, 5, 32, 32, 64, 1, 2, 1, 2, 13467, 1024>
+          <<<dimGridImg, dimBlockImg>>>(inputCuda, newInputCuda, patchCuda);*/
+  dim3 dimGridImg(67, 16);
+  dim3 dimBlockImg(201, 4);
+  cudaEventRecord(startImg);
+  img_transform_cuda2<67, 67, 3, 5, 5, 32, 32, 64, 1, 2, 1, 2, 13467, 1024>
+          <<<dimGridImg, dimBlockImg>>>(inputCuda, newInputCuda, patchCuda);
+  cudaEventRecord(stopImg);
+  //cudaDeviceSynchronize();
+  cudaEventSynchronize(stopImg);
+
+  cudaEventElapsedTime(&milli, startImg, stopImg);
+  std::cout << "Timer Img: " << milli << " ms" << std::endl;
 
   dbl_t *resConvCuda;
   const int resSize = nbFilter * batchSize * P * Q;
@@ -280,11 +344,10 @@ void make_conv(char **argv)
 
   cudaEventSynchronize(stop);
 
-  float milli = 0;
-  cudaEventElapsedTime(&milli, start, stop);
-  std::cout << "Timer all: " << milli << " ms" << std::endl;
   cudaEventElapsedTime(&milli, startConv, stop);
   std::cout << "Timer conv: " << milli << " ms" << std::endl;
+  cudaEventElapsedTime(&milli, start, stop);
+  std::cout << "Timer all: " << milli << " ms" << std::endl;
 
   dbl_t *transfCuda;
   cudaMalloc((void**)&transfCuda, sizeof(dbl_t) * resSize);
