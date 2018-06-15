@@ -88,9 +88,11 @@ namespace rt
                                           const int input_size[],
                                           const std::vector<Node*>& preds);
 
-        static Node* op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
-                                          dbl_t* output, const int y_size[], const int input_size[],
-                                          const std::vector<Node*>& preds);
+        static Node* op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input,
+                                                     const int strides[],
+                                                     dbl_t* output, const int y_size[],
+                                                     const int input_size[], const int kernel_size[],
+                                                     const std::vector<Node*>& preds);
 
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,

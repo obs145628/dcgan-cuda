@@ -265,9 +265,11 @@ namespace rt
         return res;
     }
 
-    Node* Node::op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
-                                dbl_t* output, const int y_size[], const int input_size[],
-                                const std::vector<Node*>& preds)
+    Node* Node::op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input,
+                                                const int strides[],
+                                                dbl_t* output, const int y_size[],
+                                                const int input_size[], const int kernel_size[],
+                                                const std::vector<Node*>& preds)
     {
         auto res = new Node(OP_CONV2D_TRANSPOSE_KERNEL_GRAD, preds);
         res->in1 = y;
@@ -283,6 +285,10 @@ namespace rt
         res->sizes2[1] = input_size[1];
         res->sizes2[2] = input_size[2];
         res->sizes2[3] = input_size[3];
+        res->sizes3[0] = kernel_size[0];
+        res->sizes3[1] = kernel_size[1];
+        res->sizes3[2] = kernel_size[2];
+        res->sizes3[3] = kernel_size[3];
         return res;
     }
 

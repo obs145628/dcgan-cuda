@@ -49,7 +49,7 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k test_conv_d0 test_conv_d1 test_conv_d2 test_conv_d3 test_conv_s1 test_conv_dx_d0 test_conv_dx_d1 test_conv_dx_d2 test_conv_dx_d3 test_conv_s2 test_conv_dk_d0 test_conv_dk_d1 test_conv_dk_d2 test_conv_dk_d3 test_conv_g0 test_conv_g1 test_conv_g2 test_conv_g3 test_conv_dx_g0 test_conv_dx_g1 test_conv_dx_g2 test_conv_dx_g3)
+   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k test_conv_d0 test_conv_d1 test_conv_d2 test_conv_d3 test_conv_s1 test_conv_dx_d0 test_conv_dx_d1 test_conv_dx_d2 test_conv_dx_d3 test_conv_s2 test_conv_dk_d0 test_conv_dk_d1 test_conv_dk_d2 test_conv_dk_d3 test_conv_g0 test_conv_g1 test_conv_g2 test_conv_g3 test_conv_dx_g0 test_conv_dx_g1 test_conv_dx_g2 test_conv_dx_g3 test_conv_dk_g0 test_conv_dk_g1 test_conv_dk_g2 test_conv_dk_g3)
 
 
 set(TEST_SRC
@@ -534,3 +534,31 @@ set(TEST_CONV_DX_G3_SRC
 )
 add_executable(test_conv_dx_g3 EXCLUDE_FROM_ALL ${TEST_CONV_DX_G3_SRC})
 target_link_libraries(test_conv_dx_g3 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_DK_G0_SRC
+  ${SRC}
+  tests/test_conv_dk_g0.cu
+)
+add_executable(test_conv_dk_g0 EXCLUDE_FROM_ALL ${TEST_CONV_DK_G0_SRC})
+target_link_libraries(test_conv_dk_g0 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_DK_G1_SRC
+  ${SRC}
+  tests/test_conv_dk_g1.cu
+)
+add_executable(test_conv_dk_g1 EXCLUDE_FROM_ALL ${TEST_CONV_DK_G1_SRC})
+target_link_libraries(test_conv_dk_g1 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_DK_G2_SRC
+  ${SRC}
+  tests/test_conv_dk_g2.cu
+)
+add_executable(test_conv_dk_g2 EXCLUDE_FROM_ALL ${TEST_CONV_DK_G2_SRC})
+target_link_libraries(test_conv_dk_g2 ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_CONV_DK_G3_SRC
+  ${SRC}
+  tests/test_conv_dk_g3.cu
+)
+add_executable(test_conv_dk_g3 EXCLUDE_FROM_ALL ${TEST_CONV_DK_G3_SRC})
+target_link_libraries(test_conv_dk_g3 ${ZLIB_LIBRARIES} pthread)
