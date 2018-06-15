@@ -8,6 +8,7 @@ template<int widthA, int widthB, int blockDimX>
 __global__
 void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
 {
+  //printf("BVal = %f", B[0]);
   __shared__ dbl_t A_tile[blockDimX * blockDimX];
   dbl_t cRes[blockDimX] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
@@ -45,7 +46,7 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
       if (bPIndex + indexPartial < 4915200)
       {
         const dbl_t bVal = bPartial[indexPartial];
-
+        //printf("bVal = %d", bVal);
         #pragma unroll
         for (int j = 0; j < 16; ++j)
           cRes[j] += A_tile[tileIndex + j] * bVal;
@@ -228,13 +229,21 @@ void make_conv(char **argv)
   cudaEventElapsedTime(&milli, startImg, stopImg);
   std::cout << "Timer Img: " << milli << " ms" << std::endl;
 
+  dbl_t *imgTest = (dbl_t*)malloc(sizeof(dbl_t) * newInputSize);
+  cudaMemcpy(imgTest, newInputCuda, sizeof(dbl_t) * newInputSize, cudaMemcpyDeviceToHost);
+  img_transformed_print(imgTest, batchSize, chSize, P, Q, widthKer, heightKer);
+
+  dbl_t *Test = (dbl_t*)malloc(sizeof(dbl_t));
+  cudaMemcpy(Test, newInputCuda, sizeof(dbl_t), cudaMemcpyDeviceToHost);
+  printf("Get Val = %f", *Test);
+
   dbl_t *resConvCuda;
   const int resSize = nbFilter * batchSize * P * Q;
   cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
   dim3 dimBlockConv(16, 4);
   dim3 dimGridConv(1024, 4);
   cudaEventRecord(startConv);
-  mat_mul_cuda<75, 69696, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
+  mat_mul_cuda<75, 65536, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
   cudaEventRecord(stop);
 
   cudaEventSynchronize(stop);
