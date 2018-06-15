@@ -197,14 +197,14 @@ namespace gpu
         std::size_t hy = sh * (hx - 1) + hk - pad_height;
         std::size_t wy = sw * (wx - 1) + wk - pad_width;
 
-        /*
+
         std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
         std::cout << "K: " << hk << ", " << wk << ", " << ck << ", " << cx << std::endl;
         std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
         std::cout << "S: " << sh << ", " << sw << std::endl;
         std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
                   << std::endl;
-        */
+        
 
 
         conv2d_dx_naive(
@@ -216,12 +216,6 @@ namespace gpu
             sh, sw
             );
     }
-
-    /*
-    inline void conv2d_transpose_input_grad(const dbl_t* dX1, const dbl_t* W1, const int stride,
-                                            const int* dX1_size,
-                                            const int* W1_size, dbl_t* out, const int* input_size);
-    */
     
     void kernel_conv2d_transpose_input_grad(rt::Node* node)
     {
@@ -252,14 +246,14 @@ namespace gpu
         std::size_t pad_right = pad_width - pad_left;
 
 
-        /*
+        
         std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
         std::cout << "K: " << hk << ", " << wk << ", " << ck << ", " << cx << std::endl;
         std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;  
         std::cout << "S: " << sh << ", " << sw << std::endl;
         std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
                   << std::endl;
-        */
+        
 
         
 
@@ -278,11 +272,6 @@ namespace gpu
     
     void kernel_conv2d_transpose_kernel_grad(rt::Node* node)
     {
-        /*
-        conv2d_transpose_kernel_grad(node->in1, node->in2, node->intconst[0],
-                                     node->sizes1, node->sizes2, node->out1);
-        */
-
         const dbl_t* x = node->in2;
         std::size_t nx = node->sizes2[0];
         std::size_t hx = node->sizes2[1];
