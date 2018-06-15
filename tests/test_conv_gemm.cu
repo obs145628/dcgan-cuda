@@ -127,6 +127,23 @@ void img_transform_cuda(const dbl_t *img, dbl_t *res, const int wSize,
   }
 }
 
+__global__
+void transform_res(const dbl_t *resConv, dblt_t *transf)
+{
+  __shared__ const int blkIdx = blockIdx.y * 69696 + blockIdx.x * 4356;
+  const int thIdx = threadIdx.y * 4356 + threadIdx.x;
+  const int realIdx = blkIdx + thIdx;
+  const int nbFIdx = realIdx % 69696;
+  const int tmp0 = nbFIdx * 69696;
+  const int batchIdx = (realIdx - tmp0) / 1089;
+  const int tmp1 = batchIdx * 1089;
+  const int tmp2 = realIdx - tmp0 - tmp1;
+  const int hIdx = tmp2 / 33;
+  const int wIdx = tmp2 % 33;
+
+  transf[batchIdx * 69696 + hIdx * 33 * 64 + wIdx * 64 + nbFIdx] = resConv[realIdx];
+}
+
 void make_conv(char **argv)
 {
   auto mats = tocha::Tensors::load(argv[1]);
@@ -200,11 +217,10 @@ void make_conv(char **argv)
   const int resSize = nbFilter * batchSize * P * Q;
   cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
   dim3 dimBlockConv(16, 4);
-  dim3 dimGridConv(1024, 4);
-
+  dim3 dimGridConv(1089, 4);
 
   cudaEventRecord(startConv);
-  mat_mul_cuda<75, 65536, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
+  mat_mul_cuda<75, 69696, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
   cudaEventRecord(stop);
 
   cudaEventSynchronize(stop);
@@ -214,12 +230,19 @@ void make_conv(char **argv)
   cudaEventElapsedTime(&milli, startConv, stop);
   std::cout << "Timer conv: " << milli << " ms" << std::endl;
 
+  dbl_t *transfCuda;
+  cudaMalloc((void**)transfCuda, sizeof(dbl_t) * resSize);
+  dim3 dimGridTransf(4356, 16);
+  dim3 dimBlockTransf(16, 4);
+  transform_res<<<dimGridTransf, dimBlockTransf>>>(resConvCuda, transfCuda);
+
+  cudaDeviceSynchronize();
 
   tocha::Tensors out;
-  out.add(tocha::Tensor::f32(64, 69696));
+  out.add(tocha::Tensor::f32(64, 33, 33, 64));
   dbl_t* res = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
-  cudaMemcpy(res, resConvCuda, sizeof(dbl_t) * resSize, cudaMemcpyDeviceToHost);
+  cudaMemcpy(res, transfCuda, sizeof(dbl_t) * resSize, cudaMemcpyDeviceToHost);
 
   out.save(argv[2]);
 
