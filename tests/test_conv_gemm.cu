@@ -181,7 +181,8 @@ void make_conv(char **argv)
 
   dbl_t *kernelCuda, *newKernelCuda;
 
-  cudaEvent_t start, stop, startConv, stopKer, startPatch, stopPatch, startImg, stopImg;
+  cudaEvent_t start, stop, startConv, stopKer, startPatch, stopPatch,
+              startImg, stopImg, startTransf, stopTransf;
   cudaEventCreate(&start);
   cudaEventCreate(&stop);
   cudaEventCreate(&startConv);
@@ -190,6 +191,8 @@ void make_conv(char **argv)
   cudaEventCreate(&stopKer);
   cudaEventCreate(&stopPatch);
   cudaEventCreate(&stopImg);
+  cudaEventCreate(&startTransf);
+  cudaEventCreate(&stopTransf);
 
   cudaEventRecord(start);
   cudaMalloc((void**)&kernelCuda, sizeof(dbl_t) * totalKernelSize);
@@ -245,12 +248,18 @@ void make_conv(char **argv)
   std::cout << "Timer all: " << milli << " ms" << std::endl;
 
   dbl_t *transfCuda;
+  cudaEventRecord(startTransf);
   cudaMalloc((void**)&transfCuda, sizeof(dbl_t) * resSize);
   dim3 dimGridTransf(4096, 16);
   dim3 dimBlockTransf(16, 4);
   transform_res<<<dimGridTransf, dimBlockTransf>>>(resConvCuda, transfCuda);
 
-  cudaDeviceSynchronize();
+  cudaEventRecord(stopTransf);
+  //cudaDeviceSynchronize();
+  cudaEventSynchronize(stopTransf);
+
+  cudaEventElapsedTime(&milli, startTransf, stopTransf);
+  std::cout << "Timer transf: " << milli << " ms" << std::endl;
 
   tocha::Tensors out;
   out.add(tocha::Tensor::f32(64, 32, 32, 64));

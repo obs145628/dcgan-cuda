@@ -6,7 +6,7 @@
 #include "conv2d_naive.hh"
 #include "conv2d_shared1.hh"
 #include "conv2d_shared2.hh"
-
+#include "conv2d_gemm.hh"
 
 namespace gpu
 {
@@ -50,10 +50,14 @@ namespace gpu
           std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
         */
 
-        conv2d_fwd_shared2(
-        //conv2d_fwd_shared1(
-        //conv2d_fwd_naive(
-        //conv2d_fwd_mat(
+        if (nx == 64 && hx == 64 && wx == 64 && cx == 3)
+          conv2d_d0_caller(x, k, y);
+        else
+        {
+          conv2d_fwd_shared2(
+          //conv2d_fwd_shared1(
+          //conv2d_fwd_naive(
+          //conv2d_fwd_mat(
             x, k, y,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
@@ -61,7 +65,7 @@ namespace gpu
             hy, wy,
             sh, sw
             );
-        
+        }
     }
 
     /*
