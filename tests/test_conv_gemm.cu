@@ -232,6 +232,7 @@ void make_conv(char **argv)
   cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
   dim3 dimBlockConv(16, 4);
   dim3 dimGridConv(1024, 4);
+
   cudaEventRecord(startConv);
   mat_mul_cuda<75, 65536, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
   cudaEventRecord(stop);
