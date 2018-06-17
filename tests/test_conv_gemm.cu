@@ -65,22 +65,9 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
   }
 }
 
-void ker_transformed_print(const dbl_t *ker, int nbFilter, int size)
-{
-  std::cout << "[\n";
-  for (int filter = 0; filter < nbFilter; ++filter)
-  {
-    for(int i = 0; i < size; ++i)
-      std::cout << ker[filter * size + i] << ", ";
-    std::cout << "\n";
-  }
-  std::cout << "\n]";
-}
-
+template<int hSize, int wSize, int chSize, int nbFilter>
 __global__
-void ker_transform_cuda(const dbl_t *ker, dbl_t *res, const int hSize,
-                        const int wSize, const int chSize,
-                        const int nbFilter)
+void ker_transform_cuda(const dbl_t *ker, dbl_t *res)
 {
   const int index = blockIdx.x * blockDim.x + threadIdx.x;
   const int filterIdx = index % nbFilter;
@@ -92,127 +79,55 @@ void ker_transform_cuda(const dbl_t *ker, dbl_t *res, const int hSize,
   res[nIndex] = ker[index];
 }
 
-void print_patch(const int *patch, const int width, const int height, const int P,
-                const int Q)
+template<int numPatchesX,
+         int numPatchesY,
+         int numPatchSlices,
+         int width,
+         int height,
+         int windowWidth,
+         int windowHeight,
+         int strideX,
+         int strideY,
+         int padLeft,
+         int padTop,
+         int batchSize,
+         int chSize>
+__global__ void
+im2col_gpu_kernel(float* stacked,
+                  float const* data,
+                  const int batchIdx)
 {
-  std::cout << std::endl;
-  for (int i = 0; i < width * height; ++i)
-  {
-    std::cout << "(" << (i%width) << ", " << (i/width) << ") = [";
-    for (int j = 0; j < P * Q - 1; ++j)
-      std::cout << patch[i * P * Q + j] << ", ";
-    std::cout << patch[i * P * Q + P * Q - 1] << "], ";
-  }
-  std::cout << std::endl;
-}
+  int index = threadIdx.x + blockIdx.x * blockDim.x ;
+  if (index < numPatchSlices) {
 
-__global__
-void mark_patch(int *patch, const int stride, const int wSize, const int P,
-                const int Q,
-                const int wkSize)
-{
-  const int top_left = blockIdx.y * stride * wSize + blockIdx.x * stride;
-  const int patchIdx = blockIdx.y * Q + blockIdx.x;
-  const int relativeIdx = threadIdx.y * wkSize + threadIdx.x;
-  const int fullIdx = top_left + threadIdx.y * wSize + threadIdx.x;
-  patch[fullIdx * P * Q + patchIdx] = relativeIdx;
-}
+    const int x = index % numPatchesX;
+    int y = index / numPatchesX;
+    const int z = y / numPatchesY;
+    y %= numPatchesY;
 
+    const int x_data = x * strideX - padLeft ;
+    const int y_data = y * strideY - padTop;
+    data += batchIdx * (chSize * width * height) + (y_data * chSize * width) + x_data * chSize + z;
 
-void img_transformed_print(const dbl_t *img, const int batch, const int chSize,
-                           const int P, const int Q, const int wkSize, const int hkSize)
-{
-  std::cout << std::endl;
-  const int patchSize = P * Q * batch;
-  for (int i = 0; i < chSize * wkSize * hkSize; ++i)
-  {
-    for(int j = 0; j < patchSize; ++j)
-      std::cout << img[i * patchSize + j] << " ";
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-}
-
-template<int wSize, int hSize, int chSize, int wkSize, int hkSize, int P, int Q,
-        int batchSize, int padTop, int padBot, int padL, int padR, int stot0, int stot1>
-__global__
-void img_transform_cuda(const dbl_t *img, dbl_t *res, const int *patchIndex)
-{
-  const int index = blockIdx.x * blockDim.x + threadIdx.x;
-  const int batchIdx = index / stot0;
-  const int chIdx = (index - batchIdx * stot0) % chSize;
-  const int hIdx = (index - batchIdx * stot0 - chIdx) / (wSize * chSize);
-  const int wIdx = (index - batchIdx * stot0 - chIdx - hIdx * (wSize * chSize)) / chSize;
-  int i = 0;
-  const int *patchPtr = &patchIndex[hIdx * wSize * stot1
-                         + wIdx * stot1];
-  int patch;
-
-  dbl_t val = 0;
-
-  if (wIdx >= padL && wIdx < (wSize - padR)
-      && hIdx >= padTop && hIdx < (hSize - padBot))
-  {
-
-    const int oldIndex = batchIdx * 64 * 64 * 3 + (hIdx - padTop) * 64 * 3
-            + (wIdx - padL) * 3 + chIdx;
-
-    val = img[oldIndex];
+    const int patchSliceOffset = (numPatchesX*numPatchesY*batchSize*windowWidth*windowHeight) * z + batchIdx * (numPatchesX*numPatchesY) + y * numPatchesX + x;
+    stacked += patchSliceOffset;
 
     #pragma unroll
-    for (;i < stot1; i++)
+    for (int v = 0; v < windowHeight; ++v)
     {
-      patch = *(patchPtr + i);
-      if (patch != -1)
+      #pragma unroll
+      for (int u = 0; u < windowWidth; ++u)
       {
-        int nindex = chIdx * P * Q * wkSize * hkSize * batchSize
-                     + patch * P * Q * batchSize
-                     + batchIdx * P * Q
-                     + i;
-        res[nindex] = val;
-      }
-    }
-  }
-}
-
-template<int wSize, int hSize, int chSize, int wkSize, int hkSize, int P, int Q,
-        int batchSize, int padTop, int padBot, int padL, int padR, int stot0, int stot1>
-__global__
-void img_transform_cuda2(const dbl_t *img, dbl_t *res, const int *patchIndex)
-{
-  const int index = blockIdx.y * 13467 * 4 + blockIdx.x * 201
-                    + threadIdx.y * 13467 + threadIdx.x;
-  const int batchIdx = index / stot0;
-  const int chIdx = (index - batchIdx * stot0) % chSize;
-  const int hIdx = (index - batchIdx * stot0 - chIdx) / (wSize * chSize);
-  const int wIdx = (index - batchIdx * stot0 - chIdx - hIdx * (wSize * chSize)) / chSize;
-  int i = 0;
-  const int *patchPtr = &patchIndex[hIdx * wSize * stot1
-                         + wIdx * stot1];
-  int patch;
-
-  dbl_t val = 0;
-
-  if (wIdx >= padL && wIdx < (wSize - padR)
-      && hIdx >= padTop && hIdx < (hSize - padBot))
-  {
-
-    const int oldIndex = batchIdx * 64 * 64 * 3 + (hIdx - padTop) * 64 * 3
-            + (wIdx - padL) * 3 + chIdx;
-
-    val = img[oldIndex];
-
-    #pragma unroll
-    for (;i < stot1; i++)
-    {
-      patch = *(patchPtr + i);
-      if (patch != -1)
-      {
-        int nindex = chIdx * P * Q * wkSize * hkSize * batchSize
-                     + patch * P * Q * batchSize
-                     + batchIdx * P * Q
-                     + i;
-        res[nindex] = val;
+        if (y_data + v >= 0 &&
+            y_data + v < height &&
+            x_data + u >= 0 &&
+            x_data + u < width)
+        {
+          *stacked = data[v * chSize * width + u * chSize];
+        } else {
+          *stacked = 0 ;
+        }
+        stacked += (numPatchesX*numPatchesY*batchSize);
       }
     }
   }
@@ -283,8 +198,7 @@ void make_conv(char **argv)
                   cudaMemcpyHostToDevice);
   dim3 dimGrid(totalKernelSize / 32);
   dim3 dimBlock(32);
-  ker_transform_cuda<<<dimGrid, dimBlock>>>(kernelCuda, newKernelCuda,
-                  heightKer, widthKer, chSize, nbFilter);
+  ker_transform_cuda<5, 5, 3, 64><<<dimGrid, dimBlock>>>(kernelCuda, newKernelCuda);
   cudaEventRecord(stopKer);
   //cudaDeviceSynchronize();
   cudaEventSynchronize(stopKer);
@@ -292,39 +206,20 @@ void make_conv(char **argv)
   cudaEventElapsedTime(&milli, start, stopKer);
   std::cout << "Timer Ker: " << milli << " ms" << std::endl;
 
-  cudaEventRecord(startPatch);
+  cudaEventRecord(startImg);
   dbl_t *inputCuda, *newInputCuda;
   cudaMalloc((void**)&inputCuda, sizeof(dbl_t) * realTotalInputSize);
   cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
   cudaMemcpy(inputCuda, inputHost, sizeof(dbl_t) * realTotalInputSize,
                   cudaMemcpyHostToDevice);
-  int *patchCuda;
-  cudaMalloc((void**)&patchCuda, sizeof(int) * width * height * P * Q);
-  cudaMemset(patchCuda, -1, sizeof(int) * width * height * P * Q);
-  dim3 dimGridPatch(P, Q);
-  dim3 dimBlockPatch(widthKer, heightKer);
-  mark_patch<<<dimGridPatch, dimBlockPatch>>>(patchCuda, stride, width, P, Q, widthKer);
-  cudaEventRecord(stopPatch);
-  //cudaDeviceSynchronize();
-  cudaEventSynchronize(stopPatch);
 
-  cudaEventElapsedTime(&milli, startPatch, stopPatch);
-  std::cout << "Timer Patch: " << milli << " ms" << std::endl;
+  #pragma unroll
+  for (int b = 0; b < 64; ++b)
+  {
+    im2col_gpu_kernel<32, 32, 3072, 64, 64, 5, 5, 2, 2, 1, 1, 64, 3>
+            <<<3, 1024>>>(newInputCuda, inputCuda, b);
+  }
 
-  dbl_t *zeroInit = (dbl_t*)calloc(newInputSize, sizeof(dbl_t));
-  cudaMemcpy(newInputCuda, zeroInit, sizeof(dbl_t) * newInputSize, cudaMemcpyHostToDevice);
-
-  /*const int stotImg = width * height * chSize;
-  dim3 dimGridImg(totalInputSize / 32);
-  dim3 dimBlockImg(32);
-  cudaEventRecord(startImg);
-  img_transform_cuda<67, 67, 3, 5, 5, 32, 32, 64, 1, 2, 1, 2, 13467, 1024>
-          <<<dimGridImg, dimBlockImg>>>(inputCuda, newInputCuda, patchCuda);*/
-  dim3 dimGridImg(67, 16);
-  dim3 dimBlockImg(201, 4);
-  cudaEventRecord(startImg);
-  img_transform_cuda2<67, 67, 3, 5, 5, 32, 32, 64, 1, 2, 1, 2, 13467, 1024>
-          <<<dimGridImg, dimBlockImg>>>(inputCuda, newInputCuda, patchCuda);
   cudaEventRecord(stopImg);
   //cudaDeviceSynchronize();
   cudaEventSynchronize(stopImg);
@@ -369,7 +264,6 @@ void make_conv(char **argv)
   cudaFree(newKernelCuda);
   cudaFree(resConvCuda);
   cudaFree(inputCuda);
-  cudaFree(patchCuda);
   cudaFree(kernelCuda);
 }
 
