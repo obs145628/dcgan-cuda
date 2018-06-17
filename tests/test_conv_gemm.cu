@@ -198,7 +198,6 @@ void make_conv(char **argv)
                   cudaMemcpyHostToDevice);
   dim3 dimGrid(totalKernelSize / 32);
   dim3 dimBlock(32);
-
   ker_transform_cuda<5, 5, 3, 64><<<dimGrid, dimBlock>>>(kernelCuda, newKernelCuda);
   cudaEventRecord(stopKer);
   //cudaDeviceSynchronize();
