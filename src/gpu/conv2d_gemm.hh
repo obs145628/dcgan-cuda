@@ -11,48 +11,55 @@ namespace gpu
       template<int widthA, int widthB, int blockDim, int maxA, int maxB>
       __global__
       void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
+      {}
+
+      template<int widthA, int widthB, int maxA, int maxB>
+      __global__
+      void mat_mul_cuda32(const dbl_t *A, const dbl_t *B, dbl_t *C)
       {
-         __shared__ dbl_t A_tile[blockDim * blockDim];
-         dbl_t cRes[blockDim] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+         __shared__ dbl_t A_tile[32 * 32];
+         dbl_t cRes[32] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                           0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-         const int aStart = widthA * blockDim * blockIdx.y;
+         const int aStart = widthA * 32 * blockIdx.y;
          const int aEnd = aStart + widthA - 1;
-         const int bStart = blockDim * 4 * blockIdx.x;
-         const int bStep = blockDim * widthB;
+         const int bStart = 32 * 4 * blockIdx.x;
+         const int bStep = 32 * widthB;
 
-         int cIdx = widthB * blockDim * blockIdx.y + blockDim * blockIdx.x * 4
-                         + blockDim * threadIdx.y + threadIdx.x;
+         int cIdx = widthB * 32 * blockIdx.y + 32 * blockIdx.x * 4
+                         + 32 * threadIdx.y + threadIdx.x;
 
          for (int aIdx = aStart, bIdx = bStart; aIdx <= aEnd;
-              aIdx += blockDim, bIdx += bStep)
+              aIdx += 32, bIdx += bStep)
          {
 
            #pragma unroll
-           for (int i = 0; i < 16; i += 4)
+           for (int i = 0; i < 32; i += 4)
            {
-             const int aIndex = aIdx + widthA * (i + threadIdx.y) + threadIdx.x;
-             if (aIndex < maxA)
-               A_tile[i + threadIdx.y + blockDim * threadIdx.x] = A[aIndex];
+              const int aIndex = aIdx + widthA * (i + threadIdx.y) + threadIdx.x;
+              if (aIndex < maxA)
+                A_tile[i + threadIdx.y + 32 * threadIdx.x] = A[aIndex];
            }
 
            __syncthreads();
 
-           const int bPIndex = bIdx + blockDim * threadIdx.y + threadIdx.x;
+           const int bPIndex = bIdx + 32 * threadIdx.y + threadIdx.x;
            const dbl_t *bPartial = &B[bPIndex];
            int indexPartial = 0;
            int tileIndex = 0;
+           const int maxPartial = maxB - bPIndex;
 
            #pragma unroll
-           for (int i = 0; i < blockDim; ++i)
+           for (int i = 0; i < 32; ++i)
            {
-             if ((bPIndex + indexPartial) < maxB)
+             if (indexPartial < maxPartial)
              {
                const dbl_t bVal = bPartial[indexPartial];
 
                #pragma unroll
-               for (int j = 0; j < 16; ++j)
+               for (int j = 0; j < 32; ++j)
                  cRes[j] += A_tile[tileIndex + j] * bVal;
-               tileIndex += blockDim;
+               tileIndex += 32;
                indexPartial += widthB;
              }
            }
@@ -61,7 +68,68 @@ namespace gpu
          }
 
          #pragma unroll
-         for (int i = 0; i < blockDim; ++i)
+         for (int i = 0; i < 32; ++i)
+         {
+           C[cIdx] = cRes[i];
+           cIdx += widthB;
+         }
+      }
+
+      template<int widthA, int widthB, int maxA, int maxB>
+      __global__
+      void mat_mul_cuda16(const dbl_t *A, const dbl_t *B, dbl_t *C)
+      {
+         __shared__ dbl_t A_tile[16 * 16];
+         dbl_t cRes[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+         const int aStart = widthA * 16 * blockIdx.y;
+         const int aEnd = aStart + widthA - 1;
+         const int bStart = 16 * 4 * blockIdx.x;
+         const int bStep = 16 * widthB;
+
+         int cIdx = widthB * 16 * blockIdx.y + 16 * blockIdx.x * 4
+                         + 16 * threadIdx.y + threadIdx.x;
+
+         for (int aIdx = aStart, bIdx = bStart; aIdx <= aEnd;
+              aIdx += 16, bIdx += bStep)
+         {
+
+           #pragma unroll
+           for (int i = 0; i < 16; i += 4)
+           {
+             const int aIndex = aIdx + widthA * (i + threadIdx.y) + threadIdx.x;
+             if (aIndex < maxA)
+               A_tile[i + threadIdx.y + 16 * threadIdx.x] = A[aIndex];
+           }
+
+           __syncthreads();
+
+           const int bPIndex = bIdx + 16 * threadIdx.y + threadIdx.x;
+           const dbl_t *bPartial = &B[bPIndex];
+           int indexPartial = 0;
+           int tileIndex = 0;
+           const int maxPartial = maxB - bPIndex;
+
+           #pragma unroll
+           for (int i = 0; i < 16; ++i)
+           {
+             if (indexPartial < maxPartial)
+             {
+               const dbl_t bVal = bPartial[indexPartial];
+
+               #pragma unroll
+               for (int j = 0; j < 16; ++j)
+                 cRes[j] += A_tile[tileIndex + j] * bVal;
+               tileIndex += 16;
+               indexPartial += widthB;
+             }
+           }
+
+           __syncthreads();
+         }
+
+         #pragma unroll
+         for (int i = 0; i < 16; ++i)
          {
            C[cIdx] = cRes[i];
            cIdx += widthB;
@@ -182,7 +250,7 @@ namespace gpu
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(1024, 4);
-      mat_mul_cuda<75, 65536, 16, 4800, 4915200><<<dimGridConv, dimBlockConv>>>(
+      mat_mul_cuda16<75, 65536, 4800, 4915200><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
       cudaDeviceSynchronize();
@@ -254,9 +322,9 @@ namespace gpu
       dbl_t *resConvCuda;
       constexpr int resSize1 = 128 * 64 * 16 * 16;
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
-      dim3 dimBlockConv(16, 4);
-      dim3 dimGridConv(256, 8);
-      mat_mul_cuda<1600, 16384, 16, 204800, 26214400><<<dimGridConv, dimBlockConv>>>(
+      dim3 dimBlockConv(32, 4);
+      dim3 dimGridConv(128, 4);
+      mat_mul_cuda32<1600, 16384, 204800, 26214400><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
       //cudaDeviceSynchronize();
@@ -342,7 +410,7 @@ namespace gpu
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(64, 16);
-      mat_mul_cuda<3200, 4096, 16, 819200, 13107200><<<dimGridConv, dimBlockConv>>>(
+      mat_mul_cuda16<3200, 4096, 819200, 13107200><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
       //cudaDeviceSynchronize();
@@ -428,7 +496,7 @@ namespace gpu
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(16, 32);
-      mat_mul_cuda<6400, 1024, 16, 3276800, 6553600><<<dimGridConv, dimBlockConv>>>(
+      mat_mul_cuda16<6400, 1024, 3276800, 6553600><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
       //cudaDeviceSynchronize();
