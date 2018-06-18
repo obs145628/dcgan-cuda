@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <fstream>
 
 namespace gpu
 {
@@ -149,6 +150,11 @@ namespace gpu
 
     void conv2d_d0_caller(const float *data, const float *ker, float *res)
     {
+      cudaEvent_t start, stop;
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+      cudaEventRecord(start, 0);
+
       dbl_t *newKernelCuda;
       constexpr int totalKernelSize = 5 * 5 * 3 * 64;
       cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
@@ -186,7 +192,13 @@ namespace gpu
       transform_res<65536, 32, 32, 64><<<dimGridTransf, dimBlockTransf>>>(
                       resConvCuda, res);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stop, 0);
+      cudaEventSynchronize(stop);
+      float time;
+      cudaEventElapsedTime(&time, start, stop);
+      std::ofstream fos("time_gemm.log", std::ios::app);
+      fos << "time (fwd_gemm_d0) = " << time << "ms\n" << std::endl;
 
       cudaFree(newKernelCuda);
       cudaFree(newInputCuda);
@@ -195,6 +207,18 @@ namespace gpu
 
     void conv2d_d1_caller(const float *data, const float *ker, float *res)
     {
+      cudaEvent_t start, stop, stopKer, startImg, stopImg,
+                  startMul, stopMul, startTransf;
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+      cudaEventCreate(&stopKer);
+      cudaEventCreate(&startImg);
+      cudaEventCreate(&stopImg);
+      cudaEventCreate(&startMul);
+      cudaEventCreate(&stopMul);
+      cudaEventCreate(&startTransf);
+      cudaEventRecord(start, 0);
+
       dbl_t *newKernelCuda;
       constexpr int totalKernelSize1 = 5 * 5 * 128 * 64;
       cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
@@ -202,8 +226,13 @@ namespace gpu
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 64, 128><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopKer, 0);
+      cudaEventSynchronize(stopKer);
+      float timeKer;
+      cudaEventElapsedTime(&timeKer, start, stopKer);
 
+      cudaEventRecord(startImg, 0);
       dbl_t *newInputCuda;
       constexpr int newInputSize1 = 64 * 5 * 5 * 64 * 16 * 16;
       cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
@@ -215,8 +244,13 @@ namespace gpu
                 <<<16, 1024>>>(newInputCuda, data, b);
       }
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopImg, 0);
+      cudaEventSynchronize(stopImg);
+      float timeImg;
+      cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
+      cudaEventRecord(startMul, 0);
       dbl_t *resConvCuda;
       constexpr int resSize1 = 128 * 64 * 16 * 16;
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
@@ -225,15 +259,32 @@ namespace gpu
       mat_mul_cuda<1600, 16384, 16, 204800, 26214400><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopMul, 0);
+      cudaEventSynchronize(stopMul);
+      float timeMul;
+      cudaEventElapsedTime(&timeMul, startMul, stopMul);
 
-
+      cudaEventRecord(startTransf, 0);
       dim3 dimGridTransf(1024, 32);
       dim3 dimBlockTransf(16, 4);
       transform_res<16384, 16, 16, 128><<<dimGridTransf, dimBlockTransf>>>(
                       resConvCuda, res);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stop, 0);
+      cudaEventSynchronize(stop);
+      float timeTransf;
+      cudaEventElapsedTime(&timeTransf, startTransf, stop);
+
+      float time;
+      cudaEventElapsedTime(&time, start, stop);
+      std::ofstream fos("time_gemm.log", std::ios::app);
+      fos << "time (fwd_gemm_d1_ker) = " << timeKer << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d1_img) = " << timeImg << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d1_mul) = " << timeMul << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d1_transf) = " << timeTransf << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d1_all) = " << time << "ms\n" << std::endl;
 
       cudaFree(newKernelCuda);
       cudaFree(newInputCuda);
@@ -242,6 +293,18 @@ namespace gpu
 
     void conv2d_d2_caller(const float *data, const float *ker, float *res)
     {
+      cudaEvent_t start, stop, stopKer, startImg, stopImg,
+                  startMul, stopMul, startTransf;
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+      cudaEventCreate(&stopKer);
+      cudaEventCreate(&startImg);
+      cudaEventCreate(&stopImg);
+      cudaEventCreate(&startMul);
+      cudaEventCreate(&stopMul);
+      cudaEventCreate(&startTransf);
+      cudaEventRecord(start, 0);
+
       dbl_t *newKernelCuda;
       constexpr int totalKernelSize1 = 5 * 5 * 128 * 256;
       cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
@@ -249,8 +312,13 @@ namespace gpu
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 128, 256><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopKer, 0);
+      cudaEventSynchronize(stopKer);
+      float timeKer;
+      cudaEventElapsedTime(&timeKer, start, stopKer);
 
+      cudaEventRecord(startImg, 0);
       dbl_t *newInputCuda;
       constexpr int newInputSize1 = 5 * 5 * 128 * 64 * 8 * 8;
       cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
@@ -262,8 +330,13 @@ namespace gpu
                 <<<8, 1024>>>(newInputCuda, data, b);
       }
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopImg, 0);
+      cudaEventSynchronize(stopImg);
+      float timeImg;
+      cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
+      cudaEventRecord(startMul, 0);
       dbl_t *resConvCuda;
       constexpr int resSize1 = 256 * 64 * 8 * 8;
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
@@ -272,15 +345,32 @@ namespace gpu
       mat_mul_cuda<3200, 4096, 16, 819200, 13107200><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopMul, 0);
+      cudaEventSynchronize(stopMul);
+      float timeMul;
+      cudaEventElapsedTime(&timeMul, startMul, stopMul);
 
-
+      cudaEventRecord(startTransf, 0);
       dim3 dimGridTransf(256, 64);
       dim3 dimBlockTransf(16, 4);
       transform_res<4096, 8, 8, 256><<<dimGridTransf, dimBlockTransf>>>(
                       resConvCuda, res);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stop, 0);
+      cudaEventSynchronize(stop);
+      float timeTransf;
+      cudaEventElapsedTime(&timeTransf, startTransf, stop);
+
+      float time;
+      cudaEventElapsedTime(&time, start, stop);
+      std::ofstream fos("time_gemm.log", std::ios::app);
+      fos << "time (fwd_gemm_d2_ker) = " << timeKer << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d2_img) = " << timeImg << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d2_mul) = " << timeMul << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d2_transf) = " << timeTransf << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d2_all) = " << time << "ms\n" << std::endl;
 
       cudaFree(newKernelCuda);
       cudaFree(newInputCuda);
@@ -289,6 +379,18 @@ namespace gpu
 
     void conv2d_d3_caller(const float *data, const float *ker, float *res)
     {
+      cudaEvent_t start, stop, stopKer, startImg, stopImg,
+                  startMul, stopMul, startTransf;
+      cudaEventCreate(&start);
+      cudaEventCreate(&stop);
+      cudaEventCreate(&stopKer);
+      cudaEventCreate(&startImg);
+      cudaEventCreate(&stopImg);
+      cudaEventCreate(&startMul);
+      cudaEventCreate(&stopMul);
+      cudaEventCreate(&startTransf);
+      cudaEventRecord(start, 0);
+
       dbl_t *newKernelCuda;
       constexpr int totalKernelSize1 = 5 * 5 * 256 * 512;
       cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
@@ -296,8 +398,13 @@ namespace gpu
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 256, 512><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopKer, 0);
+      cudaEventSynchronize(stopKer);
+      float timeKer;
+      cudaEventElapsedTime(&timeKer, start, stopKer);
 
+      cudaEventRecord(startImg, 0);
       dbl_t *newInputCuda;
       constexpr int newInputSize1 = 5 * 5 * 256 * 64 * 4 * 4;
       cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
@@ -309,8 +416,13 @@ namespace gpu
                 <<<4, 1024>>>(newInputCuda, data, b);
       }
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopImg, 0);
+      cudaEventSynchronize(stopImg);
+      float timeImg;
+      cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
+      cudaEventRecord(startMul, 0);
       dbl_t *resConvCuda;
       constexpr int resSize1 = 512 * 64 * 4 * 4;
       cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
@@ -319,15 +431,32 @@ namespace gpu
       mat_mul_cuda<6400, 1024, 16, 3276800, 6553600><<<dimGridConv, dimBlockConv>>>(
                       newKernelCuda, newInputCuda, resConvCuda);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stopMul, 0);
+      cudaEventSynchronize(stopMul);
+      float timeMul;
+      cudaEventElapsedTime(&timeMul, startMul, stopMul);
 
-
+      cudaEventRecord(startTransf, 0);
       dim3 dimGridTransf(64, 128);
       dim3 dimBlockTransf(16, 4);
       transform_res<1024, 4, 4, 512><<<dimGridTransf, dimBlockTransf>>>(
                       resConvCuda, res);
 
-      cudaDeviceSynchronize();
+      //cudaDeviceSynchronize();
+      cudaEventRecord(stop, 0);
+      cudaEventSynchronize(stop);
+      float timeTransf;
+      cudaEventElapsedTime(&timeTransf, startTransf, stop);
+
+      float time;
+      cudaEventElapsedTime(&time, start, stop);
+      std::ofstream fos("time_gemm.log", std::ios::app);
+      fos << "time (fwd_gemm_d3_ker) = " << timeKer << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d3_img) = " << timeImg << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d3_mul) = " << timeMul << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d3_transf) = " << timeTransf << "ms\n" << std::endl;
+      fos << "time (fwd_gemm_d3_all) = " << time << "ms\n" << std::endl;
 
       cudaFree(newKernelCuda);
       cudaFree(newInputCuda);
