@@ -54,6 +54,10 @@ namespace gpu
           conv2d_d0_caller(x, k, y);
         else if (nx == 64 && hx == 32 && wx == 32 && cx == 64)
           conv2d_d1_caller(x, k, y);
+        else if (nx == 64 && hx == 16 && wx == 16 && cx == 128)
+          conv2d_d2_caller(x, k, y);
+        else if (nx == 64 && hx == 8 && wx == 8 && cx == 256)
+          conv2d_d3_caller(x, k, y);
         else
         {
           conv2d_fwd_shared2(

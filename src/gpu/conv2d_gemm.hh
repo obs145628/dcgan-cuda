@@ -131,10 +131,10 @@ namespace gpu
     __global__
     void transform_res(const dbl_t *resConv, dbl_t *transf)
     {
-      int blkIdx = blockIdx.y * width * 4 + blockIdx.x * 16;
+      const int blkIdx = blockIdx.y * width * 4 + blockIdx.x * 16;
       const int thIdx = threadIdx.y * width + threadIdx.x;
       const int realIdx = blkIdx + thIdx;
-      const int nbFIdx = realIdx / width;
+      const int nbFIdx = blockIdx.y * 4 + threadIdx.y;//realIdx / width;
       const int tmp0 = nbFIdx * width;
       const int batchIdx = (realIdx - tmp0) / (P * Q);
       const int tmp1 = batchIdx * P * Q;
@@ -142,7 +142,8 @@ namespace gpu
       const int hIdx = tmp2 / P;
       const int wIdx = tmp2 % P;
 
-      transf[batchIdx * width + hIdx * P * nbFilter + wIdx * nbFilter + nbFIdx]
+      transf[batchIdx * P * Q * nbFilter + hIdx * P * nbFilter
+              + wIdx * nbFilter + nbFIdx]
               = resConv[realIdx];
     }
 
@@ -230,6 +231,100 @@ namespace gpu
       dim3 dimGridTransf(1024, 32);
       dim3 dimBlockTransf(16, 4);
       transform_res<16384, 16, 16, 128><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+      cudaDeviceSynchronize();
+
+      cudaFree(newKernelCuda);
+      cudaFree(newInputCuda);
+      cudaFree(resConvCuda);
+    }
+
+    void conv2d_d2_caller(const float *data, const float *ker, float *res)
+    {
+      dbl_t *newKernelCuda;
+      constexpr int totalKernelSize1 = 5 * 5 * 128 * 256;
+      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
+      dim3 dimGrid(totalKernelSize1 / 32);
+      dim3 dimBlock(32);
+      ker_transform_cuda<5, 5, 128, 256><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
+
+      cudaDeviceSynchronize();
+
+      dbl_t *newInputCuda;
+      constexpr int newInputSize1 = 5 * 5 * 128 * 64 * 8 * 8;
+      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
+
+      #pragma unroll
+      for (int b = 0; b < 64; ++b)
+      {
+        im2col<8, 8, 8192, 16, 16, 5, 5, 2, 1, 1, 64, 128>
+                <<<8, 1024>>>(newInputCuda, data, b);
+      }
+
+      cudaDeviceSynchronize();
+
+      dbl_t *resConvCuda;
+      constexpr int resSize1 = 256 * 64 * 8 * 8;
+      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+      dim3 dimBlockConv(16, 4);
+      dim3 dimGridConv(64, 16);
+      mat_mul_cuda<3200, 4096, 16, 819200, 13107200><<<dimGridConv, dimBlockConv>>>(
+                      newKernelCuda, newInputCuda, resConvCuda);
+
+      cudaDeviceSynchronize();
+
+
+      dim3 dimGridTransf(256, 64);
+      dim3 dimBlockTransf(16, 4);
+      transform_res<4096, 8, 8, 256><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+      cudaDeviceSynchronize();
+
+      cudaFree(newKernelCuda);
+      cudaFree(newInputCuda);
+      cudaFree(resConvCuda);
+    }
+
+    void conv2d_d3_caller(const float *data, const float *ker, float *res)
+    {
+      dbl_t *newKernelCuda;
+      constexpr int totalKernelSize1 = 5 * 5 * 256 * 512;
+      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
+      dim3 dimGrid(totalKernelSize1 / 32);
+      dim3 dimBlock(32);
+      ker_transform_cuda<5, 5, 256, 512><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
+
+      cudaDeviceSynchronize();
+
+      dbl_t *newInputCuda;
+      constexpr int newInputSize1 = 5 * 5 * 256 * 64 * 4 * 4;
+      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
+
+      #pragma unroll
+      for (int b = 0; b < 64; ++b)
+      {
+        im2col<4, 4, 4096, 8, 8, 5, 5, 2, 1, 1, 64, 256>
+                <<<4, 1024>>>(newInputCuda, data, b);
+      }
+
+      cudaDeviceSynchronize();
+
+      dbl_t *resConvCuda;
+      constexpr int resSize1 = 512 * 64 * 4 * 4;
+      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+      dim3 dimBlockConv(16, 4);
+      dim3 dimGridConv(16, 32);
+      mat_mul_cuda<6400, 1024, 16, 3276800, 6553600><<<dimGridConv, dimBlockConv>>>(
+                      newKernelCuda, newInputCuda, resConvCuda);
+
+      cudaDeviceSynchronize();
+
+
+      dim3 dimGridTransf(64, 128);
+      dim3 dimBlockTransf(16, 4);
+      transform_res<1024, 4, 4, 512><<<dimGridTransf, dimBlockTransf>>>(
                       resConvCuda, res);
 
       cudaDeviceSynchronize();
