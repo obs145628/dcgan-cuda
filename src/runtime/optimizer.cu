@@ -62,15 +62,15 @@ namespace rt
                 return res;
             }
 
-            std::size_t nv = node->len2;
+            const std::size_t nv = node->len2;
 
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
-                div_nodes.push_back(Node::op_mat_rvect_add(node->in1 + i * nv, node->in2,
-                                                node->out1 + i * nv, m, nv, preds));
+                div_nodes.push_back(Node::op_mat_rvect_add(node->in1 + (i * m * nv), node->in2,
+                                                node->out1 + (i * m * nv), m, nv, preds));
 
-            div_nodes.push_back(Node::op_mat_rvect_add(node->in1 - m, node->in2,
-                node->out1 - m, m, nv, preds));
+            div_nodes.push_back(Node::op_mat_rvect_add(node->in1 + (n - 1) * m * nv, node->in2,
+                node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -104,8 +104,8 @@ namespace rt
                 div_nodes.push_back(Node::op_sigmoid(in + i * m, out + i * m,
                                                      m, preds));
 
-            div_nodes.push_back(Node::op_sigmoid(in + node->len1 - m, out + node->len1 - m,
-                                                 m, preds));
+            div_nodes.push_back(Node::op_sigmoid(in + (n - 1) * m, out + (n - 1) * m,
+                                                node->len1 - ((n - 1) * m), preds));
 
             for (auto n : div_nodes)
             {
@@ -143,11 +143,11 @@ namespace rt
 
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
-                div_nodes.push_back(Node::op_softmax(node->in1 + i * nv, node->out1 + i * nv,
+                div_nodes.push_back(Node::op_softmax(node->in1 + (i * m * nv), node->out1 + (i * m * nv),
                                                                         m, nv, preds));
 
-            div_nodes.push_back(Node::op_softmax(node->in1 + node->len1 - m,
-                                    node->out1 + node->len2 - m, m, nv, preds));
+            div_nodes.push_back(Node::op_softmax(node->in1 + (n - 1) * m * nv,
+                        node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
