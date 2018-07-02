@@ -174,11 +174,11 @@ namespace rt
 
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
-                div_nodes.push_back(Node::op_log_softmax(node->in1 + i * nv, node->out1 + i * nv,
-                                                                        m, nv, preds));
+                div_nodes.push_back(Node::op_log_softmax(node->in1 + (i * m * nv),
+                                            node->out1 + (i * m * nv), m, nv, preds));
 
-            div_nodes.push_back(Node::op_log_softmax(node->in1 + node->len1 - m,
-                                        node->out1 + node->len2 - m, m, nv, preds));
+            div_nodes.push_back(Node::op_log_softmax(node->in1 + (n - 1) * m * nv,
+                                        node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -224,11 +224,10 @@ namespace rt
 
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
-                div_nodes.push_back(Node::op_relu(in + i * m, out + i * m,
-                                                     m, preds));
+                div_nodes.push_back(Node::op_relu(in + i * m, out + i * m, m, preds));
 
-            div_nodes.push_back(Node::op_relu(in + node->len1 - m, out + node->len1 - m,
-                                                 m, preds));
+            div_nodes.push_back(Node::op_relu(in + (n - 1) * m, out + (n - 1) * m,
+                                                node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -260,8 +259,8 @@ namespace rt
                 div_nodes.push_back(Node::op_relu_leaky(in + i * m, out + i * m,
                                                      m, node->alpha_leaky, preds));
 
-            div_nodes.push_back(Node::op_relu_leaky(in + node->len1 - m, out + node->len1 - m,
-                                                 m, node->alpha_leaky, preds));
+            div_nodes.push_back(Node::op_relu_leaky(in + (n - 1) * m, out + (n - 1) * m,
+                                                 node->len1 - (n - 1) * m, node->alpha_leaky, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -293,8 +292,8 @@ namespace rt
                 div_nodes.push_back(Node::op_tanh(in + i * m, out + i * m,
                                                      m, preds));
 
-            div_nodes.push_back(Node::op_tanh(in + node->len1 - m, out + node->len1 - m,
-                                                 m, preds));
+            div_nodes.push_back(Node::op_tanh(in + (n - 1) * m, out + (n - 1) * m,
+                                                    node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -323,8 +322,8 @@ namespace rt
                 div_nodes.push_back(Node::op_mse_grad(node->in1 + i * m, node->in2 + i * m,
                                                             node->out1 + i * m, m, preds));
 
-            div_nodes.push_back(Node::op_mse_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                                    node->out1 + node->len1 - m, m, preds));
+            div_nodes.push_back(Node::op_mse_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                            node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -353,8 +352,8 @@ namespace rt
                 div_nodes.push_back(Node::op_sigmoid_grad(node->in1 + i * m, node->in2 + i * m,
                                                             node->out1 + i * m, m, preds));
 
-            div_nodes.push_back(Node::op_sigmoid_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                                    node->out1 + node->len1 - m, m, preds));
+            div_nodes.push_back(Node::op_sigmoid_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -432,8 +431,8 @@ namespace rt
                 div_nodes.push_back(Node::op_relu_grad(node->in1 + i * m, node->in2 + i * m,
                                                             node->out1 + i * m, m, preds));
 
-            div_nodes.push_back(Node::op_relu_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                                    node->out1 + node->len1 - m, m, preds));
+            div_nodes.push_back(Node::op_relu_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                            node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -469,7 +468,8 @@ namespace rt
             for (std::size_t i = 0; i < n - 1; ++i)
                 div_nodes.push_back(Node::op_update(node->out1 + i * m, node->in1 + i * m, node->in2, m, preds));
 
-            div_nodes.push_back(Node::op_update(node->out1 + node->len1 - m, node->in1 + node->len1 - m,  node->in2, m, preds));
+            div_nodes.push_back(Node::op_update(node->out1 + (n - 1) * m, node->in1 + (n - 1) * m,
+                                                            node->in2, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -507,8 +507,8 @@ namespace rt
                 div_nodes.push_back(Node::op_sigmoid_cross_entropy_grad(node->in1 + i * m, node->in2 + i * m,
                                                             node->out1 + i * m, m, preds));
 
-            div_nodes.push_back(Node::op_sigmoid_cross_entropy_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                                    node->out1 + node->len1 - m, m, preds));
+            div_nodes.push_back(Node::op_sigmoid_cross_entropy_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                                    node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -565,10 +565,10 @@ namespace rt
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
                 div_nodes.push_back(Node::op_moment_update(node->out1 + i * m, node->in1 + i * m,
-                                                                node->cons1, node->cons2, node->len1, preds));
+                                                                node->cons1, node->cons2, m, preds));
 
-            div_nodes.push_back(Node::op_moment_update(node->out1  + node->len1 - m, node->in1  + node->len1 - m,
-                                                                node->cons1, node->cons2, node->len1, preds));
+            div_nodes.push_back(Node::op_moment_update(node->out1  + (n - 1) * m, node->in1  + (n - 1) * m,
+                                                                node->cons1, node->cons2, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -595,10 +595,10 @@ namespace rt
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
                 div_nodes.push_back(Node::op_moment_update2(node->out1 + i * m, node->in1 + i * m,
-                                                                node->cons1, node->cons2, node->len1, preds));
+                                                                node->cons1, node->cons2, m, preds));
 
-            div_nodes.push_back(Node::op_moment_update2(node->out1  + node->len1 - m, node->in1  + node->len1 - m,
-                                                                node->cons1, node->cons2, node->len1, preds));
+            div_nodes.push_back(Node::op_moment_update2(node->out1  + (n - 1) * m, node->in1  + (n - 1) * m,
+                                                                node->cons1, node->cons2, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -631,13 +631,13 @@ namespace rt
                                                         node->in1 + i * m, node->in2 + i * m,
                                                         node->cons1, node->cons2,
                                                         node->cons3, node->cons4,
-                                                        node->len1, preds));
+                                                        m, preds));
 
-            div_nodes.push_back(Node::op_adam_update(node->out1 + node->len1 - m, node->out2 + node->len1 - m,
-                                                        node->in1 + node->len1 - m, node->in2 + node->len1 - m,
+            div_nodes.push_back(Node::op_adam_update(node->out1 + (n - 1) * m, node->out2 + (n - 1) * m,
+                                                        node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
                                                         node->cons1, node->cons2,
                                                         node->cons3, node->cons4,
-                                                        node->len1, preds));
+                                                        node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -664,10 +664,10 @@ namespace rt
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
                 div_nodes.push_back(Node::op_leaky_relu_grad(node->in1 + i * n, node->in2 + i * n,
-                                                    node->out1 + i * n, node->cons1, node->len1, preds));
+                                                    node->out1 + i * n, node->cons1, m, preds));
 
-            div_nodes.push_back(Node::op_leaky_relu_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                    node->out1 + node->len1 - m, node->cons1, node->len1, preds));
+            div_nodes.push_back(Node::op_leaky_relu_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                    node->out1 + (n - 1) * m, node->cons1, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
@@ -701,10 +701,10 @@ namespace rt
             std::vector<Node*> div_nodes;
             for (std::size_t i = 0; i < n - 1; ++i)
                 div_nodes.push_back(Node::op_tanh_grad(node->in1 + i * n, node->in2 + i * n,
-                                                    node->out1 + i * n, node->len1, preds));
+                                                    node->out1 + i * n, m, preds));
 
-            div_nodes.push_back(Node::op_tanh_grad(node->in1 + node->len1 - m, node->in2 + node->len1 - m,
-                                                    node->out1 + node->len1 - m, node->len1, preds));
+            div_nodes.push_back(Node::op_tanh_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                    node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
 
             for (auto n : div_nodes)
                 graph.add(n);
