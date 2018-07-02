@@ -55,12 +55,6 @@ namespace rt
                 elemwhise_size(np, n, m);
             }
 
-            std::cout << "Hi there !" << std::endl;
-            std::cout << nm << std::endl;
-            std::cout << np << std::endl;
-            std::cout << n << std::endl;
-            std::cout << m << std::endl;
-
             if (n < 2)
             {
                 auto res = Node::op_mat_mat_mul(node->in1, node->in2, node->out1,
