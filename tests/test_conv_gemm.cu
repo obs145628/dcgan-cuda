@@ -25,7 +25,7 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
   {
 
     #pragma unroll
-    for (int i = 0; i < 16; i += 4)
+    for (int i = 0; i < blockDimX; i += 4)
     {
       const int aIndex = aIdx + widthA * (i + threadIdx.y) + threadIdx.x;
       if (aIndex < 4800)
@@ -42,12 +42,12 @@ void mat_mul_cuda(const dbl_t *A, const dbl_t *B, dbl_t *C)
     #pragma unroll
     for (int i = 0; i < blockDimX; ++i)
     {
-      if (bPIndex + indexPartial < 4915200)
+      if ((bPIndex + indexPartial) < 4915200)
       {
         const dbl_t bVal = bPartial[indexPartial];
 
         #pragma unroll
-        for (int j = 0; j < 16; ++j)
+        for (int j = 0; j < blockDimX; ++j)
           cRes[j] += A_tile[tileIndex + j] * bVal;
         tileIndex += blockDimX;
         indexPartial += widthB;
@@ -233,11 +233,11 @@ void make_conv(char **argv)
   dbl_t *resConvCuda;
   const int resSize = nbFilter * batchSize * P * Q;
   cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
-  dim3 dimBlockConv(16, 4);
-  dim3 dimGridConv(1024, 4);
+  dim3 dimBlockConv(32, 4);
+  dim3 dimGridConv(512, 2);
 
   cudaEventRecord(startConv);
-  mat_mul_cuda<75, 65536, 16><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
+  mat_mul_cuda<75, 65536, 32><<<dimGridConv, dimBlockConv>>>(newKernelCuda, newInputCuda, resConvCuda);
   cudaEventRecord(stop);
 
   cudaEventSynchronize(stop);
