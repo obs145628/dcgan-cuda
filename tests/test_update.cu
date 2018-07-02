@@ -19,6 +19,8 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
+#include "big_mat.hh"
+
 int main(int argc, char** argv)
 {
 
@@ -26,37 +28,28 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }    
+    }
 
-    dbl_t a[] = {
-        1, 2,
-        3, 4
-    };
-
-    dbl_t b[] = {
-        10, 30,
-        20, 40
-    };
+    const int size = sizeof(b) / (2 * sizeof(dbl_t));
 
     dbl_t coeff = 5.7;
 
-
     auto& graph = ops::Graph::instance();
     auto& builder = ops::OpsBuilder::instance();
-    auto a_node = builder.variable(ops::Shape({2, 2}));
-    auto b_node = builder.input(ops::Shape({2, 2}));
+    auto a_node = builder.variable(ops::Shape({size, 2}));
+    auto b_node = builder.input(ops::Shape({size, 2}));
     auto coeff_node  = builder.input(ops::Shape());
     auto res_node = builder.update(a_node, b_node, coeff_node);
 
-    a_node->write(a);
+    a_node->write(b);
 
     graph.run({res_node},
-              {{b_node, {b, ops::Shape({2, 2})}},
+              {{b_node, {b, ops::Shape({size, 2})}},
                   {coeff_node, {&coeff, ops::Shape()}}},
 	      {nullptr});
 
     tocha::Tensors out;
-    out.add(tocha::Tensor::f32(2, 2));
+    out.add(tocha::Tensor::f32(size, 2));
     dbl_t* res = reinterpret_cast<dbl_t*>(out.arr()[0].data);
     a_node->read(res);
     

@@ -15,6 +15,8 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
+#include "big_mat.hh"
+
 int main(int argc, char** argv)
 {
 
@@ -22,20 +24,13 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }    
+    }
 
-
-    dbl_t logits[] = {
-	0.1, 1.2, 4.3,
-	4.1, 0.2, 7.3,
-	0.06, 2.01, 0.23,
-	5.6, 2.3, 1.18
-    };
-
+    const int size = sizeof(a) / (3 * sizeof(dbl_t));
 
     auto& builder = ops::OpsBuilder::instance();
     
-    auto x = builder.input(ops::Shape({4, 3}));
+    auto x = builder.input(ops::Shape({size, 3}));
     auto y = builder.softmax(x);
 
     auto& graph = ops::Graph::instance();
@@ -43,11 +38,11 @@ int main(int argc, char** argv)
 
 
     tocha::Tensors out;
-    out.add(tocha::Tensor::f32(4, 3));
+    out.add(tocha::Tensor::f32(size, 3));
     dbl_t* y_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
         graph.run({y},
-	      {{x, {logits, ops::Shape({4, 3})}}},
+	      {{x, {a, ops::Shape({size, 3})}}},
 	      {y_out});
     
     

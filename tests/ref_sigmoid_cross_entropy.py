@@ -7,21 +7,11 @@ import tensors_saver
 
 tensors_saver.set_out_path(sys.argv[1])
 
-x = np.array([
-    [1, -2.5, 0.4],
-    [0.2, -0.341, 0.7],
-    [-2.3, -12.5, 8.4],
-    [1.9, 1.2, 1.4],
-    [-0.23, -1.6, 1.4]
-])
+np.random.seed(3531354)
+x = np.random.rand(8000, 3)
 
-y = np.array([
-    [0.1, 0.5, 0.4],
-    [0.2, 0.1, 0.7],
-    [0.8, 0.05, 0.15],
-    [0.3, 0.6, 0.1],
-    [0.7, 0.1, 0.2]
-])
+np.random.seed(3531354)
+y = np.random.rand(8000, 3)
 
 x_node = tf.Variable(x, dtype=tf.float32)
 y_node = tf.Variable(y, dtype=tf.float32)

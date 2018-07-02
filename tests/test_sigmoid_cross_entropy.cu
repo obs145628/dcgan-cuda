@@ -15,6 +15,8 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
+#include "big_mat.hh"
+
 int main(int argc, char** argv)
 {
 
@@ -24,28 +26,12 @@ int main(int argc, char** argv)
         return 1;
     }
 
-
-    dbl_t x[] = {
-        1, -2.5, 0.4,
-        0.2, -0.341, 0.7,
-        -2.3, -12.5, 8.4,
-        1.9, 1.2, 1.4,
-        -0.23, -1.6, 1.4
-    };
-
-    dbl_t y[] = {
-        0.1, 0.5, 0.4,
-        0.2, 0.1, 0.7,
-        0.8, 0.05, 0.15,
-        0.3, 0.6, 0.1,
-        0.7, 0.1, 0.2
-    };
-
+    const int size = sizeof(a) / (3 * sizeof(dbl_t));
 
     auto& builder = ops::OpsBuilder::instance();
     
-    auto x_node = builder.input(ops::Shape({5, 3}));
-    auto y_node = builder.input(ops::Shape({5, 3}));
+    auto x_node = builder.input(ops::Shape({size, 3}));
+    auto y_node = builder.input(ops::Shape({size, 3}));
     auto loss_node = builder.sigmoid_cross_entropy(y_node, x_node); 
 
     auto& graph = ops::Graph::instance();
@@ -56,8 +42,8 @@ int main(int argc, char** argv)
     dbl_t* loss = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
     graph.run({loss_node},
-              {{x_node, {x, ops::Shape({5, 3})}},
-                  {y_node, {y, ops::Shape({5, 3})}}},
+              {{x_node, {a, ops::Shape({size, 3})}},
+                  {y_node, {a, ops::Shape({size, 3})}}},
 	      {loss});
     
     out.save(argv[1]);

@@ -7,15 +7,11 @@ import tensors_saver
 
 tensors_saver.set_out_path(sys.argv[1])
 
-a = np.array([
-    [1., 2.],
-    [3., 4.]
-])
+np.random.seed(3531354)
+a = np.random.rand(8000, 2)
 
-b = np.array([
-    [10., 30.],
-    [20., 40.]
-])
+np.random.seed(3531354)
+b = np.random.rand(8000, 2)
 
 c1 = 5.7
 c2 = 3.9
