@@ -208,6 +208,11 @@ namespace cpu
             leaky_relu_grad(node->in1, node->in2, node->out1, node->cons1, node->len1);
         }
 
+        void kernel_add(rt::Node* node)
+        {
+            vect_add(node->in1, node->in2, node->out1, node->len1);
+        }
+
     }
 
     kernel_f kernels_list[512] = {
@@ -246,7 +251,8 @@ namespace cpu
         kernel_tanh_grad,
         kernel_conv2d_transpose,
         kernel_conv2d_transpose_input_grad,
-        kernel_conv2d_transpose_kernel_grad
+        kernel_conv2d_transpose_kernel_grad,
+        kernel_add
     };
 
     void kernels_init()

@@ -787,6 +787,45 @@ namespace rt
             return res;
         }
 
+        Node* opti_add(Graph& graph, Node* node, const std::vector<Node*>& preds)
+        {
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_add(node->in1, node->in2, node->out1,
+                                        node->len1, preds);
+                //res->use_simd = node->len1 % SIZE_DIVISOR == 0;
+                    
+                graph.add(res);
+                return res;
+            }
+
+            const dbl_t* in1 = node->in1;
+            const dbl_t* in2 = node->in2;
+            dbl_t* out = node->out1;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_add(in1 + i * m, in2 + i * m,out + i * m,
+                                                 m, preds));
+
+            div_nodes.push_back(Node::op_add(in1 + (n - 1) * m, in2 + (n - 1) * m, out + (n - 1) * m,
+                                             node->len1 - ((n - 1) * m), preds));
+
+            for (auto n : div_nodes)
+            {
+                //n->use_simd = true;
+                graph.add(n);
+            }
+
+            auto res = Node::nop(div_nodes);
+            graph.add(res);
+            return res;
+        }
+
 
         opti_f optis_list[64] = {
             opti_mat_mat_mul,
@@ -824,7 +863,8 @@ namespace rt
             opti_tanh_grad,
             opti_conv2d_transpose,
             opti_conv2d_transpose_input_grad,
-            opti_conv2d_transpose_kernel_grad
+            opti_conv2d_transpose_kernel_grad,
+            opti_add
         };
         
     }

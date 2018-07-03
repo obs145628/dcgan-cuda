@@ -56,7 +56,8 @@ namespace gpu
         kernel_tanh_grad,
         kernel_conv2d_transpose,
         kernel_conv2d_transpose_input_grad,
-        kernel_conv2d_transpose_kernel_grad
+        kernel_conv2d_transpose_kernel_grad,
+        kernel_add
     };
 
 }

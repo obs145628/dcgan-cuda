@@ -10,6 +10,8 @@
 #include "../runtime/nodes-list.hh"
 #include "../runtime/optimizer.hh"
 #include "../utils/date.hh"
+#include "ops-builder.hh"
+#include "add.hh"
 
 namespace ops
 {
@@ -122,8 +124,12 @@ namespace ops
         
 
         //set inut values
+        int i = 0;
         for (auto x : inputs)
         {
+            std::cout << compiled_ops_.size() << std::endl;
+            std::cout << i << " = > " << x.first << std::endl;
+            ++i;
             auto it = compiled_ops_.find(x.first);
             assert(it != compiled_ops_.end());
             auto dst = it->second.out_data;
@@ -279,6 +285,22 @@ namespace ops
 
     Op* Graph::compute_gradient_(Op* out, Op* var)
     {
+
+        /*
+         * [TODO]: Works only for DCGAN
+         * More than 1 path from var to out
+         */
+        if (var->preds_of(out).size() > 1)
+        {
+            std::cout << "[GRAD_MIX]  = " << out->preds().size() << std::endl;
+            ops::Op* left_grad = gradient(out->preds()[0], var);
+            ops::Op* right_grad = gradient(out->preds()[1], var);
+            ops::Op* grad = OpsBuilder::instance().add(left_grad, right_grad);
+            return grad;
+        }
+        
+        
+        
         std::size_t vari = out->pred_index(var);
         if (vari != std::size_t(-1))
             return out->child_grad(vari, nullptr);
