@@ -26,6 +26,7 @@ namespace ops
         std::size_t p = cleft.out_shape[!left_tr_];
         std::size_t q = cright.out_shape[!right_tr_];
         Shape out_shape({int(n), int(q)});
+        
         dbl_t* out_data = tensor_alloc(out_shape.total());
 
         rt::Node* out_node = nullptr;

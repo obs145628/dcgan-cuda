@@ -19,6 +19,7 @@ namespace ops
         OpsBuilder& operator=(const OpsBuilder&) = delete;
         OpsBuilder& operator=(OpsBuilder&&) = delete;
 
+        Add* add(Op* left, Op* right);
         AdamUpdate* adam_update(Variable* var, Op* m, Op* v,
                                 dbl_t learning_rate,
                                 dbl_t beta1, dbl_t beta2, dbl_t eps);

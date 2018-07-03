@@ -930,4 +930,11 @@ namespace cpu
             out[i] = z[i] < 0 ? alpha * dout[i] : dout[i];
     }
 
+    inline void vect_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                  std::size_t n)
+    {
+        for (std::size_t i = 0; i < n; ++i)
+            out[i] = a[i] + b[i];
+    }
+
 }

@@ -635,6 +635,9 @@ namespace cpu
        */
       void tanh_grad(const dbl_t* tanh_out, const dbl_t* dout, dbl_t* out,
                         std::size_t n);
+
+    void vect_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                  std::size_t n);
 }
 
 #include "ops.hxx"

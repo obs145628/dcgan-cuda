@@ -6,7 +6,7 @@ namespace rt
 {
 
 
-    const char* Node::OP_NAMES[36] =
+    const char* Node::OP_NAMES[37] =
     {
         "mat_mat_mul",
         "mat_rvect_add",
@@ -44,7 +44,8 @@ namespace rt
         "tanh_grad",
         "conv2d_transpose",
         "conv2d_transpose_input_grad",
-        "conv2d_transpose_kernel_grad"
+        "conv2d_transpose_kernel_grad",
+        "add"
     };
 
     Node* Node::nop(const std::vector<Node*>& preds)
@@ -581,6 +582,18 @@ namespace rt
         res->out1 = out;
         res->len1 = len;
         res->cons1 = alpha;
+        return res;
+    }
+
+    Node* Node::op_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                       std::size_t len,
+                       const std::vector<Node*>& preds)
+    {
+        auto res = new Node(OP_ADD, preds);
+        res->in1 = a;
+        res->in2 = b;
+        res->out1 = out;
+        res->len1 = len;
         return res;
     }
 

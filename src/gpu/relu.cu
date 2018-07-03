@@ -3,7 +3,6 @@
 #include "../runtime/node.hh"
 
 
-
 namespace gpu
 {
 
@@ -50,7 +49,9 @@ namespace gpu
             std::size_t stride = blockDim.x * gridDim.x;
 
             for (std::size_t i = index; i < len; i += stride)
+            {
                 y[i] = relu_leaky(x[i], alpha);
+            }
         }
 
         __global__
@@ -86,6 +87,7 @@ namespace gpu
 
     void kernel_relu_leaky(rt::Node* node)
     {
+        
         std::size_t len = node->len1;
         std::size_t block_size = 256;
         std::size_t nb_blocks = (len + block_size - 1)/ block_size;
@@ -96,6 +98,8 @@ namespace gpu
 
     void kernel_leaky_relu_grad(rt::Node* node)
     {
+
+        
         std::size_t len = node->len1;
         std::size_t block_size = 256;
         std::size_t nb_blocks = (len + block_size - 1)/ block_size;

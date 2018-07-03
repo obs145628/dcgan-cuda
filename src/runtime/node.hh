@@ -51,8 +51,10 @@ namespace rt
         static constexpr int OP_CONV2D_TRANSPOSE = 33;
         static constexpr int OP_CONV2D_TRANSPOSE_INPUT_GRAD = 34;
         static constexpr int OP_CONV2D_TRANSPOSE_KERNEL_GRAD = 35;
-
-        static const char* OP_NAMES[36];
+        static constexpr int OP_ADD = 36;
+        
+        
+        static const char* OP_NAMES[37];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -205,6 +207,10 @@ namespace rt
          static Node* op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
                                          dbl_t alpha, std::size_t len,
                                          const std::vector<Node*>& preds);
+
+        static Node* op_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                            std::size_t len,
+                            const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

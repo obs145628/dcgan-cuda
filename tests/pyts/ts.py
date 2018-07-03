@@ -107,6 +107,7 @@ test_basic('ops', 'update', 'ref_update.py', 'test_update')
 test_basic('ops', 'moment_update', 'ref_moment_update.py', 'test_moment_update')
 test_basic('ops', 'moment_update2', 'ref_moment_update2.py', 'test_moment_update2')
 test_basic('ops', 'adam_update', 'ref_adam_update.py', 'test_adam_update')
+test_basic('ops', 'add', 'ref_add.py', 'test_add')
 
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
@@ -121,6 +122,7 @@ test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
+
 
 
 '''
