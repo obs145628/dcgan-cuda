@@ -19,12 +19,12 @@ namespace gpu
         std::size_t hx = node->sizes1[1];
         std::size_t wx = node->sizes1[2];
         std::size_t cx = node->sizes1[3];
-        
+
         const dbl_t* k = node->in2;
         std::size_t hk = node->sizes2[0];
         std::size_t wk = node->sizes2[1];
         std::size_t ck = node->sizes2[3];
-        
+
         dbl_t* y = node->out1;
         std::size_t sh = node->intconst[0];
         std::size_t sw = node->intconst[1];
@@ -43,7 +43,7 @@ namespace gpu
           std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
           std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << ck << std::endl;
           std::cout << "S: " << sh << ", " << sw << std::endl;
-        
+
           std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
           << std::endl;
 
@@ -129,13 +129,30 @@ namespace gpu
         std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << ck << std::endl;
         std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
         std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-          
+
         std::cout << "S: " << sh << ", " << sw << std::endl;
         std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
                   << std::endl;
         */
-
-        conv2d_dx_naive(
+        if (nx == 64 && hy == 32 && wy == 32 && ck == 64)
+        {
+          conv2d_d0_dx_caller(dy, k, dx);
+        }
+        else if (nx == 64 && hy == 16 && wy == 16 && ck == 128)
+        {
+          conv2d_d1_dx_caller(dy, k, dx);
+        }
+        else if (nx == 64 && hy == 8 && wy == 8 && ck == 256)
+        {
+          conv2d_d2_dx_caller(dy, k, dx);
+        }
+        else if (nx == 64 && hy == 4 && wy == 4 && ck == 512)
+        {
+          conv2d_d3_dx_caller(dy, k, dx);
+        }
+        else
+        {
+          conv2d_dx_naive(
             k, dy, dx,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
@@ -143,6 +160,7 @@ namespace gpu
             hy, wy,
             sh, sw
             );
+        }
     }
 
     void kernel_conv2d_kernel_grad(rt::Node* node)
@@ -165,7 +183,7 @@ namespace gpu
         std::size_t sw = node->intconst[1];
 
         std::size_t pad_height = node->intconst2[0];
-        std::size_t pad_width = node->intconst2[1];        
+        std::size_t pad_width = node->intconst2[1];
         std::size_t pad_top = pad_height / 2;
         std::size_t pad_left = pad_width / 2;
         std::size_t pad_bot = pad_height - pad_top;
@@ -178,7 +196,7 @@ namespace gpu
         std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << cy << std::endl;
         std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << cy << std::endl;
         std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-          
+
         std::cout << "S: " << sh << ", " << sw << std::endl;
         std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
                   << std::endl;
@@ -193,5 +211,5 @@ namespace gpu
             sh, sw
             );
     }
-    
+
 }

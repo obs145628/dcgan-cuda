@@ -4,6 +4,7 @@ project(dcgan-cuda LANGUAGES CXX CUDA)
 #find_package(CUDA)
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
 
 #set(CMAKE_CXX_COMPILER "g++")
 #set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
