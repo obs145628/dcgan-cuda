@@ -12,7 +12,7 @@ namespace rt
         //can't divide if the divide size is <= MIN_NODES_SIZE
         constexpr std::size_t MIN_NODES_SIZE = 1024;
 
-        //man number of parallel nodes when dividing operation
+        //max number of parallel nodes when dividing operation
         constexpr std::size_t MAX_NODES = 8;
 
         //make sure every size of new ops are multiple of this
@@ -42,23 +42,86 @@ namespace rt
 
         Node* opti_mat_mat_mul(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_mat_mat_mul(node->in1, node->in2, node->out1,
-                                            node->len1, node->len2, node->len3, preds);
+            const std::size_t nm = node->len1;
+            const std::size_t nn = node->len2;
+            const std::size_t np = node->len3;
+
+            std::size_t n;
+            std::size_t m;
+
+            if (nm > np) {
+                elemwhise_size(nm, n, m);
+            } else {
+                elemwhise_size(np, n, m);
+            }
+
+            if (n < 2)
+            {
+                auto res = Node::op_mat_mat_mul(node->in1, node->in2, node->out1,
+                    node->len1, node->len2, node->len3, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            if (node->len1 > node->len2) {
+                for (std::size_t i = 0; i < n - 1; ++i)
+                    div_nodes.push_back(Node::op_mat_mat_mul(node->in1 + i * m * nn, node->in2,
+                                node->out1 + i * m * np, m, nn, np, preds));
+
+                    div_nodes.push_back(Node::op_mat_mat_mul(node->in1 + (n - 1) * m * nn, node->in2,
+                                node->out1 + (n - 1) * m * np, nm - (n - 1) * m, nn, np, preds));
+            } else {
+                for (std::size_t i = 0; i < n - 1; ++i)
+                    div_nodes.push_back(Node::op_mat_mat_mul(node->in1, node->in2 + i * m,
+                                node->out1 + i * m * np, nm, nn, m, preds));
+
+                    div_nodes.push_back(Node::op_mat_mat_mul(node->in1, node->in2 + (n - 1) * m,
+                                node->out1 + (n - 1) * m * np, nm, nn, np - (n - 1) * m, preds));
+            }
+
+            for (auto n : div_nodes)
+                    graph.add(n);
+            
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_mat_rvect_add(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_mat_rvect_add(node->in1, node->in2, node->out1,
-                                              node->len1, node->len2, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_mat_rvect_add(node->in1, node->in2, node->out1,
+                    node->len1, node->len2, preds);
+                graph.add(res);
+                return res;
+            }
+
+            const std::size_t nv = node->len2;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_mat_rvect_add(node->in1 + (i * m * nv), node->in2,
+                                                node->out1 + (i * m * nv), m, nv, preds));
+
+            div_nodes.push_back(Node::op_mat_rvect_add(node->in1 + (n - 1) * m * nv, node->in2,
+                node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_sigmoid(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-
             std::size_t n;
             std::size_t m;
             elemwhise_size(node->len1, n, m);
@@ -81,8 +144,8 @@ namespace rt
                 div_nodes.push_back(Node::op_sigmoid(in + i * m, out + i * m,
                                                      m, preds));
 
-            div_nodes.push_back(Node::op_sigmoid(in + node->len1 - m, out + node->len1 - m,
-                                                 m, preds));
+            div_nodes.push_back(Node::op_sigmoid(in + (n - 1) * m, out + (n - 1) * m,
+                                                node->len1 - ((n - 1) * m), preds));
 
             for (auto n : div_nodes)
             {
@@ -105,16 +168,62 @@ namespace rt
 
         Node* opti_softmax(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_softmax(node->in1, node->out1,
-                                        node->len1, node->len2, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_softmax(node->in1, node->out1, node->len1, node->len2, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::size_t nv = node->len2;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_softmax(node->in1 + (i * m * nv), node->out1 + (i * m * nv),
+                                                                        m, nv, preds));
+
+            div_nodes.push_back(Node::op_softmax(node->in1 + (n - 1) * m * nv,
+                        node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_log_softmax(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_log_softmax(node->in1, node->out1,
-                                            node->len1, node->len2, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_log_softmax(node->in1, node->out1, node->len1, node->len2, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::size_t nv = node->len2;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_log_softmax(node->in1 + (i * m * nv),
+                                            node->out1 + (i * m * nv), m, nv, preds));
+
+            div_nodes.push_back(Node::op_log_softmax(node->in1 + (n - 1) * m * nv,
+                                        node->out1 + (n - 1) * m * nv, node->len1 - ((n - 1) * m), nv, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -138,40 +247,158 @@ namespace rt
 
         Node* opti_relu(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_relu(node->in1, node->out1,
-                                     node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_relu(node->in1, node->out1,
+                                            node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            const dbl_t* in = node->in1;
+            dbl_t* out = node->out1;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_relu(in + i * m, out + i * m, m, preds));
+
+            div_nodes.push_back(Node::op_relu(in + (n - 1) * m, out + (n - 1) * m,
+                                                node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_relu_leaky(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_relu_leaky(node->in1, node->out1,
-                                           node->len1, node->alpha_leaky, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_relu_leaky(node->in1, node->out1,
+                                            node->len1, node->alpha_leaky, preds);
+                graph.add(res);
+                return res;
+            }
+
+            const dbl_t* in = node->in1;
+            dbl_t* out = node->out1;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_relu_leaky(in + i * m, out + i * m,
+                                                     m, node->alpha_leaky, preds));
+
+            div_nodes.push_back(Node::op_relu_leaky(in + (n - 1) * m, out + (n - 1) * m,
+                                                 node->len1 - (n - 1) * m, node->alpha_leaky, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_tanh(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_tanh(node->in1, node->out1,
-                                     node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_tanh(node->in1, node->out1,
+                                            node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            const dbl_t* in = node->in1;
+            dbl_t* out = node->out1;
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_tanh(in + i * m, out + i * m,
+                                                     m, preds));
+
+            div_nodes.push_back(Node::op_tanh(in + (n - 1) * m, out + (n - 1) * m,
+                                                    node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_mse_grad(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_mse_grad(node->in1, node->in2, node->out1,
-                                         node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_mse_grad(node->in1, node->in2, node->out1,
+                                                        node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_mse_grad(node->in1 + i * m, node->in2 + i * m,
+                                                            node->out1 + i * m, m, preds));
+
+            div_nodes.push_back(Node::op_mse_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                            node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_sigmoid_grad(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_sigmoid_grad(node->in1, node->in2, node->out1,
-                                             node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_sigmoid_grad(node->in1, node->in2, node->out1,
+                                                        node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_sigmoid_grad(node->in1 + i * m, node->in2 + i * m,
+                                                            node->out1 + i * m, m, preds));
+
+            div_nodes.push_back(Node::op_sigmoid_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -227,8 +454,30 @@ namespace rt
 
         Node* opti_relu_grad(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_relu_grad(node->in1, node->in2, node->out1,
-                                          node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_relu_grad(node->in1, node->in2, node->out1,
+                                                        node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_relu_grad(node->in1 + i * m, node->in2 + i * m,
+                                                            node->out1 + i * m, m, preds));
+
+            div_nodes.push_back(Node::op_relu_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                            node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -243,8 +492,29 @@ namespace rt
 
         Node* opti_update(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_update(node->out1, node->in1, node->in2,
-                                       node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_update(node->out1, node->in1, node->in2,
+                                                            node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_update(node->out1 + i * m, node->in1 + i * m, node->in2, m, preds));
+
+            div_nodes.push_back(Node::op_update(node->out1 + (n - 1) * m, node->in1 + (n - 1) * m,
+                                                            node->in2, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -260,8 +530,30 @@ namespace rt
         Node* opti_sigmoid_cross_entropy_grad(Graph& graph, Node* node,
                                               const std::vector<Node*>& preds)
         {
-            auto res = Node::op_sigmoid_cross_entropy_grad(node->in1, node->in2, node->out1,
-                                                           node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_sigmoid_cross_entropy_grad(node->in1, node->in2, node->out1,
+                                                        node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_sigmoid_cross_entropy_grad(node->in1 + i * m, node->in2 + i * m,
+                                                            node->out1 + i * m, m, preds));
+
+            div_nodes.push_back(Node::op_sigmoid_cross_entropy_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                                    node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -298,37 +590,129 @@ namespace rt
 
         Node* opti_moment_update(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_moment_update(node->out1, node->in1,
-                                              node->cons1, node->cons2, node->len1,
-                                              preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_moment_update(node->out1, node->in1, node->cons1,
+                                                        node->cons2, node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_moment_update(node->out1 + i * m, node->in1 + i * m,
+                                                                node->cons1, node->cons2, m, preds));
+
+            div_nodes.push_back(Node::op_moment_update(node->out1  + (n - 1) * m, node->in1  + (n - 1) * m,
+                                                                node->cons1, node->cons2, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_moment_update2(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_moment_update2(node->out1, node->in1,
-                                               node->cons1, node->cons2, node->len1,
-                                               preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_moment_update2(node->out1, node->in1, node->cons1,
+                                                        node->cons2, node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_moment_update2(node->out1 + i * m, node->in1 + i * m,
+                                                                node->cons1, node->cons2, m, preds));
+
+            div_nodes.push_back(Node::op_moment_update2(node->out1  + (n - 1) * m, node->in1  + (n - 1) * m,
+                                                                node->cons1, node->cons2, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_adam_update(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_adam_update(node->out1, node->out2,
-                                            node->in1, node->in2,
-                                            node->cons1, node->cons2,
-                                            node->cons3, node->cons4,
-                                            node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_adam_update(node->out1, node->out2,
+                                                node->in1, node->in2,
+                                                node->cons1, node->cons2,
+                                                node->cons3, node->cons4,
+                                                node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_adam_update(node->out1 + i * m, node->out2 + i * m,
+                                                        node->in1 + i * m, node->in2 + i * m,
+                                                        node->cons1, node->cons2,
+                                                        node->cons3, node->cons4,
+                                                        m, preds));
+
+            div_nodes.push_back(Node::op_adam_update(node->out1 + (n - 1) * m, node->out2 + (n - 1) * m,
+                                                        node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                        node->cons1, node->cons2,
+                                                        node->cons3, node->cons4,
+                                                        node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
 
         Node* opti_leaky_relu_grad(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_leaky_relu_grad(node->in1, node->in2, node->out1,
-                                                node->cons1, node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_leaky_relu_grad(node->in1, node->in2, node->out1,
+                                                    node->cons1, node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_leaky_relu_grad(node->in1 + i * n, node->in2 + i * n,
+                                                    node->out1 + i * n, node->cons1, m, preds));
+
+            div_nodes.push_back(Node::op_leaky_relu_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                    node->out1 + (n - 1) * m, node->cons1, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
@@ -343,8 +727,29 @@ namespace rt
 
         Node* opti_tanh_grad(Graph& graph, Node* node, const std::vector<Node*>& preds)
         {
-            auto res = Node::op_tanh_grad(node->in1, node->in2, node->out1,
-                                          node->len1, preds);
+            std::size_t n;
+            std::size_t m;
+            elemwhise_size(node->len1, n, m);
+
+            if (n < 2)
+            {
+                auto res = Node::op_tanh_grad(node->in1, node->in2, node->out1, node->len1, preds);
+                graph.add(res);
+                return res;
+            }
+
+            std::vector<Node*> div_nodes;
+            for (std::size_t i = 0; i < n - 1; ++i)
+                div_nodes.push_back(Node::op_tanh_grad(node->in1 + i * n, node->in2 + i * n,
+                                                    node->out1 + i * n, m, preds));
+
+            div_nodes.push_back(Node::op_tanh_grad(node->in1 + (n - 1) * m, node->in2 + (n - 1) * m,
+                                                    node->out1 + (n - 1) * m, node->len1 - (n - 1) * m, preds));
+
+            for (auto n : div_nodes)
+                graph.add(n);
+
+            auto res = Node::nop(div_nodes);
             graph.add(res);
             return res;
         }
