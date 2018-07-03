@@ -16,8 +16,6 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
-#include "big_mat.hh"
-
 int main(int argc, char** argv)
 {
 
@@ -27,22 +25,23 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    const int size = sizeof(v) / sizeof(dbl_t);
+    dbl_t features[] = { 0.1, 1.2, -4.3, 4.1, -0.2, 7.3, 0.06, 2.01, 0.23, 5.6, 2.3, 1.18 };
+
 
     auto& builder = ops::OpsBuilder::instance();
 
-    auto x = builder.input(ops::Shape({1, size}));
+    auto x = builder.input(ops::Shape({1, 12}));
     auto y = builder.vect_relu(x);
 
     auto& graph = ops::Graph::instance();
 
 
     tocha::Tensors out;
-    out.add(tocha::Tensor::f32(1, size));
+    out.add(tocha::Tensor::f32(1, 12));
     dbl_t* y_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
     graph.run({y},
-	      {{x, {v, ops::Shape({1, size})}}},
+	      {{x, {features, ops::Shape({1, 12})}}},
 	      {y_out});
 
 

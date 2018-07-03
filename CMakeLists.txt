@@ -3,8 +3,6 @@ project(dcgan-cuda LANGUAGES CXX CUDA)
 
 #find_package(CUDA)
 
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS}")
-
 #set(CMAKE_CXX_COMPILER "g++")
 
 set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
@@ -48,7 +46,8 @@ add_custom_target(check
    python ${CMAKE_SOURCE_DIR}/tests/pyts/ts.py
    ${CMAKE_SOURCE_DIR}
    ${CMAKE_BINARY_DIR}
-   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k test_conv_d0 test_conv_d1 test_conv_d2 test_conv_d3 test_conv_s1 test_conv_dx_d0 test_conv_dx_d1 test_conv_dx_d2 test_conv_dx_d3 test_conv_s2 test_conv_dk_d0 test_conv_dk_d1 test_conv_dk_d2 test_conv_dk_d3 test_conv_g0 test_conv_g1 test_conv_g2 test_conv_g3 test_conv_dx_g0 test_conv_dx_g1 test_conv_dx_g2 test_conv_dx_g3 test_conv_dk_g0 test_conv_dk_g1 test_conv_dk_g2 test_conv_dk_g3 test_dcgan_generator)
+   DEPENDS gen_datasets test_mnist1 test_softmax test_log_softmax test_softmax_cross_entropy test_conv2d test_sigmoid test_mat_mat_mul test_mat_rvect_add test_mse test_vect_relu test_vect_relu_leaky test_vect_tanh test_mse_grad test_sigmoid_grad test_mat_mul_add test_tmat_mat_mul test_mat_tmat_mul test_mat_mul_add_grad test_mat_sum0 test_mat_sum1 test_softmax_cross_entropy_grad test_mnist_grad test_conv2d_bias_add test_sigmoid_cross_entropy test_sigmoid_cross_entropy_grad test_conv2d_grad test_reshape test_dcgan_discriminator test_argmax test_update test_moment_update test_moment_update2 test_adam_update test_relu_grad test_conv2d_padding test_conv2d_padding_grad test_leaky_relu_grad test_conv2d_bias_add_grad test_tanh_grad test_conv2d_transpose test_conv2d_transpose_grad test_sigmoid_50k test_conv_d0 test_conv_d1 test_conv_d2 test_conv_d3 test_conv_s1 test_conv_dx_d0 test_conv_dx_d1 test_conv_dx_d2 test_conv_dx_d3 test_conv_s2 test_conv_dk_d0 test_conv_dk_d1 test_conv_dk_d2 test_conv_dk_d3 test_conv_g0 test_conv_g1 test_conv_g2 test_conv_g3 test_conv_dx_g0 test_conv_dx_g1 test_conv_dx_g2 test_conv_dx_g3 test_conv_dk_g0 test_conv_dk_g1 test_conv_dk_g2 test_conv_dk_g3 test_dcgan_generator
+   test_log_softmax_bm test_mat_mat_mul_bm test_mat_rvect_add_bm test_moment_update_bm test_moment_update2_bm test_mse_grad_bm test_mse_bm test_relu_grad_bm test_sigmoid_cross_entropy_grad_bm test_sigmoid_cross_entropy_bm test_sigmoid_grad_bm test_sigmoid_bm test_softmax_cross_entropy_grad_bm test_softmax_cross_entropy_bm test_softmax_bm test_tanh_grad_bm test_update_bm test_vect_relu_leaky_bm test_vect_relu_bm test_vect_tanh_bm)
 
 
 set(TEST_SRC
@@ -568,3 +567,143 @@ set(TEST_DCGAN_GENERATOR_SRC
 )
 add_executable(test_dcgan_generator EXCLUDE_FROM_ALL ${TEST_DCGAN_GENERATOR_SRC})
 target_link_libraries(test_dcgan_generator ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_LOG_SOFTMAX_BM_SRC
+  ${SRC}
+  tests/test_log_softmax_bm.cu
+)
+add_executable(test_log_softmax_bm EXCLUDE_FROM_ALL ${TEST_LOG_SOFTMAX_BM_SRC})
+target_link_libraries(test_log_softmax_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MAT_MAT_MUL_BM_SRC
+  ${SRC}
+  tests/test_mat_mat_mul_bm.cu
+)
+add_executable(test_mat_mat_mul_bm EXCLUDE_FROM_ALL ${TEST_MAT_MAT_MUL_BM_SRC})
+target_link_libraries(test_mat_mat_mul_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MAT_RVECT_ADD_BM_SRC
+  ${SRC}
+  tests/test_mat_rvect_add_bm.cu
+)
+add_executable(test_mat_rvect_add_bm EXCLUDE_FROM_ALL ${TEST_MAT_RVECT_ADD_BM_SRC})
+target_link_libraries(test_mat_rvect_add_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MOMENT_UPDATE_BM_SRC
+  ${SRC}
+  tests/test_moment_update_bm.cu
+)
+add_executable(test_moment_update_bm EXCLUDE_FROM_ALL ${TEST_MOMENT_UPDATE_BM_SRC})
+target_link_libraries(test_moment_update_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MOMENT_UPDATE2_BM_SRC
+  ${SRC}
+  tests/test_moment_update2_bm.cu
+)
+add_executable(test_moment_update2_bm EXCLUDE_FROM_ALL ${TEST_MOMENT_UPDATE2_BM_SRC})
+target_link_libraries(test_moment_update2_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MSE_BM_SRC
+  ${SRC}
+  tests/test_mse_bm.cu
+)
+add_executable(test_mse_bm EXCLUDE_FROM_ALL ${TEST_MSE_BM_SRC})
+target_link_libraries(test_mse_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_MSE_GRAD_BM_SRC
+  ${SRC}
+  tests/test_mse_grad_bm.cu
+)
+add_executable(test_mse_grad_bm EXCLUDE_FROM_ALL ${TEST_MSE_GRAD_BM_SRC})
+target_link_libraries(test_mse_grad_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SIGMOID_BM_SRC
+  ${SRC}
+  tests/test_sigmoid_bm.cu
+)
+add_executable(test_sigmoid_bm EXCLUDE_FROM_ALL ${TEST_SIGMOID_BM_SRC})
+target_link_libraries(test_sigmoid_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SIGMOID_GRAD_BM_SRC
+  ${SRC}
+  tests/test_sigmoid_grad_bm.cu
+)
+add_executable(test_sigmoid_grad_bm EXCLUDE_FROM_ALL ${TEST_SIGMOID_GRAD_BM_SRC})
+target_link_libraries(test_sigmoid_grad_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SIGMOID_CROSS_ENTROPY_BM_SRC
+  ${SRC}
+  tests/test_sigmoid_cross_entropy_bm.cu
+)
+add_executable(test_sigmoid_cross_entropy_bm EXCLUDE_FROM_ALL ${TEST_SIGMOID_CROSS_ENTROPY_BM_SRC})
+target_link_libraries(test_sigmoid_cross_entropy_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SIGMOID_CROSS_ENTROPY_GRAD_BM_SRC
+  ${SRC}
+  tests/test_sigmoid_cross_entropy_grad_bm.cu
+)
+add_executable(test_sigmoid_cross_entropy_grad_bm EXCLUDE_FROM_ALL ${TEST_SIGMOID_CROSS_ENTROPY_GRAD_BM_SRC})
+target_link_libraries(test_sigmoid_cross_entropy_grad_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SOFTMAX_BM_SRC
+  ${SRC}
+  tests/test_softmax_bm.cu
+)
+add_executable(test_softmax_bm EXCLUDE_FROM_ALL ${TEST_SOFTMAX_BM_SRC})
+target_link_libraries(test_softmax_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_TANH_GRAD_BM_SRC
+  ${SRC}
+  tests/test_tanh_grad_bm.cu
+)
+add_executable(test_tanh_grad_bm EXCLUDE_FROM_ALL ${TEST_TANH_GRAD_BM_SRC})
+target_link_libraries(test_tanh_grad_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_UPDATE_BM_SRC
+  ${SRC}
+  tests/test_update_bm.cu
+)
+add_executable(test_update_bm EXCLUDE_FROM_ALL ${TEST_UPDATE_BM_SRC})
+target_link_libraries(test_update_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_VECT_RELU_BM_SRC
+  ${SRC}
+  tests/test_vect_relu_bm.cu
+)
+add_executable(test_vect_relu_bm EXCLUDE_FROM_ALL ${TEST_VECT_RELU_BM_SRC})
+target_link_libraries(test_vect_relu_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_VECT_RELU_LEAKY_BM_SRC
+  ${SRC}
+  tests/test_vect_relu_leaky_bm.cu
+)
+add_executable(test_vect_relu_leaky_bm EXCLUDE_FROM_ALL ${TEST_VECT_RELU_LEAKY_BM_SRC})
+target_link_libraries(test_vect_relu_leaky_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_VECT_TANH_BM_SRC
+  ${SRC}
+  tests/test_vect_tanh_bm.cu
+)
+add_executable(test_vect_tanh_bm EXCLUDE_FROM_ALL ${TEST_VECT_TANH_BM_SRC})
+target_link_libraries(test_vect_tanh_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_RELU_GRAD_BM_SRC
+  ${SRC}
+  tests/test_relu_grad_bm.cu
+)
+add_executable(test_relu_grad_bm EXCLUDE_FROM_ALL ${TEST_RELU_GRAD_BM_SRC})
+target_link_libraries(test_relu_grad_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SOFTMAX_CROSS_ENTROPY_BM_SRC
+  ${SRC}
+  tests/test_softmax_cross_entropy_bm.cu
+)
+add_executable(test_softmax_cross_entropy_bm EXCLUDE_FROM_ALL ${TEST_SOFTMAX_CROSS_ENTROPY_BM_SRC})
+target_link_libraries(test_softmax_cross_entropy_bm ${ZLIB_LIBRARIES} pthread)
+
+set(TEST_SOFTMAX_CROSS_ENTROPY_GRAD_BM_SRC
+  ${SRC}
+  tests/test_softmax_cross_entropy_grad_bm.cu
+)
+add_executable(test_softmax_cross_entropy_grad_bm EXCLUDE_FROM_ALL ${TEST_SOFTMAX_CROSS_ENTROPY_GRAD_BM_SRC})
+target_link_libraries(test_softmax_cross_entropy_grad_bm ${ZLIB_LIBRARIES} pthread)

@@ -7,11 +7,18 @@ import tensors_saver
 
 tensors_saver.set_out_path(sys.argv[1])
 
-np.random.seed(3531354)
-a = np.random.rand(8000, 3)
+a = np.array([
+    [1., 2, 4],
+    [4.1, 0.5, 7],
+    [2, 2, 8],
+    [5, 2.3, 1.1]
+])
 
-np.random.seed(3531354)
-b = np.random.rand(8000, 3).reshape(3, 8000)
+b = np.array([
+    [1., 5.],
+    [2., 4],
+    [3, 8]
+])
 
 a_node = tf.Variable(a, dtype=tf.float32)
 b_node = tf.Variable(b, dtype=tf.float32)

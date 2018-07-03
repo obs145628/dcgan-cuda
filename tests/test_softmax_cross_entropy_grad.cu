@@ -17,8 +17,6 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
-#include "big_mat.hh"
-
 int main(int argc, char** argv)
 {
 
@@ -26,17 +24,31 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }
+    }    
 
-    const int size = sizeof(a) / (3 * sizeof(dbl_t));
+    dbl_t x[] = {
+        1, 0.5, 0.4,
+        0.2, 0.1, 0.7,
+        2.3, 2.5, 8.4,
+        1.9, 1.2, 1.4,
+        0.23, -1.6, 1.4
+    };
+
+    dbl_t y[] = {
+        0.1, 0.5, 0.4,
+        0.2, 0.1, 0.7,
+        0.8, 0.05, 0.15,
+        0.3, 0.6, 0.1,
+        0.7, 0.1, 0.2
+    };
 
     auto& graph = ops::Graph::instance();
     graph.debug_set(true);
 
     auto& builder = ops::OpsBuilder::instance();
 
-    auto x_node = builder.input(ops::Shape({size, 3}));
-    auto y_node = builder.input(ops::Shape({size, 3}));
+    auto x_node = builder.input(ops::Shape({5, 3}));
+    auto y_node = builder.input(ops::Shape({5, 3}));
     auto loss_node = builder.softmax_cross_entropy(y_node, x_node);
     auto dx_node = graph.gradient(loss_node, x_node);
 
@@ -44,12 +56,12 @@ int main(int argc, char** argv)
     tocha::Tensors out;
     out.add(tocha::Tensor::f32(1));
     dbl_t* loss = reinterpret_cast<dbl_t*>(out.arr()[0].data);
-    out.add(tocha::Tensor::f32(size, 3));
+    out.add(tocha::Tensor::f32(5, 3));
     dbl_t* dx = reinterpret_cast<dbl_t*>(out.arr()[1].data);
 
     graph.run({loss_node, dx_node},
-              {{x_node, {a, ops::Shape({size, 3})}},
-                  {y_node, {a, ops::Shape({size, 3})}}},
+              {{x_node, {x, ops::Shape({5, 3})}},
+                  {y_node, {y, ops::Shape({5, 3})}}},
 	      {loss, dx});
     
     

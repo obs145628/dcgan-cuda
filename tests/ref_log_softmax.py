@@ -7,8 +7,12 @@ import tensors_saver
 
 tensors_saver.set_out_path(sys.argv[1])
 
-np.random.seed(3531354)
-logits = np.random.rand(8000, 3)
+logits = np.array([
+    [0.1, 1.2, 4.3],
+    [4.1, 0.2, 7.3],
+    [0.06, 2.01, 0.23],
+    [5.6, 2.3, 1.18]
+])
 
 logits_node = tf.Variable(logits, dtype=tf.float32)
 y_hat_node = tf.nn.log_softmax(logits_node)

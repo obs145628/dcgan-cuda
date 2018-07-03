@@ -16,8 +16,6 @@
 #include "../src/datasets/mnist.hh"
 #include "../src/memory/alloc.hh"
 
-#include "big_mat.hh"
-
 int main(int argc, char** argv)
 {
 
@@ -25,14 +23,27 @@ int main(int argc, char** argv)
     {
         std::cerr << "Invalid number of arguments\n";
         return 1;
-    }
+    }    
 
-    const int size = sizeof(a) / (3 * sizeof(dbl_t));
+    dbl_t y[] = {
+        0.1, 0.2, 0.7,
+        0.8, .1, .1,
+        0.1, 0.3, 0.6,
+        .6, .2, .2
+    };
+
+    dbl_t y_hat[] = {
+        0.1, 1.2, 4.3,
+        4.1, 0.2, 7.3,
+        0.06, 2.01, 0.23,
+        5.6, 2.3, 1.18
+    };
+
 
     auto& builder = ops::OpsBuilder::instance();
 
-    auto y_node = builder.input(ops::Shape({size, 3}));
-    auto y_hat_node = builder.input(ops::Shape({size, 3}));
+    auto y_node = builder.input(ops::Shape({4, 3}));
+    auto y_hat_node = builder.input(ops::Shape({4, 3}));
     
     auto res_node = builder.mse(y_node, y_hat_node);
 
@@ -44,8 +55,8 @@ int main(int argc, char** argv)
     dbl_t* res = reinterpret_cast<dbl_t*>(out.arr()[0].data);
 
     graph.run({res_node},
-              {{y_node, {a, ops::Shape({size, 3})}},
-                  {y_hat_node, {a, ops::Shape({size, 3})}}},
+              {{y_node, {y, ops::Shape({4, 3})}},
+                  {y_hat_node, {y_hat, ops::Shape({4, 3})}}},
 	      {res});
     
     
