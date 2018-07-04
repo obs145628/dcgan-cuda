@@ -240,8 +240,6 @@ namespace gpu
 
            __syncthreads();
 
-           if (blockIdx.x != 1 || threadIdx.x < 11)
-           {
               const int bPIndex = bIdx + 16 * threadIdx.y + threadIdx.x;
               const dbl_t *bPartial = &B[bPIndex];
               int indexPartial = 0;
@@ -251,7 +249,8 @@ namespace gpu
               #pragma unroll
               for (int i = 0; i < 16; ++i)
               {
-                if (indexPartial < maxPartial)
+                if (indexPartial < maxPartial
+                     && (blockIdx.x != 1 || threadIdx.y == 0 || (i + threadIdx.x < 11)))
                 {
                   const dbl_t bVal = bPartial[indexPartial];
 
@@ -262,7 +261,6 @@ namespace gpu
                   indexPartial += widthB;
                 }
               }
-           }
            __syncthreads();
          }
 
