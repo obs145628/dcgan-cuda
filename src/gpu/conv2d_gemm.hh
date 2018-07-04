@@ -211,6 +211,75 @@ namespace gpu
          }
       }
 
+      template<int widthA, int widthB, int maxA, int maxB, int maxC>
+      __global__
+      void back_mat_mul_cuda75(const dbl_t *A, const dbl_t *B, dbl_t *C)
+      {
+         __shared__ dbl_t A_tile[16 * 16];
+         dbl_t cRes[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+         const int aStart = widthA * 16 * blockIdx.y;
+         const int aEnd = aStart + widthA - 1;
+         const int bStart = 16 * 4 * blockIdx.x;
+         const int bStep = 16 * widthB;
+
+         int cIdx = widthB * 16 * blockIdx.y + 16 * blockIdx.x * 4
+                         + 16 * threadIdx.y + threadIdx.x;
+
+         for (int aIdx = aStart, bIdx = bStart; aIdx <= aEnd;
+              aIdx += 16, bIdx += bStep)
+         {
+
+           #pragma unroll
+           for (int i = 0; i < 16; i += 4)
+           {
+             const int aIndex = aIdx + widthA * (i + threadIdx.y) + threadIdx.x;
+             if (aIndex < maxA)
+               A_tile[i + threadIdx.y + 16 * threadIdx.x] = A[aIndex];
+           }
+
+           __syncthreads();
+
+           if (blockIdx.x != 1 || threadIdx.x < 11)
+           {
+              const int bPIndex = bIdx + 16 * threadIdx.y + threadIdx.x;
+              const dbl_t *bPartial = &B[bPIndex];
+              int indexPartial = 0;
+              int tileIndex = 0;
+              const int maxPartial = maxB - bPIndex;
+
+              #pragma unroll
+              for (int i = 0; i < 16; ++i)
+              {
+                if (indexPartial < maxPartial)
+                {
+                  const dbl_t bVal = bPartial[indexPartial];
+
+                  #pragma unroll
+                  for (int j = 0; j < 16; ++j)
+                    cRes[j] += A_tile[tileIndex + j] * bVal;
+                  tileIndex += 16;
+                  indexPartial += widthB;
+                }
+              }
+           }
+           __syncthreads();
+         }
+
+         if (blockIdx.x == 1 && threadIdx.x >= 11)
+           return;
+
+         #pragma unroll
+         for (int i = 0; i < 16; ++i)
+         {
+           if (blockIdx.x == 1 && threadIdx.y > 0 && (i + threadIdx.x >= 11))
+             break;
+           if (cIdx < maxC)
+             C[cIdx] = cRes[i];
+           cIdx += widthB;
+         }
+      }
+
       template<int hSize, int wSize, int chSize, int nbFilter>
       __global__
       void ker_transform_cuda(const dbl_t *ker, dbl_t *res)
@@ -435,6 +504,26 @@ namespace gpu
                 + batchIdx * nbFilter + nbFIdx] = resConv[realIdx];
     }
 
+    template<int width, int P, int Q, int nbFilter, int nbChan, int blSize>
+    __global__
+    void transform_res_ker15(const dbl_t *resConv, dbl_t *transf)
+    {
+        if (blockIdx.x == 4 && threadIdx.x >= 11)
+          return;
+        const int blkIdx = blockIdx.y * width * 4 + blockIdx.x * blSize;
+        const int thIdx = threadIdx.y * width + threadIdx.x;
+        const int realIdx = blkIdx + thIdx;
+        const int nbFIdx = blockIdx.y * 4 + threadIdx.y;//realIdx / width;
+        const int tmp0 = nbFIdx * width;
+        const int batchIdx = (realIdx - tmp0) / (P * Q);
+        const int tmp1 = batchIdx * P * Q;
+        const int tmp2 = realIdx - tmp0 - tmp1;
+        const int hIdx = tmp2 / P;
+        const int wIdx = tmp2 % P;
+
+        transf[hIdx * Q * nbChan * nbFilter + wIdx * nbChan * nbFilter
+                + batchIdx * nbFilter + nbFIdx] = resConv[realIdx];
+    }
 
     void conv2d_d0_caller(const float *data, const float *ker, float *res)
     {
@@ -1192,7 +1281,7 @@ namespace gpu
     cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(2, 4);
-    back_mat_mul_cuda16<254016, 75, 16257024, 19051200, 4800><<<dimGridConv, dimBlockConv>>>(
+    back_mat_mul_cuda75<254016, 75, 16257024, 19051200, 4800><<<dimGridConv, dimBlockConv>>>(
                     newKernelCuda, newInputCuda, resConvCuda);
 
     gpuErrchk(cudaPeekAtLastError());
