@@ -294,9 +294,9 @@ namespace gpu
 
     template<int P, int Q, int depthSize, int width, int height,
              int widthK, int heightK, int stride, int padL, int padTop,
-             int batchSize, int chSize, int padR, int padBot>
+             int batchSize, int chSize>
     __global__ void
-    im2col_full_conv(float* res,
+    im2col_trans(float* res,
            float const* data,
            const int batchIdx)
     {
@@ -308,21 +308,16 @@ namespace gpu
         const int z = y / Q;
         y %= Q;
 
-        const int xOldIdx = x - padL;
-        const int yOldIdx = y - padTop;
-        data += batchIdx * (chSize * width * height)
-                + (yOldIdx * chSize * width)
-                + xOldIdx * chSize + z;
+        const int xOldIdx = x * stride - padL;
+        const int yOldIdx = y * stride - padTop;
+        data += z * (batchSize * width * height)
+                + (yOldIdx * batchSize * width)
+                + xOldIdx * batchSize + batchIdx;
 
         const int resOffset = (P*Q*batchSize*widthK*heightK) * z
                 + batchIdx * (P*Q)
                 + y * P + x;
         res += resOffset;
-
-        const int ypad = y * heightK;
-        const int xpad = x * widthK;
-        const int maxBot = chSize * widthK * heightK - padBot;
-        const int maxRight = batchSize * P * Q - padR;
 
         #pragma unroll
         for (int dj = 0; dj < heightK; ++dj)
@@ -330,14 +325,11 @@ namespace gpu
           #pragma unroll
           for (int di = 0; di < widthK; ++di)
           {
-            if ((ypad + dj) < padTop || (xpad + di) < padL
-                || (ypad + dj) >= maxBot || (xpad + di) >= maxRight)
-              *res = 0;
-            else if (((ypad + dj - padTop) % stride) != 0
-                 || ((xpad + dj - padL) % stride) != 0)
-              *res = 0;
+            if (yOldIdx + dj >= 0 && yOldIdx + dj < height
+                && xOldIdx + di >= 0 &&  xOldIdx + di < width)
+              *res = data[dj * batchSize * width + di * batchSize];
             else
-              *res = data[dj * chSize * width + di * chSize];
+              *res = 0;
             res += (P*Q*batchSize);
           }
         }
@@ -352,7 +344,6 @@ namespace gpu
       int hIdx = blockIdx.y * 4 + threadIdx.y;
       int wIdx = blockIdx.x * 16 + threadIdx.x;
       const int nhIdx = hIdx * stride + padTop;
-      //const int nwIdx = wIdx * stride + padL;
       const int chIdx = wIdx % chSize;
       const int rwIdx = wIdx / chSize;
 
@@ -361,6 +352,28 @@ namespace gpu
           data[batchIdx * hSize * wSize * chSize
                + hIdx * wSize * chSize
                + wIdx];
+    }
+
+    template<int sOutTot0, int sOutTot1, int hSize,
+            int chSize, int wSize, int stride>
+    __global__
+    void padd_ker_rot(const dbl_t *data, dbl_t *res, const int batchIdx)
+    {
+      int hIdx = blockIdx.y * 4 + threadIdx.y;
+      int wIdx = blockIdx.x * 16 + threadIdx.x;
+      const int nhIdx = hIdx * stride;
+      const int chIdx = wIdx % chSize;
+      const int rwIdx = wIdx / chSize;
+
+      /*res[batchIdx * sOutTot0 + nhIdx * sOutTot1
+          + (rwIdx * stride) * chSize + chIdx] =
+          data[rwIdx * batchSize * hSize * chSize
+               + batchIdx * hSize * chSize
+               + hIdx * chSize + chIdx];*/
+      res[nhIdx * sOutTot0 + (rwIdx * stride) * sOutTot1
+          + batchIdx * chSize + chIdx] =
+          data[batchIdx * hSize * wSize * chSize
+               + hIdx * wSize * chSize + rwIdx * chSize + chIdx];
     }
 
     template<int width, int P, int Q, int nbFilter>
@@ -402,6 +415,26 @@ namespace gpu
                 + wIdx * nbFilter + nbFIdx]
                 = resConv[realIdx];
     }
+
+    template<int width, int P, int Q, int nbFilter, int nbChan, int blSize>
+    __global__
+    void transform_res_ker(const dbl_t *resConv, dbl_t *transf)
+    {
+        const int blkIdx = blockIdx.y * width * 4 + blockIdx.x * blSize;
+        const int thIdx = threadIdx.y * width + threadIdx.x;
+        const int realIdx = blkIdx + thIdx;
+        const int nbFIdx = blockIdx.y * 4 + threadIdx.y;//realIdx / width;
+        const int tmp0 = nbFIdx * width;
+        const int batchIdx = (realIdx - tmp0) / (P * Q);
+        const int tmp1 = batchIdx * P * Q;
+        const int tmp2 = realIdx - tmp0 - tmp1;
+        const int hIdx = tmp2 / P;
+        const int wIdx = tmp2 % P;
+
+        transf[hIdx * Q * nbChan * nbFilter + wIdx * nbChan * nbFilter
+                + batchIdx * nbFilter + nbFIdx] = resConv[realIdx];
+    }
+
 
     void conv2d_d0_caller(const float *data, const float *ker, float *res)
     {
@@ -1090,4 +1123,393 @@ namespace gpu
     cudaFree(resConvCuda);
     cudaFree(paddFullCuda);
   }
+
+  void conv2d_d0_dk_caller(const float *data, const float *ker, float *res)
+  {
+    cudaEvent_t start, stop, stopImg, stopKer;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventCreate(&stopImg);
+    cudaEventCreate(&stopKer);
+    cudaEventRecord(start, 0);
+
+    dbl_t *paddFullCuda;
+    constexpr int paddFullSize = 63 * 63 * 64 * 64;
+    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
+    cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
+    free(zeroVal);
+    dim3 dimGridPadd(128, 8);
+    dim3 dimBlockPadd(16, 4);
+
+    #pragma unroll
+    for(int b = 0; b < 64; ++b)
+    {
+      padd_ker_rot<63*64*64, 64*64, 32, 64, 32, 2>
+              <<<dimGridPadd, dimBlockPadd>>>(ker, paddFullCuda, b);
+    }
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+
+    dbl_t *newInputCuda;
+    constexpr int newInputSize = 64 * 63 * 63 * 3 * 5 * 5;
+    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+
+    #pragma unroll
+    for (int b = 0; b < 3; ++b)
+    {
+      im2col_trans<5, 5, 1600, 64, 64, 63, 63, 1, 1, 1, 3, 64>
+              <<<25, 64>>>(newInputCuda, data, b);
+    }
+
+    cudaEventRecord(stopImg, 0);
+    cudaEventSynchronize(stopImg);
+    float timeImg;
+    cudaEventElapsedTime(&timeImg, start, stopImg);
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *newKernelCuda;
+    constexpr int totalKernelSize = 63 * 63 * 64 * 64;
+    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dim3 dimGrid(totalKernelSize / 32);
+    dim3 dimBlock(32);
+    ker_transform_cuda<63, 63, 64, 64><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
+
+    //cudaDeviceSynchronize();
+    cudaEventRecord(stopKer, 0);
+    cudaEventSynchronize(stopKer);
+    float timeKer;
+    cudaEventElapsedTime(&timeKer, start, stopKer);
+
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *resConvCuda;
+    constexpr int resSize1 = 64 * 5 * 5 * 3;
+    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dim3 dimBlockConv(16, 4);
+    dim3 dimGridConv(2, 4);
+    back_mat_mul_cuda16<254016, 75, 16257024, 19051200, 4800><<<dimGridConv, dimBlockConv>>>(
+                    newKernelCuda, newInputCuda, resConvCuda);
+
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+    //cudaDeviceSynchronize();
+
+    dim3 dimGridTransf(5, 16);
+    dim3 dimBlockTransf(15, 4);
+    transform_res_ker<75, 5, 5, 64, 3, 15><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float time;
+    cudaEventElapsedTime(&time, start, stop);
+    gpuErrchk(cudaPeekAtLastError());
+
+    std::ofstream fos("time_gemm_dk.log", std::ios::app);
+    fos << "time (dk_gemm_d0_Img) = " << timeImg << "ms\n";
+    fos << "time (dk_gemm_d0_Ker) = " << timeKer << "ms\n";
+    fos << "time (dk_gemm_d0_all) = " << time << "ms\n" << std::endl;
+
+    cudaFree(newKernelCuda);
+    cudaFree(newInputCuda);
+    cudaFree(resConvCuda);
+    cudaFree(paddFullCuda);
+  }
+
+  void conv2d_d1_dk_caller(const float *data, const float *ker, float *res)
+  {
+    cudaEvent_t start, stop, stopImg, stopKer;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventCreate(&stopImg);
+    cudaEventCreate(&stopKer);
+    cudaEventRecord(start, 0);
+
+    dbl_t *paddFullCuda;
+    constexpr int paddFullSize = 31 * 31 * 128 * 64;
+    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
+    cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
+    free(zeroVal);
+    dim3 dimGridPadd(128, 4);
+    dim3 dimBlockPadd(16, 4);
+
+    #pragma unroll
+    for(int b = 0; b < 64; ++b)
+    {
+      padd_ker_rot<31*128*64, 128*64, 16, 128, 16, 2>
+              <<<dimGridPadd, dimBlockPadd>>>(ker, paddFullCuda, b);
+    }
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+
+    dbl_t *newInputCuda;
+    constexpr int newInputSize = 64 * 31 * 31 * 64 * 5 * 5;
+    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+
+    #pragma unroll
+    for (int b = 0; b < 64; ++b)
+    {
+      im2col_trans<5, 5, 1600, 32, 32, 31, 31, 1, 1, 1, 64, 64>
+              <<<25, 64>>>(newInputCuda, data, b);
+    }
+
+    cudaEventRecord(stopImg, 0);
+    cudaEventSynchronize(stopImg);
+    float timeImg;
+    cudaEventElapsedTime(&timeImg, start, stopImg);
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *newKernelCuda;
+    constexpr int totalKernelSize = 31 * 31 * 64 * 128;
+    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dim3 dimGrid(totalKernelSize / 32);
+    dim3 dimBlock(32);
+    ker_transform_cuda<31, 31, 64, 128><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
+
+    //cudaDeviceSynchronize();
+    cudaEventRecord(stopKer, 0);
+    cudaEventSynchronize(stopKer);
+    float timeKer;
+    cudaEventElapsedTime(&timeKer, start, stopKer);
+
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *resConvCuda;
+    constexpr int resSize1 = 64 * 5 * 5 * 128;
+    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dim3 dimBlockConv(16, 4);
+    dim3 dimGridConv(25, 8);
+    back_mat_mul_cuda16<61504, 1600, 7872512, 98406400, 204800><<<dimGridConv, dimBlockConv>>>(
+                    newKernelCuda, newInputCuda, resConvCuda);
+
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+    //cudaDeviceSynchronize();
+
+    dim3 dimGridTransf(100, 32);
+    dim3 dimBlockTransf(16, 4);
+    transform_res_ker<1600, 5, 5, 128, 64, 16><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float time;
+    cudaEventElapsedTime(&time, start, stop);
+    gpuErrchk(cudaPeekAtLastError());
+
+    std::ofstream fos("time_gemm_dk.log", std::ios::app);
+    fos << "time (dk_gemm_d1_Img) = " << timeImg << "ms\n";
+    fos << "time (dk_gemm_d1_Ker) = " << timeKer << "ms\n";
+    fos << "time (dk_gemm_d1_all) = " << time << "ms\n" << std::endl;
+
+    cudaFree(newKernelCuda);
+    cudaFree(newInputCuda);
+    cudaFree(resConvCuda);
+    cudaFree(paddFullCuda);
+  }
+
+  void conv2d_d2_dk_caller(const float *data, const float *ker, float *res)
+  {
+    cudaEvent_t start, stop, stopImg, stopKer;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventCreate(&stopImg);
+    cudaEventCreate(&stopKer);
+    cudaEventRecord(start, 0);
+
+    dbl_t *paddFullCuda;
+    constexpr int paddFullSize = 15 * 15 * 256 * 64;
+    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
+    cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
+    free(zeroVal);
+    dim3 dimGridPadd(128, 2);
+    dim3 dimBlockPadd(16, 4);
+
+    #pragma unroll
+    for(int b = 0; b < 64; ++b)
+    {
+      padd_ker_rot<15*256*64, 256*64, 8, 256, 8, 2>
+              <<<dimGridPadd, dimBlockPadd>>>(ker, paddFullCuda, b);
+    }
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+
+    dbl_t *newInputCuda;
+    constexpr int newInputSize = 128 * 15 * 15 * 64 * 5 * 5;
+    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+
+    #pragma unroll
+    for (int b = 0; b < 128; ++b)
+    {
+      im2col_trans<5, 5, 1600, 16, 16, 15, 15, 1, 1, 1, 128, 64>
+              <<<25, 64>>>(newInputCuda, data, b);
+    }
+
+    cudaEventRecord(stopImg, 0);
+    cudaEventSynchronize(stopImg);
+    float timeImg;
+    cudaEventElapsedTime(&timeImg, start, stopImg);
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *newKernelCuda;
+    constexpr int totalKernelSize = 15 * 15 * 64 * 256;
+    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dim3 dimGrid(totalKernelSize / 32);
+    dim3 dimBlock(32);
+    ker_transform_cuda<15, 15, 64, 256><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
+
+    //cudaDeviceSynchronize();
+    cudaEventRecord(stopKer, 0);
+    cudaEventSynchronize(stopKer);
+    float timeKer;
+    cudaEventElapsedTime(&timeKer, start, stopKer);
+
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *resConvCuda;
+    constexpr int resSize1 = 256 * 5 * 5 * 128;
+    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dim3 dimBlockConv(16, 4);
+    dim3 dimGridConv(50, 16);
+    back_mat_mul_cuda16<14400, 3200, 3686400, 46080000, 819200><<<dimGridConv, dimBlockConv>>>(
+                    newKernelCuda, newInputCuda, resConvCuda);
+
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+    //cudaDeviceSynchronize();
+
+    dim3 dimGridTransf(200, 64);
+    dim3 dimBlockTransf(16, 4);
+    transform_res_ker<3200, 5, 5, 256, 128, 16><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float time;
+    cudaEventElapsedTime(&time, start, stop);
+    gpuErrchk(cudaPeekAtLastError());
+
+    std::ofstream fos("time_gemm_dk.log", std::ios::app);
+    fos << "time (dk_gemm_d2_Img) = " << timeImg << "ms\n";
+    fos << "time (dk_gemm_d2_Ker) = " << timeKer << "ms\n";
+    fos << "time (dk_gemm_d2_all) = " << time << "ms\n" << std::endl;
+
+    cudaFree(newKernelCuda);
+    cudaFree(newInputCuda);
+    cudaFree(resConvCuda);
+    cudaFree(paddFullCuda);
+  }
+
+  void conv2d_d3_dk_caller(const float *data, const float *ker, float *res)
+  {
+    cudaEvent_t start, stop, stopImg, stopKer;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventCreate(&stopImg);
+    cudaEventCreate(&stopKer);
+    cudaEventRecord(start, 0);
+
+    dbl_t *paddFullCuda;
+    constexpr int paddFullSize = 7 * 7 * 512 * 64;
+    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
+    cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
+    free(zeroVal);
+    dim3 dimGridPadd(128, 1);
+    dim3 dimBlockPadd(16, 4);
+
+    #pragma unroll
+    for(int b = 0; b < 64; ++b)
+    {
+      padd_ker_rot<7*512*64, 512*64, 4, 512, 4, 2>
+              <<<dimGridPadd, dimBlockPadd>>>(ker, paddFullCuda, b);
+    }
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+
+    dbl_t *newInputCuda;
+    constexpr int newInputSize = 256 * 7 * 7 * 64 * 5 * 5;
+    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+
+    #pragma unroll
+    for (int b = 0; b < 256; ++b)
+    {
+      im2col_trans<5, 5, 1600, 8, 8, 7, 7, 1, 1, 1, 256, 64>
+              <<<25, 64>>>(newInputCuda, data, b);
+    }
+
+    cudaEventRecord(stopImg, 0);
+    cudaEventSynchronize(stopImg);
+    float timeImg;
+    cudaEventElapsedTime(&timeImg, start, stopImg);
+
+    //cudaDeviceSynchronize();
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *newKernelCuda;
+    constexpr int totalKernelSize = 7 * 7 * 64 * 512;
+    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dim3 dimGrid(totalKernelSize / 32);
+    dim3 dimBlock(32);
+    ker_transform_cuda<7, 7, 64, 512><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
+
+    //cudaDeviceSynchronize();
+    cudaEventRecord(stopKer, 0);
+    cudaEventSynchronize(stopKer);
+    float timeKer;
+    cudaEventElapsedTime(&timeKer, start, stopKer);
+
+    gpuErrchk(cudaPeekAtLastError());
+
+    dbl_t *resConvCuda;
+    constexpr int resSize1 = 256 * 5 * 5 * 512;
+    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dim3 dimBlockConv(16, 4);
+    dim3 dimGridConv(100, 32);
+    back_mat_mul_cuda16<3136, 6400, 1605632, 20070400, 3276800><<<dimGridConv, dimBlockConv>>>(
+                    newKernelCuda, newInputCuda, resConvCuda);
+
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+    //cudaDeviceSynchronize();
+
+    dim3 dimGridTransf(400, 128);
+    dim3 dimBlockTransf(16, 4);
+    transform_res_ker<6400, 5, 5, 512, 256, 16><<<dimGridTransf, dimBlockTransf>>>(
+                      resConvCuda, res);
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float time;
+    cudaEventElapsedTime(&time, start, stop);
+    gpuErrchk(cudaPeekAtLastError());
+
+    std::ofstream fos("time_gemm_dk.log", std::ios::app);
+    fos << "time (dk_gemm_d3_Img) = " << timeImg << "ms\n";
+    fos << "time (dk_gemm_d3_Ker) = " << timeKer << "ms\n";
+    fos << "time (dk_gemm_d3_all) = " << time << "ms\n" << std::endl;
+
+    cudaFree(newKernelCuda);
+    cudaFree(newInputCuda);
+    cudaFree(resConvCuda);
+    cudaFree(paddFullCuda);
+  }
+
 }

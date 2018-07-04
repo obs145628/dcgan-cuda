@@ -202,7 +202,16 @@ namespace gpu
                   << std::endl;
         */
 
-        conv2d_dk_naive(
+        if (nx == 64 && wy == 32 && hy == 32 && cy == 64)
+          conv2d_d0_dk_caller(x, dy, dk);
+        else if (nx == 64 && wy == 16 && hy == 16 && cy == 128)
+          conv2d_d1_dk_caller(x, dy, dk);
+        else if (nx == 64 && wy == 8 && hy == 8 && cy == 256)
+          conv2d_d2_dk_caller(x, dy, dk);
+        else if (nx == 64 && wy == 4 && hy == 4 && cy == 512)
+          conv2d_d3_dk_caller(x, dy, dk);
+        else
+          conv2d_dk_naive(
             x, dy, dk,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,
