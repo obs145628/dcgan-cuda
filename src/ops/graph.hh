@@ -107,6 +107,18 @@ namespace ops
          * for debug purposes
          */
         utils::DotGraph to_dot_graph();
+
+        /**
+         * Save all variables of the graph to a specific tbin file
+         *
+         */
+        void save_vars(const std::string& path);
+
+        /**
+         * Loadd previously saved variables of the graph from a specific tbin file
+         *
+         */
+        void load_vars(const std::string& path);
         
 
     private:

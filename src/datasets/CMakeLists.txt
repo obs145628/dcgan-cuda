@@ -1,4 +1,6 @@
 set(SRC
+  celeba.cu
+  jpg.cu
   mnist.cu
 )
 

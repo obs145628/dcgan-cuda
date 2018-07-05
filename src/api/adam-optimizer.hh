@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "../memory/types.hh"
 #include "../ops/fwd.hh"
 
@@ -12,7 +13,7 @@ public:
                   dbl_t beta2=0.999,
                   dbl_t epsilon=1e-08);
 
-    ops::Op* minimize(ops::Op* loss);
+    ops::Op* minimize(ops::Op* loss, const std::vector<ops::Variable*>& vars = {});
 
 private:
     dbl_t lr_;
