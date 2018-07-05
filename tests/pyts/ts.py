@@ -74,6 +74,7 @@ def test_basic(cat, sub, ref_script, bin_file, mode = None):
                 },
                 code = 0)
 
+'''
 test_datset_weights('nn', 'mnist1', 'ref_mnist1.py', 'test_mnist1', 'mnist.data')
 test_datset_weights('nn', 'mnist_grad', 'ref_mnist_grad.py', 'test_mnist_grad', 'mnist.data')
 test_datset_weights('nn', 'dcgan_discriminator',
@@ -174,6 +175,17 @@ test_datset_weights('generator', 'conv_layer0_dk', 'ref_conv_dk_g0.py', 'test_co
 test_datset_weights('generator', 'conv_layer1_dk', 'ref_conv_dk_g1.py', 'test_conv_dk_g1', '')
 test_datset_weights('generator', 'conv_layer2_dk', 'ref_conv_dk_g2.py', 'test_conv_dk_g2', '')
 test_datset_weights('generator', 'conv_layer3_dk', 'ref_conv_dk_g3.py', 'test_conv_dk_g3', '')
+'''
+
+test_datset_weights('discriminator', 'conv_layer0_dx', 'ref_conv_dx_d0.py', 'test_conv_dx_d0', '')
+test_datset_weights('discriminator', 'conv_layer1_dx', 'ref_conv_dx_d1.py', 'test_conv_dx_d1', '')
+test_datset_weights('discriminator', 'conv_layer2_dx', 'ref_conv_dx_d2.py', 'test_conv_dx_d2', '')
+test_datset_weights('discriminator', 'conv_layer3_dx', 'ref_conv_dx_d3.py', 'test_conv_dx_d3', '')
+
+test_datset_weights('discriminator', 'conv_layer0_dk', 'ref_conv_dk_d0.py', 'test_conv_dk_d0', '')
+test_datset_weights('discriminator', 'conv_layer1_dk', 'ref_conv_dk_d1.py', 'test_conv_dk_d1', '')
+test_datset_weights('discriminator', 'conv_layer2_dk', 'ref_conv_dk_d2.py', 'test_conv_dk_d2', '')
+test_datset_weights('discriminator', 'conv_layer3_dk', 'ref_conv_dk_d3.py', 'test_conv_dk_d3', '')
 '''
 
 ts = json_ts_reader.JsonTsReader(builder.tests, True).ts
