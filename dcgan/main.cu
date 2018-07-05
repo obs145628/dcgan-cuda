@@ -33,6 +33,8 @@
 #define Z_DIM (100) //size of the noise input vector to generate image
 #define LEARNING_RATE (0.0002) //adam optimizer learning rate
 #define BETA1 (0.5) //adam optimizer beta1 parameter
+#define SAMPLE_SIZE (64) //number of images generated when doing sample
+#define SAVE_STEP (2) //generate samples and save model every x iterations (if model path set)
 
 int g_strides[] = {2, 2};
 std::size_t g_kernel_size[] = {5, 5};
@@ -248,14 +250,14 @@ ops::Op* discriminator(ops::Op* x,
 void generate_samples(const std::string& path, ops::Op* g_out, ops::Input* z)
 {
     auto& graph = ops::Graph::instance();
-    dbl_t* generated = new dbl_t[64 * 64 * 64 * 3];
-    dbl_t* z_data = new dbl_t[64 * Z_DIM];
+    dbl_t* generated = new dbl_t[SAMPLE_SIZE * 64 * 64 * 3];
+    dbl_t* z_data = new dbl_t[SAMPLE_SIZE * Z_DIM];
     NormalInitializer init(0, 1);
-    for (std::size_t i = 0; i < 64 * Z_DIM; ++i)
+    for (std::size_t i = 0; i < SAMPLE_SIZE * Z_DIM; ++i)
         z_data[i] = init.next();
     
     graph.run({g_out},
-              {{z, {z_data, ops::Shape({64, Z_DIM})}}},
+              {{z, {z_data, ops::Shape({SAMPLE_SIZE, Z_DIM})}}},
               {generated});
     celeba::save_samples(generated, 8, 8, path);
 
@@ -328,8 +330,14 @@ int main(int argc, char** argv)
     auto d_opti = g_adam.minimize(d_loss, d_vars);
 
     if (args.has_option("model"))
-        graph.load_vars(args.get_option("model"));
-
+    {
+        try
+        {
+            graph.load_vars(args.get_option("model"));
+        }
+        catch (std::exception&)
+        {}
+    }
 
     
     
@@ -375,11 +383,20 @@ int main(int argc, char** argv)
                                   {logits1, {logits_1, ops::Shape({BATCH, 1})}},
                                   {z, {z_batch, ops::Shape({BATCH, Z_DIM})}}},
                               {nullptr, &g_loss_val});
-                
 
+                
                 std::cout << "epoch " << i << " [" << j << "/" << niters << "] "
                           << "d_loss = " << d_loss_val << ", g_loss = " << g_loss_val << std::endl;
-
+                
+                
+                if ((j + 1) % SAVE_STEP == 0)
+                {
+                    std::string path = "./samples/train_" + std::to_string(i) + "_" + std::to_string(j) + ".jpg";
+                    generate_samples(path, g_out, z);
+                    if (args.has_option("model"))
+                        graph.save_vars(args.get_option("model"));
+                }
+                
                 delete[] x_batch;
             }
             
@@ -387,136 +404,8 @@ int main(int argc, char** argv)
 
         delete[] z_batch;
         
-    }
-    
-    /*
-    auto x_data = celeba::load(1, 65);
+    }    
 
-    auto g_dw0 = graph.gradient(g_loss, g_layer0.w);
-    auto g_db0 = graph.gradient(g_loss, g_layer0.b);
-    auto g_dw1 = graph.gradient(g_loss, g_layers[0].w);
-    auto g_db1 = graph.gradient(g_loss, g_layers[0].b);
-    auto g_dw2 = graph.gradient(g_loss, g_layers[1].w);
-    auto g_db2 = graph.gradient(g_loss, g_layers[1].b);
-    auto g_dw3 = graph.gradient(g_loss, g_layers[2].w);
-    auto g_db3 = graph.gradient(g_loss, g_layers[2].b);
-    auto g_dw4 = graph.gradient(g_loss, g_layers[3].w);
-    auto g_db4 = graph.gradient(g_loss, g_layers[3].b);
-
-    auto d_dw0 = graph.gradient(d_loss, d_layers[0].w);
-    auto d_db0 = graph.gradient(d_loss, d_layers[0].b);
-    auto d_dw1 = graph.gradient(d_loss, d_layers[1].w);
-    auto d_db1 = graph.gradient(d_loss, d_layers[1].b);
-    auto d_dw2 = graph.gradient(d_loss, d_layers[2].w);
-    auto d_db2 = graph.gradient(d_loss, d_layers[2].b);
-    auto d_dw3 = graph.gradient(d_loss, d_layers[3].w);
-    auto d_db3 = graph.gradient(d_loss, d_layers[3].b);
-    auto d_dw4 = graph.gradient(d_loss, d_layer4.w);
-    auto d_db4 = graph.gradient(d_loss, d_layer4.b);
-
-    tocha::Tensors out;
-
-    out.add(tocha::Tensor::f32(BATCH, 4, 4, 512));
-    dbl_t* g_l0_out = reinterpret_cast<dbl_t*>(out.arr()[0].data);
-    
-    out.add(tocha::Tensor::f32(BATCH, 8, 8, 256));
-    dbl_t* g_l1_out = reinterpret_cast<dbl_t*>(out.arr()[1].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 16, 16, 128));
-    dbl_t* g_l2_out = reinterpret_cast<dbl_t*>(out.arr()[2].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 32, 32, 64));
-    dbl_t* g_l3_out = reinterpret_cast<dbl_t*>(out.arr()[3].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 64, 64, 3));
-    dbl_t* g_logits_out = reinterpret_cast<dbl_t*>(out.arr()[4].data);;
-
-    out.add(tocha::Tensor::f32(BATCH, 64, 64, 3));
-    dbl_t* g_out_out = reinterpret_cast<dbl_t*>(out.arr()[5].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 32, 32, 64));
-    dbl_t* d_l0_out = reinterpret_cast<dbl_t*>(out.arr()[6].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 16, 16, 128));
-    dbl_t* d_l1_out = reinterpret_cast<dbl_t*>(out.arr()[7].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 8, 8, 256));
-    dbl_t* d_l2_out = reinterpret_cast<dbl_t*>(out.arr()[8].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 4, 4, 512));
-    dbl_t* d_l3_out = reinterpret_cast<dbl_t*>(out.arr()[9].data);
-
-    out.add(tocha::Tensor::f32(BATCH, 1));
-    dbl_t* d_logits_out = reinterpret_cast<dbl_t*>(out.arr()[10].data);
-    
-    out.add(tocha::Tensor::f32(1));
-    dbl_t* g_loss_out = reinterpret_cast<dbl_t*>(out.arr()[11].data);
-
-
-    out.add(tocha::Tensor::f32(Z_DIM, 4 * 4 * 512));
-    dbl_t* g_dw0_out = reinterpret_cast<dbl_t*>(out.arr()[12].data);
-    out.add(tocha::Tensor::f32(4 * 4 * 512));
-    dbl_t* g_db0_out = reinterpret_cast<dbl_t*>(out.arr()[13].data);
-
-    out.add(tocha::Tensor::f32(5, 5, 256, 512));
-    dbl_t* g_dw1_out = reinterpret_cast<dbl_t*>(out.arr()[14].data);
-    out.add(tocha::Tensor::f32(256));
-    dbl_t* g_db1_out = reinterpret_cast<dbl_t*>(out.arr()[15].data);
-    out.add(tocha::Tensor::f32(5, 5, 128, 256));
-    dbl_t* g_dw2_out = reinterpret_cast<dbl_t*>(out.arr()[16].data);
-    out.add(tocha::Tensor::f32(128));
-    dbl_t* g_db2_out = reinterpret_cast<dbl_t*>(out.arr()[17].data);
-    out.add(tocha::Tensor::f32(5, 5, 64, 128));
-    dbl_t* g_dw3_out = reinterpret_cast<dbl_t*>(out.arr()[18].data);
-    out.add(tocha::Tensor::f32(64));
-    dbl_t* g_db3_out = reinterpret_cast<dbl_t*>(out.arr()[19].data);
-    out.add(tocha::Tensor::f32(5, 5, 3, 64));
-    dbl_t* g_dw4_out = reinterpret_cast<dbl_t*>(out.arr()[20].data);
-    out.add(tocha::Tensor::f32(3));
-    dbl_t* g_db4_out = reinterpret_cast<dbl_t*>(out.arr()[21].data);
-
-    out.add(tocha::Tensor::f32(5, 5, 3, 64));
-    dbl_t* d_dw0_out = reinterpret_cast<dbl_t*>(out.arr()[22].data);
-    out.add(tocha::Tensor::f32(64));
-    dbl_t* d_db0_out = reinterpret_cast<dbl_t*>(out.arr()[23].data);
-    out.add(tocha::Tensor::f32(5, 5, 64, 128));
-    dbl_t* d_dw1_out = reinterpret_cast<dbl_t*>(out.arr()[24].data);
-    out.add(tocha::Tensor::f32(128));
-    dbl_t* d_db1_out = reinterpret_cast<dbl_t*>(out.arr()[25].data);
-    out.add(tocha::Tensor::f32(5, 5, 128, 256));
-    dbl_t* d_dw2_out = reinterpret_cast<dbl_t*>(out.arr()[26].data);
-    out.add(tocha::Tensor::f32(256));
-    dbl_t* d_db2_out = reinterpret_cast<dbl_t*>(out.arr()[27].data);
-    out.add(tocha::Tensor::f32(5, 5, 256, 512));
-    dbl_t* d_dw3_out = reinterpret_cast<dbl_t*>(out.arr()[28].data);
-    out.add(tocha::Tensor::f32(512));
-    dbl_t* d_db3_out = reinterpret_cast<dbl_t*>(out.arr()[29].data);
-    out.add(tocha::Tensor::f32(8192, 1));
-    dbl_t* d_dw4_out = reinterpret_cast<dbl_t*>(out.arr()[30].data);
-    out.add(tocha::Tensor::f32(1));
-    dbl_t* d_db4_out = reinterpret_cast<dbl_t*>(out.arr()[31].data);
-
-    graph.run({g_nodes[0], g_nodes[1], g_nodes[2], g_nodes[3], g_logits, g_out,
-               d1_nodes[0], d1_nodes[1], d1_nodes[2], d1_nodes[3], d1_logits, g_loss,
-               g_dw0, g_db0, g_dw1, g_db1, g_dw2, g_db2, g_dw3, g_db3, g_dw4, g_db4,
-               d_dw0, d_db0, d_dw1, d_db1, d_dw2, d_db2, d_dw3, d_db3, d_dw4, d_db4},
-	      {{z, {z_data, ops::Shape({BATCH, Z_DIM})}},
-               {x, {x_data, ops::Shape({BATCH, 64, 64, 3})}},
-               {logits0, {logits_0, ops::Shape({BATCH, 1})}},
-               {logits1, {logits_1, ops::Shape({BATCH, 1})}},
-              },
-	      {g_l0_out, g_l1_out, g_l2_out, g_l3_out, g_logits_out, g_out_out,
-               d_l0_out, d_l1_out, d_l2_out, d_l3_out, d_logits_out, g_loss_out,
-               g_dw0_out, g_db0_out, g_dw1_out, g_db1_out, g_dw2_out, g_db2_out,
-               g_dw3_out, g_db3_out, g_dw4_out, g_db4_out,
-               d_dw0_out, d_db0_out, d_dw1_out, d_db1_out, d_dw2_out, d_db2_out,
-               d_dw3_out, d_db3_out, d_dw4_out, d_db4_out
-              });
-    
-
-    out.save("out.tbin");
-    delete[] x_data;
-    */
 
     if (args.has_option("generate"))
         generate_samples(args.get_option("generate"), g_out, z);
