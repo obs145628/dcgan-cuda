@@ -129,7 +129,7 @@ namespace gpu
             
         }
 
-        void conv2d_dk_naive(const dbl_t* x, const dbl_t* dy, dbl_t* dk,
+         void conv2d_dk_naive(const dbl_t* x, const dbl_t* dy, dbl_t* dk,
                              std::size_t nx, std::size_t hx, std::size_t wx, std::size_t cx,
                              std::size_t pad_top, std::size_t pad_left,
                              std::size_t pad_bot, std::size_t pad_right,
@@ -141,7 +141,7 @@ namespace gpu
                                         pad_top, pad_left, pad_bot, pad_right);
             Tensor4DkDy<const float*> tdy(dy, nx, hy, wy, ck, sh - 1, sw - 1);
             Tensor4Tr3124<float*> tdk(dk, hk, wk, cx, ck);
-            
+
 
             cudaEvent_t start;
             cudaEvent_t stop;
@@ -153,7 +153,7 @@ namespace gpu
             std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
             //std::cout << "nb blocks = " << nb_blocks << std::endl;
 
-            int ntimes = 1;     
+            int ntimes = 1;
             for (int i = 0; i < ntimes; ++i)
                 conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tx, tdy, tdk, 1, 1);
 
@@ -165,9 +165,8 @@ namespace gpu
             time /= ntimes;
             std::ofstream fos("time.log", std::ios::app);
             fos << "time (dk_naive) = " << time << "ms\n" << std::endl;
-            
+
         }
-        
     }
     
 }
