@@ -258,14 +258,18 @@ namespace gpu
         {
           conv2d_d3_dx_caller(x, k, y);
         }
-        conv2d_dx_naive(
-            k, x, y,
-            nx, hy, wy, ck,
-            pad_top, pad_left, pad_bot, pad_right,
-            hk, wk, cx,
-            hx, wx,
-            sh, sw
-            );
+
+        else
+        {
+            conv2d_dx_naive(
+                k, x, y,
+                nx, hy, wy, ck,
+                pad_top, pad_left, pad_bot, pad_right,
+                hk, wk, cx,
+                hx, wx,
+                sh, sw
+                );
+        }
     }
 
     void kernel_conv2d_transpose_input_grad(rt::Node* node)
@@ -311,15 +315,18 @@ namespace gpu
           conv2d_d2_caller(dy, k, dx);
         else if (nx == 64 && hy == 8 && wy == 8 && ck == 256)
           conv2d_d3_caller(dy, k, dx);
+
         else
-          conv2d_fwd_naive(
-            dy, k, dx,
-            nx, hy, wy, ck,
-            pad_top, pad_left, pad_bot, pad_right,
-            hk, wk, cx,
-            hx, wx,
-            sh, sw
-            );
+        {
+            conv2d_fwd_naive(
+                dy, k, dx,
+                nx, hy, wy, ck,
+                pad_top, pad_left, pad_bot, pad_right,
+                hk, wk, cx,
+                hx, wx,
+                sh, sw
+                );
+        }
     }
 
     void conv2d_transpose_kernel_grad(const dbl_t* dX1, const dbl_t* X0, const int stride,
@@ -366,15 +373,18 @@ namespace gpu
           conv2d_d2_dk_caller(dy, x, dk);
         else if (nx == 64 && wx == 4 && hx == 4 && cx == 512)
           conv2d_d3_dk_caller(dy, x, dk);
+
         else
-          conv2d_dk_naive(
-            dy, x, dk,
-            nx, hy, wy, cy,
-            pad_top, pad_left, pad_bot, pad_right,
-            hk, wk, cx,
-            hx, wx,
-            sh, sw
-            );
+        {
+            conv2d_dk_naive(
+                dy, x, dk,
+                nx, hy, wy, cy,
+                pad_top, pad_left, pad_bot, pad_right,
+                hk, wk, cx,
+                hx, wx,
+                sh, sw
+                );
+        }
     }
 
 }
