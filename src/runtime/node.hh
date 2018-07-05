@@ -51,8 +51,10 @@ namespace rt
         static constexpr int OP_CONV2D_TRANSPOSE = 33;
         static constexpr int OP_CONV2D_TRANSPOSE_INPUT_GRAD = 34;
         static constexpr int OP_CONV2D_TRANSPOSE_KERNEL_GRAD = 35;
-
-        static const char* OP_NAMES[36];
+        static constexpr int OP_ADD = 36;
+        
+        
+        static const char* OP_NAMES[37];
 
         static Node* nop(const std::vector<Node*>& preds);
 
@@ -88,9 +90,11 @@ namespace rt
                                           const int input_size[],
                                           const std::vector<Node*>& preds);
 
-        static Node* op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input, const int strides[],
-                                          dbl_t* output, const int y_size[], const int input_size[],
-                                          const std::vector<Node*>& preds);
+        static Node* op_conv2d_transpose_kernel_grad(const dbl_t* y, const dbl_t* input,
+                                                     const int strides[],
+                                                     dbl_t* output, const int y_size[],
+                                                     const int input_size[], const int kernel_size[],
+                                                     const std::vector<Node*>& preds);
 
 
         static Node* op_mat_mat_mul(const dbl_t* left, const dbl_t* right, dbl_t* output,
@@ -203,6 +207,10 @@ namespace rt
          static Node* op_leaky_relu_grad(const dbl_t* z, const dbl_t* dout, dbl_t* out,
                                          dbl_t alpha, std::size_t len,
                                          const std::vector<Node*>& preds);
+
+        static Node* op_add(const dbl_t* a, const dbl_t* b, dbl_t* out,
+                            std::size_t len,
+                            const std::vector<Node*>& preds);
 
         Node(int type, std::vector<Node*> preds);
         Node(const Node&) = delete;

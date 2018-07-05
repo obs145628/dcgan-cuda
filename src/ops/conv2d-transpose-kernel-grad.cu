@@ -36,9 +36,12 @@ namespace ops
         int input_size[4] = { cinput.out_shape[0], cinput.out_shape[1],
                               cinput.out_shape[2], cinput.out_shape[3]};
 
+        int kernel_size[4] = { shape_get()[0], shape_get()[1],
+                               shape_get()[2], shape_get()[3]};
+        
         auto out_node = rt::Node::op_conv2d_transpose_kernel_grad(cy.out_data, cinput.out_data,
                                             m_strides, out_data, y_size,
-                                            input_size,
+                                            input_size, kernel_size,
                                             {cy.out_node, cinput.out_node});
 
         g.add_compiled(this, {out_node}, {out_data}, out_node, out_shape, out_data);

@@ -48,6 +48,11 @@ namespace ops
          */
         Op* pred_of(const Op* node);
 
+        /**
+         * Find all of the succesors of the node that are a direct or undirect predecessor of node
+         */
+        std::vector<Op*> preds_of(const Op* node);
+        
 
         /**
          * Compute the gradient nabla(C) / nabla(i-th child)

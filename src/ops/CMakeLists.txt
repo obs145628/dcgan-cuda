@@ -1,4 +1,5 @@
 set(SRC
+  add.cu
   adam-update.cu
   argmax-accuracy.cu
   conv2d.cu

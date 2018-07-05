@@ -2,7 +2,6 @@
 #include "../runtime/node.hh"
 
 
-
 namespace gpu
 {
 
@@ -121,6 +120,7 @@ namespace gpu
 
     void kernel_mat_mul_add(rt::Node* node)
     {
+        
         std::size_t arows = node->len1;
         std::size_t acols = node->len2;
         std::size_t bcols = node->len3;

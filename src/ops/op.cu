@@ -75,6 +75,16 @@ namespace ops
         return nullptr;
     }
 
+    std::vector<Op*> Op::preds_of(const Op* node)
+    {
+        std::vector<Op*> res;
+        for (auto succ: succs_)
+            if (succ == node
+                || (succ->pred_of(node)))
+                res.push_back(succ);
+        return res;
+    }
+
     Op* Op::child_grad(std::size_t, Op*)
     {
         throw std::runtime_error {"It's not possible to compute the gradient of this node"};

@@ -3,6 +3,7 @@
 
 
 #include "graph.hh"
+#include "add.hh"
 #include "adam-update.hh"
 #include "argmax-accuracy.hh"
 #include "input.hh"
@@ -54,6 +55,17 @@ namespace ops
         : graph_(Graph::instance())
     {}
 
+
+    Add* OpsBuilder::add(Op* left, Op* right)
+    {
+        if (left->shape_get() != right->shape_get())
+            throw std::runtime_error {"add: left and right must have the same shape"};
+
+        auto res = new Add(left, right);
+        graph_.add(res);
+        return res;
+    }
+    
     AdamUpdate* OpsBuilder::adam_update(Variable* var, Op* m, Op* v,
                                         dbl_t learning_rate,
                                         dbl_t beta1, dbl_t beta2, dbl_t eps)

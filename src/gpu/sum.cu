@@ -203,6 +203,16 @@ namespace gpu
                 *out = partial[0];
         }
 
+        __global__
+        void vect_add(const dbl_t* a, const dbl_t* b, dbl_t* y, std::size_t len)
+        {
+            std::size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+            std::size_t stride = blockDim.x * gridDim.x;
+
+            for (std::size_t i = index; i < len; i += stride)
+                y[i] = a[i] + b[i];
+        }
+
     }
 
     void kernel_mse(rt::Node* node)
@@ -236,6 +246,14 @@ namespace gpu
     {
         argmax_acc<<<1, BLOCK_SIZE>>>(node->in1, node->in2, node->out1,
                                       node->len1, node->len2);
+    }
+
+    void kernel_add(rt::Node* node)
+    {
+        std::size_t len = node->len1;
+        std::size_t block_size = 256;
+        std::size_t nb_blocks = (len + block_size - 1)/ block_size;
+        vect_add<<<nb_blocks, block_size>>>(node->in1, node->in2, node->out1, len);
     }
 
 }

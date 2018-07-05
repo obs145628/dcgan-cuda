@@ -14,8 +14,8 @@ TEST_DIR = os.path.join(ROOT_DIR, 'tests/')
 SCRIPTS_DIR = os.path.join(TEST_DIR, 'scripts/')
 ERRORS_PATH = os.path.join(BUILD_DIR, 'errors.log')
 
-TS_CPU = False
-TS_MCPU = False
+TS_CPU = True
+TS_MCPU = True
 TS_GPU = True
 
 builder = json_ts_builder.JsonTsBuilder()
@@ -81,21 +81,30 @@ test_datset_weights('nn', 'dcgan_discriminator',
                    'ref_dcgan_discriminator.py', 'test_dcgan_discriminator', 'celeba.npz')
 
 test_basic('ops', 'softmax', 'ref_softmax.py', 'test_softmax')
+test_basic('ops', 'softmax_bm', 'ref_softmax_bm.py', 'test_softmax_bm')
 test_basic('ops', 'log_softmax', 'ref_log_softmax.py', 'test_log_softmax')
-test_basic('ops', 'softmax_cross_entropy',
-           'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
+test_basic('ops', 'log_softmax_bm', 'ref_log_softmax_bm.py', 'test_log_softmax_bm')
+test_basic('ops', 'softmax_cross_entropy', 'ref_softmax_cross_entropy.py', 'test_softmax_cross_entropy')
+test_basic('ops', 'softmax_cross_entropy_bm', 'ref_softmax_cross_entropy_bm.py', 'test_softmax_cross_entropy_bm')
 test_basic('ops', 'conv2d', 'ref_conv2d.py', 'test_conv2d')
 test_basic('ops', 'conv2d_padding', 'ref_conv2d_padding.py', 'test_conv2d_padding')
 test_basic('ops', 'conv2d_bias_add', 'ref_conv2d_bias_add.py', 'test_conv2d_bias_add')
 test_basic('ops', 'conv2d_transpose', 'ref_conv2d_transpose.py', 'test_conv2d_transpose')
 test_basic('ops', 'sigmoid', 'ref_sigmoid.py', 'test_sigmoid')
+test_basic('ops', 'sigmoid_bm', 'ref_sigmoid_bm.py', 'test_sigmoid_bm')
 test_basic('ops', 'sigmoid_50k', 'ref_sigmoid_50k.py', 'test_sigmoid_50k')
 test_basic('ops', 'mat_mat_mul', 'ref_mat_mat_mul.py', 'test_mat_mat_mul')
+test_basic('ops', 'mat_mat_mul_bm', 'ref_mat_mat_mul_bm.py', 'test_mat_mat_mul_bm')
 test_basic('ops', 'mat_rvect_add', 'ref_mat_rvect_add.py', 'test_mat_rvect_add')
+test_basic('ops', 'mat_rvect_add_bm', 'ref_mat_rvect_add_bm.py', 'test_mat_rvect_add_bm')
 test_basic('ops', 'mean_squared_error', 'ref_mse.py', 'test_mse')
+test_basic('ops', 'mean_squared_error_bm', 'ref_mse_bm.py', 'test_mse_bm')
 test_basic('ops', 'vect_relu', 'ref_vect_relu.py', 'test_vect_relu')
+test_basic('ops', 'vect_relu_bm', 'ref_vect_relu_bm.py', 'test_vect_relu_bm')
 test_basic('ops', 'vect_relu_leaky', 'ref_vect_relu_leaky.py', 'test_vect_relu_leaky')
+test_basic('ops', 'vect_relu_leaky_bm', 'ref_vect_relu_leaky_bm.py', 'test_vect_relu_leaky_bm')
 test_basic('ops', 'vect_tanh', 'ref_vect_tanh.py', 'test_vect_tanh')
+test_basic('ops', 'vect_tanh_bm', 'ref_vect_tanh_bm.py', 'test_vect_tanh_bm')
 test_basic('ops', 'reshape', 'ref_reshape.py', 'test_reshape')
 test_basic('ops', 'mat_mul_add', 'ref_mat_mul_add.py', 'test_mat_mul_add')
 test_basic('ops', 'tmat_mat_mul', 'ref_tmat_mat_mul.py', 'test_tmat_mat_mul')
@@ -103,25 +112,37 @@ test_basic('ops', 'mat_tmat_mul', 'ref_mat_tmat_mul.py', 'test_mat_tmat_mul')
 test_basic('ops', 'mat_sum0', 'ref_mat_sum0.py', 'test_mat_sum0')
 test_basic('ops', 'mat_sum1', 'ref_mat_sum1.py', 'test_mat_sum1')
 test_basic('ops', 'sigmoid_cross_entropy', 'ref_sigmoid_cross_entropy.py', 'test_sigmoid_cross_entropy')
+test_basic('ops', 'sigmoid_cross_entropy_bm', 'ref_sigmoid_cross_entropy_bm.py', 'test_sigmoid_cross_entropy_bm')
 test_basic('ops', 'argmax_accuracy', 'ref_argmax.py', 'test_argmax')
 test_basic('ops', 'update', 'ref_update.py', 'test_update')
+test_basic('ops', 'update_bm', 'ref_update_bm.py', 'test_update_bm')
 test_basic('ops', 'moment_update', 'ref_moment_update.py', 'test_moment_update')
+test_basic('ops', 'moment_update_bm', 'ref_moment_update_bm.py', 'test_moment_update_bm')
 test_basic('ops', 'moment_update2', 'ref_moment_update2.py', 'test_moment_update2')
+test_basic('ops', 'moment_update2_bm', 'ref_moment_update2_bm.py', 'test_moment_update2_bm')
 test_basic('ops', 'adam_update', 'ref_adam_update.py', 'test_adam_update')
+test_basic('ops', 'add', 'ref_add.py', 'test_add')
 
 test_basic('ops_grad', 'mse_grad', 'ref_mse_grad.py', 'test_mse_grad')
+test_basic('ops_grad', 'mse_grad_bm', 'ref_mse_grad_bm.py', 'test_mse_grad_bm')
 test_basic('ops_grad', 'sigmoid_grad', 'ref_sigmoid_grad.py', 'test_sigmoid_grad')
+test_basic('ops_grad', 'sigmoid_grad_bm', 'ref_sigmoid_grad_bm.py', 'test_sigmoid_grad_bm')
 test_basic('ops_grad', 'mat_mul_add_grad', 'ref_mat_mul_add_grad.py', 'test_mat_mul_add_grad')
-test_basic('ops_grad', 'softmax_cross_entrop_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
+test_basic('ops_grad', 'softmax_cross_entropy_grad', 'ref_softmax_cross_entropy_grad.py', 'test_softmax_cross_entropy_grad')
+test_basic('ops_grad', 'softmax_cross_entropy_grad_bm', 'ref_softmax_cross_entropy_grad_bm.py', 'test_softmax_cross_entropy_grad_bm')
 test_basic('ops_grad', 'sigmoid_cross_entropy_grad', 'ref_sigmoid_cross_entropy_grad.py', 'test_sigmoid_cross_entropy_grad')
+test_basic('ops_grad', 'sigmoid_cross_entropy_grad_bm', 'ref_sigmoid_cross_entropy_grad_bm.py', 'test_sigmoid_cross_entropy_grad_bm')
 test_basic('ops_grad', 'tanh_grad', 'ref_tanh_grad.py', 'test_tanh_grad')
+test_basic('ops_grad', 'tanh_grad_bm', 'ref_tanh_grad_bm.py', 'test_tanh_grad_bm')
 
 test_basic('ops_grad', 'conv2d_grad', 'ref_conv2d_grad.py', 'test_conv2d_grad')
 test_basic('ops_grad', 'conv2d_bias_add_grad', 'ref_conv2d_bias_add_grad.py', 'test_conv2d_bias_add_grad')
 test_basic('ops_grad', 'conv2d_transpose_grad', 'ref_conv2d_transpose_grad.py', 'test_conv2d_transpose_grad')
 test_basic('ops_grad', 'relu_grad', 'ref_relu_grad.py', 'test_relu_grad')
+test_basic('ops_grad', 'relu_grad_bm', 'ref_relu_grad_bm.py', 'test_relu_grad_bm')
 test_basic('ops_grad', 'leaky_relu_grad', 'ref_leaky_relu_grad.py', 'test_leaky_relu_grad')
 test_basic('ops_grad', 'conv2d_padding_grad', 'ref_conv2d_padding_grad.py', 'test_conv2d_padding_grad')
+
 
 
 '''
@@ -139,6 +160,21 @@ test_datset_weights('discriminator', 'conv_layer0_dk', 'ref_conv_dk_d0.py', 'tes
 test_datset_weights('discriminator', 'conv_layer1_dk', 'ref_conv_dk_d1.py', 'test_conv_dk_d1', '')
 test_datset_weights('discriminator', 'conv_layer2_dk', 'ref_conv_dk_d2.py', 'test_conv_dk_d2', '')
 test_datset_weights('discriminator', 'conv_layer3_dk', 'ref_conv_dk_d3.py', 'test_conv_dk_d3', '')
+
+test_datset_weights('generator', 'conv_layer0', 'ref_conv_g0.py', 'test_conv_g0', '')
+test_datset_weights('generator', 'conv_layer1', 'ref_conv_g1.py', 'test_conv_g1', '')
+test_datset_weights('generator', 'conv_layer2', 'ref_conv_g2.py', 'test_conv_g2', '')
+test_datset_weights('generator', 'conv_layer3', 'ref_conv_g3.py', 'test_conv_g3', '')
+
+test_datset_weights('generator', 'conv_layer0_dx', 'ref_conv_dx_g0.py', 'test_conv_dx_g0', '')
+test_datset_weights('generator', 'conv_layer1_dx', 'ref_conv_dx_g1.py', 'test_conv_dx_g1', '')
+test_datset_weights('generator', 'conv_layer2_dx', 'ref_conv_dx_g2.py', 'test_conv_dx_g2', '')
+test_datset_weights('generator', 'conv_layer3_dx', 'ref_conv_dx_g3.py', 'test_conv_dx_g3', '')
+
+test_datset_weights('generator', 'conv_layer0_dk', 'ref_conv_dk_g0.py', 'test_conv_dk_g0', '')
+test_datset_weights('generator', 'conv_layer1_dk', 'ref_conv_dk_g1.py', 'test_conv_dk_g1', '')
+test_datset_weights('generator', 'conv_layer2_dk', 'ref_conv_dk_g2.py', 'test_conv_dk_g2', '')
+test_datset_weights('generator', 'conv_layer3_dk', 'ref_conv_dk_g3.py', 'test_conv_dk_g3', '')
 '''
 
 test_datset_weights('discriminator', 'conv_layer0_dx', 'ref_conv_dx_d0.py', 'test_conv_dx_d0', '')
