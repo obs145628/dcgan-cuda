@@ -339,7 +339,9 @@ int main(int argc, char** argv)
         {}
     }
 
-    
+
+    auto tz = tocha::Tensors::load("noze.npz");
+    dbl_t* z_data = reinterpret_cast<dbl_t*>(tz.arr()[0].data);
     
     if (args.has_option("train"))
     {
@@ -373,7 +375,7 @@ int main(int argc, char** argv)
                           {
                               {logits0, {logits_0, ops::Shape({BATCH, 1})}},
                               {logits1, {logits_1, ops::Shape({BATCH, 1})}},
-                              {z, {z_batch, ops::Shape({BATCH, Z_DIM})}},
+                              {z, {z_data, ops::Shape({BATCH, Z_DIM})}},
                               {x, {x_batch, ops::Shape({BATCH, 64, 64, 3})}}},
                           {nullptr, &d_loss_val});
 
@@ -381,7 +383,7 @@ int main(int argc, char** argv)
                     graph.run({g_opti, g_loss},
                               {
                                   {logits1, {logits_1, ops::Shape({BATCH, 1})}},
-                                  {z, {z_batch, ops::Shape({BATCH, Z_DIM})}}},
+                                  {z, {z_data, ops::Shape({BATCH, Z_DIM})}}},
                               {nullptr, &g_loss_val});
 
                 
