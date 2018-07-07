@@ -10,6 +10,9 @@ import tensorflow as tf
 import gen_mnist
 import tensors_saver
 
+np.random.seed(12)
+tf.set_random_seed(12)
+
 EPOCHS = 25 #number of training epochs
 LEARNING_RATE = 0.0002 #adam optimizer learning rate
 BETA1 = 0.5 #adam optimizer beta1 parameter
@@ -214,13 +217,13 @@ def save_weights(path):
     wi.save()
 
 
-for i in range(1000):
+for i in range(3000):
 
     print('iteration ' + str(i))
     img = sess.run(g_out, feed_dict={z : data_z})
     utils.save_images(img, [8, 8], 'sample' + str(i) + '.png')
-    save_grads('grads' + str(i) + '.npz')
-    save_weights('weights' + str(i) + '.npz')
+    #save_grads('grads' + str(i) + '.npz')
+    #save_weights('weights' + str(i) + '.npz')
 
     sess.run(d_opti, feed_dict={z: data_z, X: data_x})
     for _ in range(2):

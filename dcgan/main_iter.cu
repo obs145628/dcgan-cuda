@@ -455,23 +455,25 @@ int main(int argc, char** argv)
 
     auto input = tocha::Tensors::load("input.npz");
     dbl_t* data_x = reinterpret_cast<dbl_t*>(input.arr()[0].data);
-    //dbl_t* data_z = reinterpret_cast<dbl_t*>(input.arr()[1].data);
+    dbl_t* data_z = reinterpret_cast<dbl_t*>(input.arr()[1].data);
+
     
 
     for (std::size_t i = 0; i < 1000; ++i)
     {
+        /*
         dbl_t* data_z = new dbl_t[BATCH * Z_DIM];
         NormalInitializer init(0, 1);
         for (std::size_t i = 0; i < BATCH * Z_DIM; ++i)
             data_z[i] = init.next();
-    
+        */
 
 
         generate_samples("sample" + std::to_string(i) + ".jpg", g_out, z, data_z);
         save_weights("weights" + std::to_string(i) + ".tbin", g_vars, d_vars);
 
         
-    
+        /*
         tocha::Tensors gout;
 
         gout.add(tocha::Tensor::f32(Z_DIM, 4 * 4 * 512));
@@ -530,8 +532,9 @@ int main(int argc, char** argv)
              d_dw0_out, d_db0_out, d_dw1_out, d_db1_out, d_dw2_out, d_db2_out,
              d_dw3_out, d_db3_out, d_dw4_out, d_db4_out
             });
-    
-        gout.save("grads" + std::to_string(i) + ".tbin");
+        */
+
+        //gout.save("grads" + std::to_string(i) + ".tbin");
 
         graph.run({d_opti},
                   {
@@ -548,7 +551,7 @@ int main(int argc, char** argv)
                           {z, {data_z, ops::Shape({BATCH, Z_DIM})}}},
                       {nullptr});
 
-        delete[] data_z;
+        //delete[] data_z;
     }
     
     /*
