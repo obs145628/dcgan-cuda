@@ -13,7 +13,7 @@ import tensors_saver
 EPOCHS = 25 #number of training epochs
 LEARNING_RATE = 0.0002 #adam optimizer learning rate
 BETA1 = 0.5 #adam optimizer beta1 parameter
-BATCH_SIZE = 10 #number of inputs per batch
+BATCH_SIZE = 64 #number of inputs per batch
 Z_DIM = 100 #size of the noise input vector to generate image
 
 def generator(X, reuse=False):
@@ -217,8 +217,8 @@ def save_weights(path):
 for i in range(1000):
 
     print('iteration ' + str(i))
-    img = sess.run(g_out, feed_dict={z : data_z[0:9,:]})
-    utils.save_images(img, [3, 3], 'sample' + str(i) + '.png')
+    img = sess.run(g_out, feed_dict={z : data_z})
+    utils.save_images(img, [8, 8], 'sample' + str(i) + '.png')
     save_grads('grads' + str(i) + '.npz')
     save_weights('weights' + str(i) + '.npz')
 
