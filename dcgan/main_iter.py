@@ -222,8 +222,8 @@ for i in range(3000):
     print('iteration ' + str(i))
     img = sess.run(g_out, feed_dict={z : data_z})
     utils.save_images(img, [8, 8], 'sample' + str(i) + '.png')
-    #save_grads('grads' + str(i) + '.npz')
-    #save_weights('weights' + str(i) + '.npz')
+    save_grads('grads' + str(i) + '.npz')
+    save_weights('weights' + str(i) + '.npz')
 
     sess.run(d_opti, feed_dict={z: data_z, X: data_x})
     for _ in range(2):
