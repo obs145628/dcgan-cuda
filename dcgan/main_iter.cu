@@ -354,7 +354,7 @@ void generate_samples(const std::string& path, ops::Op* g_out, ops::Input* z, db
     }
     
     graph.run({g_out},
-              {{z, {z_data, ops::Shape({SAMPLE_SIZE, Z_DIM})}}},
+              {{z, {z_data, ops::Shape({BATCH, Z_DIM})}}},
               {generated});
     celeba::save_samples(generated, 8, 8, path);
 
