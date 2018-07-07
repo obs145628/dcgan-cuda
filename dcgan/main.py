@@ -15,8 +15,8 @@ LEARNING_RATE = 0.0002 #adam optimizer learning rate
 BETA1 = 0.5 #adam optimizer beta1 parameter
 BATCH_SIZE = 64 #number of inputs per batch
 SAMPLE_SIZE = 64 #number of samples generated
-SAMPLE_STEP = 100 #interval of steps between each sample generation
-SAMPLE_DIR = 'samples' #folder where the samples are saved
+SAMPLE_STEP = 10 #interval of steps between each sample generation
+SAMPLE_DIR = 'samples2' #folder where the samples are saved
 Z_DIM = 100 #size of the noise input vector to generate image
 
 data_files = glob.glob(os.path.join("../celeba_norm", "*.jpg"))
@@ -189,5 +189,5 @@ for epoch in range(EPOCHS):
             img = sess.run(g_out, feed_dict={z : sample_seed})
             utils.save_images(img, [8, 8],
                               './{}/train_{:02d}_{:04d}.png'.format(SAMPLE_DIR, epoch, idx))
-            save_net('./{}/train_{:02d}_{:04d}.npz'.format(SAMPLE_DIR, epoch, idx))
+            #save_net('./{}/train_{:02d}_{:04d}.npz'.format(SAMPLE_DIR, epoch, idx))
             print('sample generated')
