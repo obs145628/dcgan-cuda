@@ -8,8 +8,6 @@
 #include "conv2d_shared2.hh"
 #include "conv2d_gemm.hh"
 
-//#define CONV_OPTI
-
 namespace gpu
 {
 
@@ -41,18 +39,7 @@ namespace gpu
         std::size_t hy = (hx + pad_top + pad_bot - hk) / sh + 1;
         std::size_t wy = (wx + pad_left + pad_right - wk) / sw + 1;
 
-        /*
-          std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-          std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << ck << std::endl;
-          std::cout << "S: " << sh << ", " << sw << std::endl;
 
-          std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-          << std::endl;
-
-          std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
-        */
-
-        #ifdef CONV_OPTI
         if (nx == 64 && hx == 64 && wx == 64 && cx == 3)
           conv2d_d0_caller(x, k, y);
         else if (nx == 64 && hx == 32 && wx == 32 && cx == 64)
@@ -62,7 +49,6 @@ namespace gpu
         else if (nx == 64 && hx == 8 && wx == 8 && cx == 256)
           conv2d_d3_caller(x, k, y);
         else
-        #endif
           conv2d_fwd_shared2(
           //conv2d_fwd_shared1(
           //conv2d_fwd_naive(
@@ -111,18 +97,6 @@ namespace gpu
         std::size_t hx = sh * (hy - 1) + hk - pad_height;
         std::size_t wx = sw * (wy - 1) + wk - pad_width;
 
-
-        /*
-        std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << ck << std::endl;
-        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
-        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-
-        std::cout << "S: " << sh << ", " << sw << std::endl;
-        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-                  << std::endl;
-        */
-
-        #ifdef CONV_OPTI
         if (nx == 64 && hy == 32 && wy == 32 && ck == 64)
             conv2d_d0_dx_caller(dy, k, dx);
         else if (nx == 64 && hy == 16 && wy == 16 && ck == 128)
@@ -132,7 +106,6 @@ namespace gpu
         else if (nx == 64 && hy == 4 && wy == 4 && ck == 512)
             conv2d_d3_dx_caller(dy, k, dx);
         else
-        #endif
           conv2d_dx_naive(
             k, dy, dx,
             nx, hx, wx, cx,
@@ -173,17 +146,6 @@ namespace gpu
         std::size_t hk = hx + pad_height - sh * (hy - 1);
         std::size_t wk = wx + pad_width - sw * (wy - 1);
 
-        /*
-        std::cout << "K: " << hk << ", " << wk << ", " << cx << ", " << cy << std::endl;
-        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << cy << std::endl;
-        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-
-        std::cout << "S: " << sh << ", " << sw << std::endl;
-        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-                  << std::endl;
-        */
-
-        #ifdef CONV_OPTI
         if (nx == 64 && wy == 32 && hy == 32 && cy == 64)
           conv2d_d0_dk_caller(x, dy, dk);
         else if (nx == 64 && wy == 16 && hy == 16 && cy == 128)
@@ -193,7 +155,6 @@ namespace gpu
         else if (nx == 64 && wy == 4 && hy == 4 && cy == 512)
           conv2d_d3_dk_caller(x, dy, dk);
         else
-        #endif
           conv2d_dk_naive(
             x, dy, dk,
             nx, hx, wx, cx,
@@ -232,15 +193,6 @@ namespace gpu
         std::size_t hy = sh * (hx - 1) + hk - pad_height;
         std::size_t wy = sw * (wx - 1) + wk - pad_width;
 
-
-        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-        std::cout << "K: " << hk << ", " << wk << ", " << ck << ", " << cx << std::endl;
-        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
-        std::cout << "S: " << sh << ", " << sw << std::endl;
-        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-                  << std::endl;
-
-        #ifdef CONV_OPTI
         if (nx == 64 && hx == 32 && wx == 32 && cx == 64)
             conv2d_d0_dx_caller(x, k, y);
         else if (nx == 64 && hx == 16 && wx == 16 && cx == 128)
@@ -250,7 +202,6 @@ namespace gpu
         else if (nx == 64 && hx == 4 && wx == 4 && cx == 512)
             conv2d_d3_dx_caller(x, k, y);
         else
-        #endif
             conv2d_dx_naive(
                 k, x, y,
                 nx, hy, wy, ck,
@@ -289,14 +240,6 @@ namespace gpu
         std::size_t pad_bot = pad_height - pad_top;
         std::size_t pad_right = pad_width - pad_left;
 
-        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-        std::cout << "K: " << hk << ", " << wk << ", " << ck << ", " << cx << std::endl;
-        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << ck << std::endl;
-        std::cout << "S: " << sh << ", " << sw << std::endl;
-        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-                  << std::endl;
-
-        #ifdef CONV_OPTI
         if (nx == 64 && hy == 64 && wy == 64 && ck == 3)
           conv2d_d0_caller(dy, k, dx);
         else if (nx == 64 && hy == 32 && wy == 32 && ck == 64)
@@ -306,7 +249,6 @@ namespace gpu
         else if (nx == 64 && hy == 8 && wy == 8 && ck == 256)
           conv2d_d3_caller(dy, k, dx);
         else
-        #endif
             conv2d_fwd_naive(
                 dy, k, dx,
                 nx, hy, wy, ck,
@@ -346,14 +288,6 @@ namespace gpu
         std::size_t pad_bot = pad_height - pad_top;
         std::size_t pad_right = pad_width - pad_left;
 
-        std::cout << "X: " << nx << ", " << hx << ", " << wx << ", " << cx << std::endl;
-        std::cout << "K: " << hk << ", " << wk << ", " << cy << ", " << cx << std::endl;
-        std::cout << "Y: " << nx << ", " << hy << ", " << wy << ", " << cy << std::endl;  
-        std::cout << "S: " << sh << ", " << sw << std::endl;
-        std::cout << "P: " << pad_top << ", " << pad_bot << ", " << pad_left << ", " << pad_right
-                  << std::endl;
-
-        #ifdef CONV_OPTI
         if (nx == 64 && wx == 32 && hx == 32 && cx == 64)
           conv2d_d0_dk_caller(dy, x, dk);
         else if (nx == 64 && wx == 16 && hx == 16 && cx == 128)
@@ -363,7 +297,6 @@ namespace gpu
         else if (nx == 64 && wx == 4 && hx == 4 && cx == 512)
           conv2d_d3_dk_caller(dy, x, dk);        
         else
-        #endif
             conv2d_dk_naive(
                 dy, x, dk,
                 nx, hy, wy, cy,

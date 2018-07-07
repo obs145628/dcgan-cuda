@@ -119,7 +119,12 @@ namespace ops
          *
          */
         void load_vars(const std::string& path);
-        
+
+        /**
+         * Clear all graph information
+         * To be called at the end of the program
+         */
+        void exit_graph();
 
     private:
         std::vector<Op*> ops_;

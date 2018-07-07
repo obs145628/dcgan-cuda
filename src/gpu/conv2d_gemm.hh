@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <fstream>
+#include "../memory/alloc.hh"
 
 namespace gpu
 {
@@ -530,18 +531,18 @@ namespace gpu
       cudaEventCreate(&stop);
       cudaEventRecord(start, 0);
 
-      dbl_t *newKernelCuda;
       constexpr int totalKernelSize = 5 * 5 * 3 * 64;
-      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+      dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
+
+
       dim3 dimGrid(totalKernelSize / 32);
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 3, 64><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
 
       cudaDeviceSynchronize();
 
-      dbl_t *newInputCuda;
       constexpr int newInputSize = 3 * 5 * 5 * 64 * 32 * 32;
-      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+      dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
       #pragma unroll
       for (int b = 0; b < 64; ++b)
@@ -552,9 +553,9 @@ namespace gpu
 
       cudaDeviceSynchronize();
 
-      dbl_t *resConvCuda;
+
       constexpr int resSize = 64 * 64 * 32 * 32;
-      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize);
+      dbl_t *resConvCuda = tensor_alloc(resSize);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(1024, 4);
       mat_mul_cuda16<75, 65536, 4800, 4915200><<<dimGridConv, dimBlockConv>>>(
@@ -575,9 +576,9 @@ namespace gpu
       std::ofstream fos("time_gemm.log", std::ios::app);
       fos << "time (fwd_gemm_d0) = " << time << "ms\n" << std::endl;
 
-      cudaFree(newKernelCuda);
-      cudaFree(newInputCuda);
-      cudaFree(resConvCuda);
+      tensor_free(newKernelCuda);
+      tensor_free(newInputCuda);
+      tensor_free(resConvCuda);
     }
 
     void conv2d_d1_caller(const float *data, const float *ker, float *res)
@@ -594,9 +595,9 @@ namespace gpu
       cudaEventCreate(&startTransf);
       cudaEventRecord(start, 0);
 
-      dbl_t *newKernelCuda;
+      
       constexpr int totalKernelSize1 = 5 * 5 * 128 * 64;
-      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
+      dbl_t *newKernelCuda = tensor_alloc(totalKernelSize1);
       dim3 dimGrid(totalKernelSize1 / 32);
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 64, 128><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -608,9 +609,8 @@ namespace gpu
       cudaEventElapsedTime(&timeKer, start, stopKer);
 
       cudaEventRecord(startImg, 0);
-      dbl_t *newInputCuda;
       constexpr int newInputSize1 = 64 * 5 * 5 * 64 * 16 * 16;
-      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
+      dbl_t *newInputCuda = tensor_alloc(newInputSize1);
 
       #pragma unroll
       for (int b = 0; b < 64; ++b)
@@ -626,9 +626,8 @@ namespace gpu
       cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
       cudaEventRecord(startMul, 0);
-      dbl_t *resConvCuda;
       constexpr int resSize1 = 128 * 64 * 16 * 16;
-      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+      dbl_t *resConvCuda = tensor_alloc(resSize1);
       dim3 dimBlockConv(32, 4);
       dim3 dimGridConv(128, 4);
       mat_mul_cuda32<1600, 16384, 204800, 26214400><<<dimGridConv, dimBlockConv>>>(
@@ -661,9 +660,9 @@ namespace gpu
       fos << "time (fwd_gemm_d1_transf) = " << timeTransf << "ms\n" << std::endl;
       fos << "time (fwd_gemm_d1_all) = " << time << "ms\n" << std::endl;
 
-      cudaFree(newKernelCuda);
-      cudaFree(newInputCuda);
-      cudaFree(resConvCuda);
+      tensor_free(newKernelCuda);
+      tensor_free(newInputCuda);
+      tensor_free(resConvCuda);
     }
 
     void conv2d_d2_caller(const float *data, const float *ker, float *res)
@@ -680,9 +679,8 @@ namespace gpu
       cudaEventCreate(&startTransf);
       cudaEventRecord(start, 0);
 
-      dbl_t *newKernelCuda;
       constexpr int totalKernelSize1 = 5 * 5 * 128 * 256;
-      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
+      dbl_t *newKernelCuda = tensor_alloc(totalKernelSize1);
       dim3 dimGrid(totalKernelSize1 / 32);
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 128, 256><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -694,9 +692,8 @@ namespace gpu
       cudaEventElapsedTime(&timeKer, start, stopKer);
 
       cudaEventRecord(startImg, 0);
-      dbl_t *newInputCuda;
       constexpr int newInputSize1 = 5 * 5 * 128 * 64 * 8 * 8;
-      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
+      dbl_t *newInputCuda = tensor_alloc(newInputSize1);
 
       #pragma unroll
       for (int b = 0; b < 64; ++b)
@@ -712,9 +709,8 @@ namespace gpu
       cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
       cudaEventRecord(startMul, 0);
-      dbl_t *resConvCuda;
       constexpr int resSize1 = 256 * 64 * 8 * 8;
-      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+      dbl_t *resConvCuda = tensor_alloc(resSize1);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(64, 16);
       mat_mul_cuda16<3200, 4096, 819200, 13107200><<<dimGridConv, dimBlockConv>>>(
@@ -747,9 +743,9 @@ namespace gpu
       fos << "time (fwd_gemm_d2_transf) = " << timeTransf << "ms\n" << std::endl;
       fos << "time (fwd_gemm_d2_all) = " << time << "ms\n" << std::endl;
 
-      cudaFree(newKernelCuda);
-      cudaFree(newInputCuda);
-      cudaFree(resConvCuda);
+      tensor_free(newKernelCuda);
+      tensor_free(newInputCuda);
+      tensor_free(resConvCuda);
     }
 
     void conv2d_d3_caller(const float *data, const float *ker, float *res)
@@ -766,9 +762,8 @@ namespace gpu
       cudaEventCreate(&startTransf);
       cudaEventRecord(start, 0);
 
-      dbl_t *newKernelCuda;
       constexpr int totalKernelSize1 = 5 * 5 * 256 * 512;
-      cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize1);
+      dbl_t *newKernelCuda = tensor_alloc(totalKernelSize1);
       dim3 dimGrid(totalKernelSize1 / 32);
       dim3 dimBlock(32);
       ker_transform_cuda<5, 5, 256, 512><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -780,9 +775,8 @@ namespace gpu
       cudaEventElapsedTime(&timeKer, start, stopKer);
 
       cudaEventRecord(startImg, 0);
-      dbl_t *newInputCuda;
       constexpr int newInputSize1 = 5 * 5 * 256 * 64 * 4 * 4;
-      cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize1);
+      dbl_t *newInputCuda = tensor_alloc(newInputSize1);
 
       #pragma unroll
       for (int b = 0; b < 64; ++b)
@@ -798,9 +792,8 @@ namespace gpu
       cudaEventElapsedTime(&timeImg, startImg, stopImg);
 
       cudaEventRecord(startMul, 0);
-      dbl_t *resConvCuda;
       constexpr int resSize1 = 512 * 64 * 4 * 4;
-      cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+      dbl_t *resConvCuda = tensor_alloc(resSize1);
       dim3 dimBlockConv(16, 4);
       dim3 dimGridConv(16, 32);
       mat_mul_cuda16<6400, 1024, 3276800, 6553600><<<dimGridConv, dimBlockConv>>>(
@@ -833,9 +826,9 @@ namespace gpu
       fos << "time (fwd_gemm_d3_transf) = " << timeTransf << "ms\n" << std::endl;
       fos << "time (fwd_gemm_d3_all) = " << time << "ms\n" << std::endl;
 
-      cudaFree(newKernelCuda);
-      cudaFree(newInputCuda);
-      cudaFree(resConvCuda);
+      tensor_free(newKernelCuda);
+      tensor_free(newInputCuda);
+      tensor_free(resConvCuda);
     }
   }
 
@@ -848,9 +841,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 64 * 68 * 68 * 64;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dim3 dimGridPadd(128, 8);
     dim3 dimBlockPadd(16, 4);
 
@@ -862,9 +854,8 @@ namespace gpu
     }
 
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 64 * 5 * 5 * 64 * 64 * 64;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 64; ++b)
@@ -880,9 +871,8 @@ namespace gpu
 
     //cudaDeviceSynchronize();
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 5 * 5 * 3 * 64;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     rot_ker_transform_cuda<5, 5, 3, 64><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -895,9 +885,8 @@ namespace gpu
 
     //gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 64 * 64 * 64 * 3;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(4096, 1);
     back_mat_mul_cuda16<1600, 262144, 4800, 419430400, 786432><<<dimGridConv, dimBlockConv>>>(
@@ -923,10 +912,10 @@ namespace gpu
     fos << "time (dx_gemm_d0_Ker) = " << timeKer << "ms\n";
     fos << "time (dx_gemm_d0_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d1_dx_caller(const float *data, const float *ker, float *res)
@@ -938,9 +927,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 64 * 36 * 36 * 128;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dim3 dimGridPadd(128, 4);
     dim3 dimBlockPadd(16, 4);
 
@@ -955,9 +943,8 @@ namespace gpu
     gpuErrchk(cudaDeviceSynchronize());
     //cudaDeviceSynchronize();
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 128 * 5 * 5 * 64 * 32 * 32;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 64; ++b)
@@ -973,10 +960,8 @@ namespace gpu
     gpuErrchk(cudaPeekAtLastError());
 
     //cudaDeviceSynchronize();
-
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 5 * 5 * 64 * 128;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     rot_ker_transform_cuda<5, 5, 64, 128><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -989,9 +974,8 @@ namespace gpu
 
     //gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 64 * 32 * 32 * 64;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(1024, 4);
     back_mat_mul_cuda16<3200, 65536, 204800, 209715200, 4194304><<<dimGridConv, dimBlockConv>>>(
@@ -1017,10 +1001,10 @@ namespace gpu
     fos << "time (dx_gemm_d1_Ker) = " << timeKer << "ms\n";
     fos << "time (dx_gemm_d1_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d2_dx_caller(const float *data, const float *ker, float *res)
@@ -1032,9 +1016,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 64 * 20 * 20 * 256;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dim3 dimGridPadd(128, 2);
     dim3 dimBlockPadd(16, 4);
 
@@ -1049,9 +1032,8 @@ namespace gpu
     gpuErrchk(cudaDeviceSynchronize());
     //cudaDeviceSynchronize();
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 256 * 5 * 5 * 64 * 16 * 16;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 64; ++b)
@@ -1068,9 +1050,8 @@ namespace gpu
 
     //cudaDeviceSynchronize();
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 5 * 5 * 128 * 256;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     rot_ker_transform_cuda<5, 5, 128, 256><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -1083,9 +1064,8 @@ namespace gpu
 
     //gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 64 * 16 * 16 * 128;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(256, 8);
     back_mat_mul_cuda16<6400, 16384, 819200, 104857600, 2097152><<<dimGridConv, dimBlockConv>>>(
@@ -1111,10 +1091,10 @@ namespace gpu
     fos << "time (dx_gemm_d2_Ker) = " << timeKer << "ms\n";
     fos << "time (dx_gemm_d2_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d3_dx_caller(const float *data, const float *ker, float *res)
@@ -1126,9 +1106,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 64 * 12 * 12 * 512;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dim3 dimGridPadd(128, 1);
     dim3 dimBlockPadd(16, 4);
 
@@ -1143,9 +1122,8 @@ namespace gpu
     gpuErrchk(cudaDeviceSynchronize());
     //cudaDeviceSynchronize();
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 512 * 5 * 5 * 64 * 8 * 8;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 64; ++b)
@@ -1162,9 +1140,8 @@ namespace gpu
 
     //cudaDeviceSynchronize();
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 5 * 5 * 256 * 512;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     rot_ker_transform_cuda<5, 5, 256, 512><<<dimGrid, dimBlock>>>(ker, newKernelCuda);
@@ -1177,9 +1154,8 @@ namespace gpu
 
     //gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 64 * 8 * 8 * 256;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(64, 16);
     back_mat_mul_cuda16<12800, 4096, 3276800, 52428800, 1048576><<<dimGridConv, dimBlockConv>>>(
@@ -1205,10 +1181,10 @@ namespace gpu
     fos << "time (dx_gemm_d3_Ker) = " << timeKer << "ms\n";
     fos << "time (dx_gemm_d3_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d0_dk_caller(const float *data, const float *ker, float *res)
@@ -1220,9 +1196,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 63 * 63 * 64 * 64;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
     cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
     free(zeroVal);
@@ -1240,9 +1215,8 @@ namespace gpu
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 64 * 63 * 63 * 3 * 5 * 5;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 3; ++b)
@@ -1259,9 +1233,8 @@ namespace gpu
     //cudaDeviceSynchronize();
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 63 * 63 * 64 * 64;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     ker_transform_cuda<63, 63, 64, 64><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
@@ -1274,9 +1247,9 @@ namespace gpu
 
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
+
     constexpr int resSize1 = 64 * 5 * 5 * 3;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(2, 4);
     back_mat_mul_cuda75<254016, 75, 16257024, 19051200, 4800><<<dimGridConv, dimBlockConv>>>(
@@ -1302,10 +1275,10 @@ namespace gpu
     fos << "time (dk_gemm_d0_Ker) = " << timeKer << "ms\n";
     fos << "time (dk_gemm_d0_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d1_dk_caller(const float *data, const float *ker, float *res)
@@ -1317,9 +1290,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 31 * 31 * 128 * 64;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
     cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
     free(zeroVal);
@@ -1337,9 +1309,8 @@ namespace gpu
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 64 * 31 * 31 * 64 * 5 * 5;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 64; ++b)
@@ -1356,9 +1327,8 @@ namespace gpu
     //cudaDeviceSynchronize();
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 31 * 31 * 64 * 128;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     ker_transform_cuda<31, 31, 64, 128><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
@@ -1371,9 +1341,8 @@ namespace gpu
 
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 64 * 5 * 5 * 128;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(25, 8);
     back_mat_mul_cuda16<61504, 1600, 7872512, 98406400, 204800><<<dimGridConv, dimBlockConv>>>(
@@ -1399,10 +1368,10 @@ namespace gpu
     fos << "time (dk_gemm_d1_Ker) = " << timeKer << "ms\n";
     fos << "time (dk_gemm_d1_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d2_dk_caller(const float *data, const float *ker, float *res)
@@ -1414,9 +1383,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 15 * 15 * 256 * 64;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
     cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
     free(zeroVal);
@@ -1434,9 +1402,8 @@ namespace gpu
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 128 * 15 * 15 * 64 * 5 * 5;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 128; ++b)
@@ -1453,9 +1420,8 @@ namespace gpu
     //cudaDeviceSynchronize();
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 15 * 15 * 64 * 256;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     ker_transform_cuda<15, 15, 64, 256><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
@@ -1468,9 +1434,8 @@ namespace gpu
 
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 256 * 5 * 5 * 128;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(50, 16);
     back_mat_mul_cuda16<14400, 3200, 3686400, 46080000, 819200><<<dimGridConv, dimBlockConv>>>(
@@ -1496,10 +1461,10 @@ namespace gpu
     fos << "time (dk_gemm_d2_Ker) = " << timeKer << "ms\n";
     fos << "time (dk_gemm_d2_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
   void conv2d_d3_dk_caller(const float *data, const float *ker, float *res)
@@ -1511,9 +1476,8 @@ namespace gpu
     cudaEventCreate(&stopKer);
     cudaEventRecord(start, 0);
 
-    dbl_t *paddFullCuda;
     constexpr int paddFullSize = 7 * 7 * 512 * 64;
-    cudaMalloc((void**)&paddFullCuda, sizeof(dbl_t) * paddFullSize);
+    dbl_t *paddFullCuda = tensor_alloc(paddFullSize);
     dbl_t *zeroVal = (dbl_t*)calloc(paddFullSize, sizeof(dbl_t));
     cudaMemcpy(paddFullCuda, zeroVal, sizeof(dbl_t) * paddFullSize, cudaMemcpyHostToDevice);
     free(zeroVal);
@@ -1531,9 +1495,8 @@ namespace gpu
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
 
-    dbl_t *newInputCuda;
     constexpr int newInputSize = 256 * 7 * 7 * 64 * 5 * 5;
-    cudaMalloc((void**)&newInputCuda, sizeof(dbl_t) * newInputSize);
+    dbl_t *newInputCuda = tensor_alloc(newInputSize);
 
     #pragma unroll
     for (int b = 0; b < 256; ++b)
@@ -1550,9 +1513,8 @@ namespace gpu
     //cudaDeviceSynchronize();
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *newKernelCuda;
     constexpr int totalKernelSize = 7 * 7 * 64 * 512;
-    cudaMalloc((void**)&newKernelCuda, sizeof(dbl_t) * totalKernelSize);
+    dbl_t *newKernelCuda = tensor_alloc(totalKernelSize);
     dim3 dimGrid(totalKernelSize / 32);
     dim3 dimBlock(32);
     ker_transform_cuda<7, 7, 64, 512><<<dimGrid, dimBlock>>>(paddFullCuda, newKernelCuda);
@@ -1565,9 +1527,8 @@ namespace gpu
 
     gpuErrchk(cudaPeekAtLastError());
 
-    dbl_t *resConvCuda;
     constexpr int resSize1 = 256 * 5 * 5 * 512;
-    cudaMalloc((void**)&resConvCuda, sizeof(dbl_t) * resSize1);
+    dbl_t *resConvCuda = tensor_alloc(resSize1);
     dim3 dimBlockConv(16, 4);
     dim3 dimGridConv(100, 32);
     back_mat_mul_cuda16<3136, 6400, 1605632, 20070400, 3276800><<<dimGridConv, dimBlockConv>>>(
@@ -1593,10 +1554,10 @@ namespace gpu
     fos << "time (dk_gemm_d3_Ker) = " << timeKer << "ms\n";
     fos << "time (dk_gemm_d3_all) = " << time << "ms\n" << std::endl;
 
-    cudaFree(newKernelCuda);
-    cudaFree(newInputCuda);
-    cudaFree(resConvCuda);
-    cudaFree(paddFullCuda);
+    tensor_free(newKernelCuda);
+    tensor_free(newInputCuda);
+    tensor_free(resConvCuda);
+    tensor_free(paddFullCuda);
   }
 
 }

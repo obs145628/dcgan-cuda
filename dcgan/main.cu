@@ -442,4 +442,6 @@ int main(int argc, char** argv)
     
     delete[] logits_0;
     delete[] logits_1;
+
+    graph.exit_graph();
 }

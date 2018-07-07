@@ -1,5 +1,6 @@
 #include "softmax.hh"
 #include "../runtime/node.hh"
+#include "../memory/alloc.hh"
 
 
 
@@ -340,13 +341,12 @@ namespace gpu
         const dbl_t* x = node->in2;
         dbl_t* out = node->out1;
 
-        dbl_t* tmp;
-        cudaMalloc(&tmp, rows * sizeof(dbl_t));
+        dbl_t* tmp = tensor_alloc(rows);
         softmax_lcost1<<<rows, BLOCK_SIZE>>>(y, x, tmp, rows, cols);
         cudaDeviceSynchronize();
         softmax_reduce<<<1, BLOCK_SIZE>>>(tmp, out, rows);
         cudaDeviceSynchronize();
-        cudaFree(tmp);
+        tensor_free(tmp);
     }
 
     void kernel_softmax_cross_entropy_grad(rt::Node* node)

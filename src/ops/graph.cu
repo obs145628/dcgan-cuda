@@ -34,9 +34,21 @@ namespace ops
 
     Graph::~Graph()
     {
+        exit_graph();
+    }
+
+    void Graph::exit_graph()
+    {
         delete pool_;
+        pool_ = nullptr;
         for (auto x : ops_)
             delete x;
+        ops_.clear();
+        vars_.clear();
+        ops_by_name_.clear();
+        input_shapes_.clear();
+        compiled_ops_.clear();
+        grads_.clear();
     }
 
     const std::vector<Op*>& Graph::ops_list() const

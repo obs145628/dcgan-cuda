@@ -31,8 +31,7 @@
 #include "../src/ops/add.hh"
 
 #define DATASET_LEN (202599) //number of images in the celebA dataset
-#define BATCH (10)
-#define SAMPLE_SIZE (9)
+#define BATCH (64)
 #define Z_DIM (100) //size of the noise input vector to generate image
 #define LEARNING_RATE (0.0002) //adam optimizer learning rate
 #define BETA1 (0.5) //adam optimizer beta1 parameter
@@ -348,16 +347,16 @@ void generate_samples(const std::string& path, ops::Op* g_out, ops::Input* z, db
     bool is_null = !z_data;
     if (z_data == nullptr)
     {
-        dbl_t* z_data = new dbl_t[SAMPLE_SIZE * Z_DIM];
+        dbl_t* z_data = new dbl_t[BATCH * Z_DIM];
         NormalInitializer init(0, 1);
-        for (std::size_t i = 0; i < SAMPLE_SIZE * Z_DIM; ++i)
+        for (std::size_t i = 0; i < BATCH * Z_DIM; ++i)
             z_data[i] = init.next();
     }
     
     graph.run({g_out},
               {{z, {z_data, ops::Shape({SAMPLE_SIZE, Z_DIM})}}},
               {generated});
-    celeba::save_samples(generated, 3, 3, path);
+    celeba::save_samples(generated, 8, 8, path);
 
     delete[] generated;
     if (is_null)
