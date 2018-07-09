@@ -36,9 +36,9 @@ RT_MODE=<mode> ./dcgan
 ```
 
 Options: 
---model <model-file>: load a pretrained model if the file exists, and save the model during training 
---train <epochs>: train the network for several epochs 
---generate <jpg-out-path>: generate a sample of faces and save it to a jpg file
+- --model <model-file>: load a pretrained model if the file exists, and save the model during training
+- --train <epochs>: train the network for several epochs
+- --generate <jpg-out-path>: generate a sample of faces and save it to a jpg file
 
 There is a pretrained model:
 ```shell
