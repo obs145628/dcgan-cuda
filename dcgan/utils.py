@@ -22,7 +22,7 @@ def transform(image):
     return np.array(image).astype(np.float32) /127.5 - 1.
 
 def inverse_transform(images):
-     return (images+1.)/2.
+     return ((images+1.) * 127.5).astype(np.int32)
 
 def imread(path):
     return scipy.misc.imread(path).astype(np.float)

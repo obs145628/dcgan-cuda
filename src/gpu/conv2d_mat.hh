@@ -113,14 +113,6 @@ namespace gpu
             Tensor4<const dbl_t*> tk(k, hk, wk, cx, ck);
             Tensor4<dbl_t*> ty(y, nx, hy, wy, ck);
 
-
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
-
-
             std::size_t rows = ty.d2() * ty.d3() * ty.d4();
             std::size_t cols = ty.d1();
             std::size_t block_size = 32;
@@ -129,13 +121,6 @@ namespace gpu
             std::size_t nb_blocks_y = (cols + block_size - 1) / block_size;
             dim3 blocks_per_grid (nb_blocks_x, nb_blocks_y);
             conv2d_mat<<<blocks_per_grid, threads_per_block>>>(tx, tk, ty, sh, sw);        
-            
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            std::cout << "time (fwd_mat_conv) = " << time << "ms\n" << std::endl;
         }
         
     }

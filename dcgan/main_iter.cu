@@ -347,7 +347,7 @@ void generate_samples(const std::string& path, ops::Op* g_out, ops::Input* z, db
     bool is_null = !z_data;
     if (z_data == nullptr)
     {
-        dbl_t* z_data = new dbl_t[BATCH * Z_DIM];
+        z_data = new dbl_t[BATCH * Z_DIM];
         NormalInitializer init(0, 1);
         for (std::size_t i = 0; i < BATCH * Z_DIM; ++i)
             z_data[i] = init.next();
@@ -457,17 +457,17 @@ int main(int argc, char** argv)
     dbl_t* data_x = reinterpret_cast<dbl_t*>(input.arr()[0].data);
     dbl_t* data_z = reinterpret_cast<dbl_t*>(input.arr()[1].data);
 
-    
+    data_x = celeba::load(1, 65);
 
     for (std::size_t i = 0; i < 1000; ++i)
     {
+
         /*
         dbl_t* data_z = new dbl_t[BATCH * Z_DIM];
         NormalInitializer init(0, 1);
         for (std::size_t i = 0; i < BATCH * Z_DIM; ++i)
             data_z[i] = init.next();
         */
-
 
         generate_samples("sample" + std::to_string(i) + ".jpg", g_out, z, data_z);
         save_weights("weights" + std::to_string(i) + ".tbin", g_vars, d_vars);

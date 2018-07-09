@@ -4,13 +4,12 @@
 #include <stdexcept>
 
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
-inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true)
+inline void gpuAssert(cudaError_t code, const char *file, int line)
 {
    if (code != cudaSuccess) 
    {
-      fprintf(stderr,"GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
-      if (abort)
-          throw std::runtime_error {"Exec it\n"};
+       throw std::runtime_error {"GPUAssert: " + std::string(cudaGetErrorString(code)) + " "
+               + std::string(file) + ":" + std::to_string(line)};
    }
 }
 

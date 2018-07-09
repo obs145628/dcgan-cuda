@@ -36,8 +36,7 @@
 #define BETA1 (0.5) //adam optimizer beta1 parameter
 #define SAMPLE_SIZE (64) //number of images generated when doing sample
 #define SAVE_STEP (1) //generate samples and save model every x iterations (if model path set)
-
-//#define USE_TF_NOZE
+#define DEBUG_MODE (false) //if activated, display informations about runtime computations
 
 int g_strides[] = {2, 2};
 std::size_t g_kernel_size[] = {5, 5};
@@ -275,7 +274,7 @@ int main(int argc, char** argv)
     
 
     auto& graph = ops::Graph::instance();
-    graph.debug_set(true);
+    graph.debug_set(DEBUG_MODE);
     auto& builder = ops::OpsBuilder::instance();
 
     
@@ -341,12 +340,6 @@ int main(int argc, char** argv)
         catch (std::exception&)
         {}
     }
-
-
-    #ifdef USE_TF_NOZE
-    auto tz = tocha::Tensors::load("noze.npz");
-    dbl_t* z_data = reinterpret_cast<dbl_t*>(tz.arr()[0].data);
-    #endif
     
     if (args.has_option("train"))
     {
@@ -356,10 +349,8 @@ int main(int argc, char** argv)
 
         auto rng = std::default_random_engine {};
         
-        #ifndef USE_TF_NOZE
         dbl_t* z_batch = new dbl_t[BATCH * Z_DIM];
         NormalInitializer z_init(0, 1);
-        #endif
         
         int nepochs = std::atoi(args.get_option("train").c_str());
         int niters = DATASET_LEN / BATCH;
@@ -374,12 +365,8 @@ int main(int argc, char** argv)
                 std::vector<std::size_t> idxs_batch(idxs_all.begin() + j * BATCH, idxs_all.begin() + (j + 1) * BATCH);
 
                 dbl_t* x_batch = celeba::load(idxs_batch);
-                #ifdef USE_TF_NOZE
-                dbl_t* z_batch = z_data;
-                #else
                 for (std::size_t i = 0; i < BATCH * Z_DIM; ++i)
                     z_batch[i] = z_init.next();
-                #endif
                 
                 dbl_t d_loss_val;
                 dbl_t g_loss_val;
@@ -403,7 +390,6 @@ int main(int argc, char** argv)
                                   {z, {z_batch, ops::Shape({BATCH, Z_DIM})}}},
                               {nullptr, &g_loss_val});
 
-
                 auto time = date::now() - start;
                 
                 std::cout << "epoch " << i << " [" << j << "/" << niters << "] "
@@ -413,11 +399,11 @@ int main(int argc, char** argv)
                 
                 if ((j + 1) % SAVE_STEP == 0)
                 {
-                    std::string path = "./samples/train_" + std::to_string(i) + "_" + std::to_string(j);
+                    std::string path = "./samples_train_" + std::to_string(i) + "_" + std::to_string(j);
                     generate_samples(path + ".jpg", g_out, z);
-                    graph.save_vars(path + ".tbin");
-                    //if (args.has_option("model"))
-                    //    graph.save_vars(args.get_option("model"));
+                    //graph.save_vars(path + ".tbin");
+                    if (args.has_option("model"))
+                        graph.save_vars(args.get_option("model"));
                 }
                 
                 delete[] x_batch;
@@ -425,19 +411,12 @@ int main(int argc, char** argv)
             
         }
 
-        #ifndef USE_TF_NOZE
-        delete[] z_batch;
-        #endif
-        
+        delete[] z_batch;        
     }    
 
 
     if (args.has_option("generate"))
         generate_samples(args.get_option("generate"), g_out, z);
-
-    
-    //if (args.has_option("model"))
-    //   graph.save_vars(args.get_option("model"));
 
     
     delete[] logits_0;

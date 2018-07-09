@@ -1,5 +1,4 @@
 #include "../runtime/node.hh"
-#include <iostream>
 
 #include "conv2d_access.hh"
 #include "conv2d_mat.hh"
@@ -41,18 +40,18 @@ namespace gpu
 
 
         if (nx == 64 && hx == 64 && wx == 64 && cx == 3)
-          conv2d_d0_caller(x, k, y);
+            conv2d_d0_caller(x, k, y);
         else if (nx == 64 && hx == 32 && wx == 32 && cx == 64)
-          conv2d_d1_caller(x, k, y);
+            conv2d_d1_caller(x, k, y);
         else if (nx == 64 && hx == 16 && wx == 16 && cx == 128)
-          conv2d_d2_caller(x, k, y);
+            conv2d_d2_caller(x, k, y);
         else if (nx == 64 && hx == 8 && wx == 8 && cx == 256)
-          conv2d_d3_caller(x, k, y);
+            conv2d_d3_caller(x, k, y);
         else
-          conv2d_fwd_shared2(
-          //conv2d_fwd_shared1(
-          //conv2d_fwd_naive(
-          //conv2d_fwd_mat(
+            //conv2d_fwd_shared2(
+            //conv2d_fwd_shared1(
+            conv2d_fwd_naive(
+            //conv2d_fwd_mat(
             x, k, y,
             nx, hx, wx, cx,
             pad_top, pad_left, pad_bot, pad_right,

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <fstream>
 #include "conv2d_traits.hh"
 
 namespace gpu
@@ -488,35 +487,15 @@ namespace gpu
                                 std::size_t hy, std::size_t wy,
                                 std::size_t sh, std::size_t sw)
         {   
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
 
-
-            int ntimes = 1;
-            for (int i = 0; i < ntimes; ++i)
-            {
-                if (hy == 32)
-                    call_conv2d_fwd<32, 3, 64, 1>(x, k, y, nx);
-                else if (hy == 16)
-                    call_conv2d_fwd<16, 64, 128, 4>(x, k, y, nx);
-                else if (hy == 8)
-                    call_conv2d_fwd<8, 128, 256, 16>(x, k, y, nx);
-                else if (hy == 4)
-                    call_conv2d_fwd<4, 256, 512, 32>(x, k, y, nx);
-            }
-
-            
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            //time /= ntimes;
-            //std::ofstream fos("time.log", std::ios::app);
-            //fos << "time (fwd_shared2) = " << time << "ms\n" << std::endl;
+            if (hy == 32)
+                call_conv2d_fwd<32, 3, 64, 1>(x, k, y, nx);
+            else if (hy == 16)
+                call_conv2d_fwd<16, 64, 128, 4>(x, k, y, nx);
+            else if (hy == 8)
+                call_conv2d_fwd<8, 128, 256, 16>(x, k, y, nx);
+            else if (hy == 4)
+                call_conv2d_fwd<4, 256, 512, 32>(x, k, y, nx);
         }
         
     }

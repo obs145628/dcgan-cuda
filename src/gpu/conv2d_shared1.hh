@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fstream>
-
 namespace gpu
 {
 
@@ -292,13 +290,6 @@ namespace gpu
             Tensor4<const dbl_t*> tk(k, hk, wk, cx, ck);
             Tensor4<dbl_t*> ty(y, nx, hy, wy, ck);
 
-            
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
-
             constexpr std::size_t block_size = 8;
             constexpr std::size_t kernel_size = 5;
             constexpr std::size_t stride_size = 2;
@@ -317,25 +308,11 @@ namespace gpu
             using T3 = decltype(ty);
 
 
-            int ntimes = 100;        
-            for (int i = 0; i < ntimes; ++i)
             conv2d_shared1<T1, T2, T3,
                            block_size,
                            kernel_size,
                            stride_size><<<blocks_per_grid, threads_per_block>>>(tx, tk, ty,
                                                                                nb_sub_x, nb_sub_y);
-            
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            
-            fos << "time (fwd_shared1) = " << time << "ms\n" << std::endl;
-            
         }
         
     }

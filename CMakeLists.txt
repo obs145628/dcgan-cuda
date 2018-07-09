@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(dcgan-cuda LANGUAGES CXX CUDA)
 
-set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS};)
+set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS}; -std=c++11)
 
-set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++17 -fPIC")
-#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++14 -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS "-pthread -O0 -g3 -Wall -Wextra -Werror -std=c++11 -fPIC")
+#set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -std=c++11 -O3 -DNDEBUG")
 
 include_directories(ext/tocha/include)
 find_package(ZLIB REQUIRED)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fstream>
-
 namespace gpu
 {
 
@@ -62,28 +60,9 @@ namespace gpu
             Tensor4<const dbl_t*> tk(k, hk, wk, cx, ck);
             Tensor4<dbl_t*> ty(y, nx, hy, wy, ck);
 
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
-
             std::size_t len = ty.size();
             std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
-            std::cout << "nb blocks = " << nb_blocks << std::endl;
-
-            int ntimes = 100;     
-            for (int i = 0; i < ntimes; ++i)
             conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tx, tk, ty, sh, sw);
-
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            fos << "time (fwd_naive) = " << time << "ms\n" << std::endl;
         }
 
 
@@ -102,31 +81,11 @@ namespace gpu
                                           sh - 1, sw - 1);
             Tensor4Pad<float*> tdx(dx, nx, hx, wx, cx,
                                    pad_top, pad_left, pad_right, pad_bot);
-            
-
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
 
             std::size_t len = tdx.size();
             std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
-            //std::cout << "nb blocks = " << nb_blocks << std::endl;
 
-            int ntimes = 1;     
-            for (int i = 0; i < ntimes; ++i)
-                conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tdy, tk, tdx, 1, 1);
-
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            fos << "time (dx_naive) = " << time << "ms\n" << std::endl;
-            
+            conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tdy, tk, tdx, 1, 1);
         }
 
          void conv2d_dk_naive(const dbl_t* x, const dbl_t* dy, dbl_t* dk,
@@ -142,30 +101,9 @@ namespace gpu
             Tensor4DkDy<const float*> tdy(dy, nx, hy, wy, ck, sh - 1, sw - 1);
             Tensor4Tr3124<float*> tdk(dk, hk, wk, cx, ck);
 
-
-            cudaEvent_t start;
-            cudaEvent_t stop;
-            cudaEventCreate(&start);
-            cudaEventCreate(&stop);
-            cudaEventRecord(start, 0);
-
             std::size_t len = tdk.size();
             std::size_t nb_blocks = (len + BLOCK_SIZE - 1) / BLOCK_SIZE;
-            //std::cout << "nb blocks = " << nb_blocks << std::endl;
-
-            int ntimes = 1;
-            for (int i = 0; i < ntimes; ++i)
-                conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tx, tdy, tdk, 1, 1);
-
-            cudaEventRecord(stop, 0);
-            cudaEventSynchronize(stop);
-            float time;
-            cudaEventElapsedTime(&time, start, stop);
-
-            time /= ntimes;
-            std::ofstream fos("time.log", std::ios::app);
-            fos << "time (dk_naive) = " << time << "ms\n" << std::endl;
-
+            conv2d_naive<<<nb_blocks, BLOCK_SIZE>>>(tx, tdy, tdk, 1, 1);
         }
     }
     

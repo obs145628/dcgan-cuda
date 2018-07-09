@@ -2,6 +2,12 @@
 
 Implementation of a DCGAN to generates faces, trained with the celebA dataset.
 
+## Requirements
+For the CUDA version, you need:
+- GCC 8.0 or later
+- Cuda 9.2
+- At least 2.4GB of memory (GPU)
+
 ## Build
 
 You need to download the celebA dataset. (next section)
@@ -32,7 +38,12 @@ RT_MODE=<mode> ./dcgan
 Options: 
 --model <model-file>: load a pretrained model if the file exists, and save the model during training 
 --train <epochs>: train the network for several epochs 
---generate <jpg-out-path>: generate a sample of faces and save it to a jpg file 
+--generate <jpg-out-path>: generate a sample of faces and save it to a jpg file
+
+There is a pretrained model:
+```shell
+RT_MODE=GPU ./dcgan --generate visages.jpg --model ../models/pretained.tbin
+```
 
 
 ## Modes
