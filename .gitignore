@@ -134,6 +134,7 @@ _build/
 __pycache__/
 /models/
 /celebA/
+/celeba_norm/
 /gan_tf/samples/
 
 ### Visual Code ###

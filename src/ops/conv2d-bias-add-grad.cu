@@ -9,8 +9,7 @@ namespace ops
 
     Conv2DBiasAddGrad::Conv2DBiasAddGrad(Op* dz)
         : Op("conv2d_bias_add_grad",
-              Shape({dz->shape_get()[0], dz->shape_get()[1],
-                    dz->shape_get()[2], dz->shape_get()[3]}),
+             Shape({dz->shape_get()[3]}),
              {dz})
     {}
 

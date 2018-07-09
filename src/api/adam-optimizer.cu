@@ -21,11 +21,13 @@ AdamOptimizer::AdamOptimizer(dbl_t learning_rate,
     , eps_(epsilon)
 {}
 
-ops::Op* AdamOptimizer::minimize(ops::Op* loss)
+ops::Op* AdamOptimizer::minimize(ops::Op* loss, const std::vector<ops::Variable*>& pvars)
 {
     auto& graph = ops::Graph::instance();
     auto& builder = ops::OpsBuilder::instance();
-    auto vars = graph.train_vars_get(loss);
+    auto vars = pvars;
+    if (vars.empty())
+        vars = graph.train_vars_get(loss);
 
     std::vector<ops::Op*> updates;
 
@@ -33,7 +35,7 @@ ops::Op* AdamOptimizer::minimize(ops::Op* loss)
     {
         auto v_grad = graph.gradient(loss, v);
         v_grad->extend_name("adam_grad");
-
+        
         auto v_dm = builder.variable(v->shape_get(), false);
         v_dm->extend_name("adam_m");
         tensor_fill(v_dm->data_begin(), v_dm->data_end(), 0);

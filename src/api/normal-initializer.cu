@@ -1,9 +1,11 @@
 #include "normal-initializer.hh"
 #include "../memory/mode.hh"
 #include "../memory/copy.hh"
+#include "../utils/date.hh"
 
 NormalInitializer::NormalInitializer(dbl_t mean, dbl_t sd)
-    : dist_(mean, sd)
+    : engine_(date::now())
+    , dist_(mean, sd)
 {}
 
 void NormalInitializer::fill(dbl_t* begin, dbl_t* end)
@@ -19,11 +21,16 @@ void NormalInitializer::fill(dbl_t* begin, dbl_t* end)
     }
 
     for (auto it = begin; it != end; ++it)
-        *it = dist_(engine_);
+        *it = next();
 
     if (program_mode() == ProgramMode::GPU)
     {
         tensor_write(tbegin, tend, begin);
         delete[] begin;
     }
+}
+
+dbl_t NormalInitializer::next()
+{
+    return dist_(engine_);
 }

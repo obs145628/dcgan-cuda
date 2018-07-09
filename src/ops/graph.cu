@@ -1,6 +1,7 @@
 #include "graph.hh"
-#include "op.hh"
 #include <cassert>
+#include <tocha/tensor.hh>
+#include "op.hh"
 #include "../cpu/runner.hh"
 #include "../cpu/thread-pool-runner.hh"
 #include "../memory/copy.hh"
@@ -33,9 +34,21 @@ namespace ops
 
     Graph::~Graph()
     {
+        exit_graph();
+    }
+
+    void Graph::exit_graph()
+    {
         delete pool_;
+        pool_ = nullptr;
         for (auto x : ops_)
             delete x;
+        ops_.clear();
+        vars_.clear();
+        ops_by_name_.clear();
+        input_shapes_.clear();
+        compiled_ops_.clear();
+        grads_.clear();
     }
 
     const std::vector<Op*>& Graph::ops_list() const
@@ -124,12 +137,8 @@ namespace ops
         
 
         //set inut values
-        int i = 0;
         for (auto x : inputs)
         {
-            std::cout << compiled_ops_.size() << std::endl;
-            std::cout << i << " = > " << x.first << std::endl;
-            ++i;
             auto it = compiled_ops_.find(x.first);
             assert(it != compiled_ops_.end());
             auto dst = it->second.out_data;
@@ -292,7 +301,6 @@ namespace ops
          */
         if (var->preds_of(out).size() > 1)
         {
-            std::cout << "[GRAD_MIX]  = " << out->preds().size() << std::endl;
             ops::Op* left_grad = gradient(out->preds()[0], var);
             ops::Op* right_grad = gradient(out->preds()[1], var);
             ops::Op* grad = OpsBuilder::instance().add(left_grad, right_grad);
@@ -313,6 +321,43 @@ namespace ops
         vari = succ->pred_index(var);
         assert(vari != std::size_t(-1));
         return succ->child_grad(vari, succ_grad);
+    }
+
+    void Graph::save_vars(const std::string& path)
+    {
+        tocha::Tensors res;
+        auto tvars = train_vars_get(nullptr);
+        
+        for (auto v : tvars)
+        {
+            const auto& shape = v->shape_get();
+            if (shape.ndims() == 1)
+                res.add(tocha::Tensor::f32(shape[0]));
+            else if (shape.ndims() == 2)
+                res.add(tocha::Tensor::f32(shape[0], shape[1]));
+            else if (shape.ndims() == 3)
+                res.add(tocha::Tensor::f32(shape[0], shape[1], shape[2]));
+            else if (shape.ndims() == 4)
+                res.add(tocha::Tensor::f32(shape[0], shape[1], shape[2], shape[3]));
+
+            dbl_t* data = reinterpret_cast<dbl_t*>(res.arr().back().data);
+            tensor_read(v->data_begin(), v->data_end(), data);
+        }
+
+        res.save(path);
+    }
+
+    void Graph::load_vars(const std::string& path)
+    {
+        auto ts = tocha::Tensors::load(path);
+        auto tvars = train_vars_get(nullptr);
+        
+        for (std::size_t i = 0; i < tvars.size(); ++i)
+        {
+            auto data = reinterpret_cast<dbl_t*>(ts.arr()[i].data);
+            auto v = tvars[i];
+            tensor_write(v->data_begin(), v->data_end(), data);
+        }
     }
 
 }

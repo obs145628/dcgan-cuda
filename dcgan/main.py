@@ -1,29 +1,26 @@
 import os
+import glob
 import sys
+import utils
+import random
+import time
 
 import numpy as np
 import tensorflow as tf
 import gen_mnist
 import tensors_saver
 
-BATCH = 10
-Z_DIM = 100
+EPOCHS = 25 #number of training epochs
+LEARNING_RATE = 0.0002 #adam optimizer learning rate
+BETA1 = 0.5 #adam optimizer beta1 parameter
+BATCH_SIZE = 64 #number of inputs per batch
+SAMPLE_SIZE = 64 #number of samples generated
+SAMPLE_STEP = 10 #interval of steps between each sample generation
+SAMPLE_DIR = 'samples2' #folder where the samples are saved
+Z_DIM = 100 #size of the noise input vector to generate image
 
-WEIGHTS_PATH = sys.argv[1]
-tensors_saver.set_out_path(sys.argv[2])
-new_weights = tensors_saver.Saver(WEIGHTS_PATH)
-
-DATA_PATH = sys.argv[3]
-celeba = np.load(DATA_PATH)
-imgs = celeba['obj_000000']
-
-
-imgs = np.ravel(imgs)
-imgs1 = imgs[:BATCH*Z_DIM]
-imgs1 = imgs1.reshape(BATCH, Z_DIM)
-
-imgs2 = imgs[:BATCH*64*64*3]
-imgs2 = imgs2.reshape(BATCH, 64, 64, 3)
+data_files = glob.glob(os.path.join("../celeba_norm", "*.jpg"))
+os.makedirs(SAMPLE_DIR, exist_ok=True)
 
 def generator(X, reuse=False):
 
@@ -123,91 +120,74 @@ d2_loss = tf.reduce_mean(
                                                 logits=d2_logits))
 d_loss = d1_loss + d2_loss
 
+g_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='generator')
+d_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='discriminator')
+
+# optimizers for updating discriminator and generator
+d_opti = tf.train.AdamOptimizer(LEARNING_RATE, beta1=BETA1).minimize(d_loss, var_list=d_vars)
+g_opti = tf.train.AdamOptimizer(LEARNING_RATE, beta1=BETA1).minimize(g_loss, var_list=g_vars)
+
 
 sess = tf.Session()
 init = tf.global_variables_initializer()
 sess.run(init)
 
-l0_tf, l1_tf, l2_tf, l3_tf, logits_tf, out_tf, loss_tf = sess.run([g_nodes[0], g_nodes[1], g_nodes[2], g_nodes[3], g_logits, g_out, g_loss], feed_dict={z: imgs1})
+def save_net(path):
+    wi = tensors_saver.Saver(path)
+    wi.add(sess.run(g_weights[0]))
+    wi.add(sess.run(g_weights[1]))
+    wi.add(sess.run(g_weights[2]))
+    wi.add(sess.run(g_weights[3]))
+    wi.add(sess.run(g_weights[4]))
+    wi.add(sess.run(g_weights[5]))
+    wi.add(sess.run(g_weights[6]))
+    wi.add(sess.run(g_weights[7]))
+    wi.add(sess.run(g_weights[8]))
+    wi.add(sess.run(g_weights[9]))
+    wi.add(sess.run(d1_weights[0]))
+    wi.add(sess.run(d1_weights[1]))
+    wi.add(sess.run(d1_weights[2]))
+    wi.add(sess.run(d1_weights[3]))
+    wi.add(sess.run(d1_weights[4]))
+    wi.add(sess.run(d1_weights[5]))
+    wi.add(sess.run(d1_weights[6]))
+    wi.add(sess.run(d1_weights[7]))
+    wi.add(sess.run(d1_weights[8]))
+    wi.add(sess.run(d1_weights[9]))
+    wi.save()
 
-tensors_saver.add(l0_tf)
-tensors_saver.add(l1_tf)
-tensors_saver.add(l2_tf)
-tensors_saver.add(l3_tf)
-tensors_saver.add(logits_tf)
-tensors_saver.add(out_tf)
 
-tensors_saver.add(sess.run(d1_nodes[0], feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(d1_nodes[1], feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(d1_nodes[2], feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(d1_nodes[3], feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(d1_logits, feed_dict={z:imgs1}))
+sample_seed = np.random.normal(loc=0.0, scale=1.0, size=(SAMPLE_SIZE, Z_DIM)).astype(np.float32)
 
-tensors_saver.add(loss_tf)
+sse = tensors_saver.Saver("noze.npz")
+sse.add(sample_seed)
+sse.save()
 
+# Training 
+i = 0
+for epoch in range(EPOCHS):
+    random.shuffle(data_files)
+    batch_idxs = len(data_files) // BATCH_SIZE
 
-g_dw0 = tf.gradients(g_loss, g_weights[0])[0]
-g_db0 = tf.gradients(g_loss, g_weights[1])[0]
-g_dw1 = tf.gradients(g_loss, g_weights[2])[0]
-g_db1 = tf.gradients(g_loss, g_weights[3])[0]
-g_dw2 = tf.gradients(g_loss, g_weights[4])[0]
-g_db2 = tf.gradients(g_loss, g_weights[5])[0]
-g_dw3 = tf.gradients(g_loss, g_weights[6])[0]
-g_db3 = tf.gradients(g_loss, g_weights[7])[0]
-g_dw4 = tf.gradients(g_loss, g_weights[8])[0]
-g_db4 = tf.gradients(g_loss, g_weights[9])[0]
+    for idx in range(0, batch_idxs):
+        batch_files = data_files[idx*BATCH_SIZE:(idx+1)*BATCH_SIZE]
+        batch = [utils.get_image(f) for f in batch_files]
+        batch_images = np.array(batch).astype(np.float32)
+        batch_z = np.random.normal(loc=0.0, scale=1.0,
+                                       size=(SAMPLE_SIZE, Z_DIM)).astype(np.float32)
+        start_time = time.time()
 
-d1_dw0 = tf.gradients(d_loss, d1_weights[0])[0]
-d1_db0 = tf.gradients(d_loss, d1_weights[1])[0]
-d1_dw1 = tf.gradients(d_loss, d1_weights[2])[0]
-d1_db1 = tf.gradients(d_loss, d1_weights[3])[0]
-d1_dw2 = tf.gradients(d_loss, d1_weights[4])[0]
-d1_db2 = tf.gradients(d_loss, d1_weights[5])[0]
-d1_dw3 = tf.gradients(d_loss, d1_weights[6])[0]
-d1_db3 = tf.gradients(d_loss, d1_weights[7])[0]
-d1_dw4 = tf.gradients(d_loss, d1_weights[8])[0]
-d1_db4 = tf.gradients(d_loss, d1_weights[9])[0]
+        # updates the discriminator
+        errD, _ = sess.run([d_loss, d_opti], feed_dict={z: batch_z, X: batch_images })
+        for _ in range(2):
+            errG, _ = sess.run([g_loss, g_opti], feed_dict={z: batch_z})
+        print("Epoch %2d: [%4d/%4d] time: %4.4f, d_loss: %.8f, g_loss: %.8f" \
+              % (epoch, idx, batch_idxs, time.time() - start_time, errD, errG))
 
-tensors_saver.add(sess.run(g_dw0, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_db0, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_dw1, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_db1, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_dw2, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_db2, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_dw3, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_db3, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_dw4, feed_dict={z:imgs1}))
-tensors_saver.add(sess.run(g_db4, feed_dict={z:imgs1}))
-
-tensors_saver.add(sess.run(d1_dw0, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_db0, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_dw1, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_db1, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_dw2, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_db2, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_dw3, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_db3, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_dw4, feed_dict={z:imgs1, X:imgs2}))
-tensors_saver.add(sess.run(d1_db4, feed_dict={z:imgs1, X:imgs2}))
-
-new_weights.add(sess.run(g_weights[0]))
-new_weights.add(sess.run(g_weights[1]))
-new_weights.add(sess.run(g_weights[2]))
-new_weights.add(sess.run(g_weights[3]))
-new_weights.add(sess.run(g_weights[4]))
-new_weights.add(sess.run(g_weights[5]))
-new_weights.add(sess.run(g_weights[6]))
-new_weights.add(sess.run(g_weights[7]))
-new_weights.add(sess.run(g_weights[8]))
-new_weights.add(sess.run(g_weights[9]))
-new_weights.add(sess.run(d1_weights[0]))
-new_weights.add(sess.run(d1_weights[1]))
-new_weights.add(sess.run(d1_weights[2]))
-new_weights.add(sess.run(d1_weights[3]))
-new_weights.add(sess.run(d1_weights[4]))
-new_weights.add(sess.run(d1_weights[5]))
-new_weights.add(sess.run(d1_weights[6]))
-new_weights.add(sess.run(d1_weights[7]))
-new_weights.add(sess.run(d1_weights[8]))
-new_weights.add(sess.run(d1_weights[9]))
-new_weights.save()
+        i += 1
+        if i % SAMPLE_STEP == 0:
+            img = sess.run(g_out, feed_dict={z : sample_seed})
+            utils.save_images(img, [8, 8],
+                              './{}/train_{:02d}_{:04d}.png'.format(SAMPLE_DIR, epoch, idx))
+            #save_net('./{}/train_{:02d}_{:04d}.npz'.format(SAMPLE_DIR, epoch, idx))
+            print('sample generated')

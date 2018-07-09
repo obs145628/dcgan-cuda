@@ -1,4 +1,5 @@
 set(SRC
+  arguments.cu
   date.cu
   dot-graph.cu
   dot-tree.cu
